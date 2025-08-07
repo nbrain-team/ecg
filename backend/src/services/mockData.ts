@@ -29,7 +29,7 @@ export const destinations: Destination[] = [
       rainyMonths: ['August', 'September'],
       bestMonths: ['November', 'December', 'January', 'February', 'March', 'April']
     },
-    imageUrl: 'https://images.unsplash.com/photo-1558212628-ad3c3ff77558?w=1200',
+    imageUrl: 'https://images.unsplash.com/photo-1558212628-ad3c3ff77558?auto=format&fit=crop&w=1200&q=80',
     flightInfo: {
       majorAirports: ['SJD - Los Cabos International'],
       avgFlightTime: '2.5 hours from major US cities'
@@ -53,35 +53,35 @@ export const destinations: Destination[] = [
     weatherInfo: {
       avgTemp: 81,
       rainyMonths: ['November', 'December', 'January'],
-      bestMonths: ['April', 'May', 'September', 'October']
+      bestMonths: ['April', 'May', 'June', 'September', 'October']
     },
-    imageUrl: 'https://images.unsplash.com/photo-1542259009477-d625272157b7?w=1200',
+    imageUrl: 'https://images.unsplash.com/photo-1542259009477-d625272157b7?auto=format&fit=crop&w=1200&q=80',
     flightInfo: {
       majorAirports: ['OGG - Kahului Airport'],
-      avgFlightTime: '5 hours from West Coast'
+      avgFlightTime: '5.5 hours from West Coast'
     }
   },
   {
     id: 'dest-3',
     name: 'Nassau',
     country: 'Bahamas',
-    description: 'Caribbean luxury and crystal-clear waters',
+    description: 'Caribbean charm with British colonial heritage',
     currency: 'BSD',
     timezone: 'EST',
     climate: 'Tropical',
     highlights: [
+      'Crystal clear waters',
+      'World-famous Atlantis Resort',
       'Swimming with dolphins',
-      'Atlantis Paradise Island',
-      'Pink sand beaches',
-      'World-class diving',
-      'Historic downtown'
+      'Historic downtown',
+      'Paradise Island'
     ],
     weatherInfo: {
-      avgTemp: 79,
+      avgTemp: 82,
       rainyMonths: ['June', 'July', 'August', 'September'],
       bestMonths: ['December', 'January', 'February', 'March', 'April']
     },
-    imageUrl: 'https://images.unsplash.com/photo-1548574505-5e239809ee19?w=1200',
+    imageUrl: 'https://images.unsplash.com/photo-1548574505-5e239809ee19?auto=format&fit=crop&w=1200&q=80',
     flightInfo: {
       majorAirports: ['NAS - Lynden Pindling International'],
       avgFlightTime: '3 hours from East Coast'
@@ -100,8 +100,8 @@ export const resorts: Resort[] = [
     amenities: ['Spa', 'Golf', 'Beach Club', 'Fitness Center', 'Kids Club'],
     rating: 5,
     images: [
-      'https://images.unsplash.com/photo-1582719508461-905c673771fd?w=1200',
-      'https://images.unsplash.com/photo-1571896349842-33c89424de2d?w=1200'
+      'https://images.unsplash.com/photo-1582719508461-905c673771fd?auto=format&fit=crop&w=1200&q=80',
+      'https://images.unsplash.com/photo-1571896349842-33c89424de2d?auto=format&fit=crop&w=1200&q=80'
     ],
     features: [
       '24-hour concierge',
@@ -120,8 +120,8 @@ export const resorts: Resort[] = [
     amenities: ['Multiple Pools', 'Golf', 'Water Sports', 'Spa', 'Tennis'],
     rating: 5,
     images: [
-      'https://images.unsplash.com/photo-1566073771259-6a8506099945?w=1200',
-      'https://images.unsplash.com/photo-1551882547-ff40c63fe5fa?w=1200'
+      'https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=1200&q=80',
+      'https://images.unsplash.com/photo-1551882547-ff40c63fe5fa?auto=format&fit=crop&w=1200&q=80'
     ],
     features: [
       'Swimmable beach',

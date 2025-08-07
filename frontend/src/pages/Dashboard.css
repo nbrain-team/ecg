@@ -16,28 +16,38 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
+  flex-wrap: wrap;
+  gap: 1rem;
+  min-height: 50px;
 }
 
 .header-left {
   display: flex;
   align-items: center;
   gap: 1.5rem;
+  flex: 1;
+  min-width: 0;
 }
 
 .header-left h1 {
   color: var(--primary-color);
   font-size: 1.75rem;
   margin: 0;
+  white-space: nowrap;
 }
 
 .welcome-text {
   color: var(--gray-color);
   font-size: 0.95rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .header-right {
   display: flex;
   gap: 1rem;
+  flex-shrink: 0;
 }
 
 .header-right .btn {
@@ -211,6 +221,25 @@
 .proposal-actions .btn-danger {
   flex: 0 0 auto;
   padding: 0.5rem 0.75rem;
+}
+
+@media (max-width: 968px) {
+  .header-content {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 1rem;
+  }
+  
+  .header-left {
+    flex-direction: column;
+    text-align: center;
+    align-items: center;
+    gap: 0.5rem;
+  }
+  
+  .header-right {
+    justify-content: center;
+  }
 }
 
 @media (max-width: 768px) {

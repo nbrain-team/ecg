@@ -84,6 +84,11 @@ function ProposalBuilder() {
 
   const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:5000';
 
+  // Image error handler
+  const handleImageError = (e: React.SyntheticEvent<HTMLImageElement>) => {
+    e.currentTarget.src = 'https://via.placeholder.com/400x250?text=Image+Not+Available';
+  };
+
   useEffect(() => {
     fetchDestinations();
   }, []);
@@ -359,7 +364,11 @@ function ProposalBuilder() {
                   className={`selection-card ${formData.destinationId === dest.id ? 'selected' : ''}`}
                   onClick={() => updateFormData('destinationId', dest.id)}
                 >
-                  <img src={dest.imageUrl} alt={dest.name} />
+                  <img 
+                    src={dest.imageUrl} 
+                    alt={dest.name}
+                    onError={handleImageError}
+                  />
                   <div className="card-content">
                     <h3>{dest.name}</h3>
                     <p className="country">{dest.country}</p>
@@ -390,7 +399,11 @@ function ProposalBuilder() {
                   className={`selection-card ${formData.resortId === resort.id ? 'selected' : ''}`}
                   onClick={() => updateFormData('resortId', resort.id)}
                 >
-                  <img src={resort.images[0]} alt={resort.name} />
+                  <img 
+                    src={resort.images[0]} 
+                    alt={resort.name}
+                    onError={handleImageError}
+                  />
                   <div className="card-content">
                     <h3>{resort.name}</h3>
                     <p className="price-range">{resort.priceRange}</p>
@@ -421,7 +434,11 @@ function ProposalBuilder() {
                   className={`selection-card ${formData.roomTypeIds.includes(room.id) ? 'selected' : ''}`}
                   onClick={() => toggleArrayItem('roomTypeIds', room.id)}
                 >
-                  <img src={room.images[0]} alt={room.name} />
+                  <img 
+                    src={room.images[0]} 
+                    alt={room.name}
+                    onError={handleImageError}
+                  />
                   <div className="card-content">
                     <h3>{room.name}</h3>
                     <p className="room-info">{room.size} • {room.view} View</p>
@@ -448,7 +465,11 @@ function ProposalBuilder() {
                   className={`selection-card ${formData.eventSpaceIds.includes(space.id) ? 'selected' : ''}`}
                   onClick={() => toggleArrayItem('eventSpaceIds', space.id)}
                 >
-                  <img src={space.imageUrl} alt={space.name} />
+                  <img 
+                    src={space.imageUrl} 
+                    alt={space.name}
+                    onError={handleImageError}
+                  />
                   <div className="card-content">
                     <h3>{space.name}</h3>
                     <p className="capacity">Capacity: {space.capacity} guests</p>
@@ -479,7 +500,11 @@ function ProposalBuilder() {
                   className={`selection-card ${formData.diningIds.includes(dining.id) ? 'selected' : ''}`}
                   onClick={() => toggleArrayItem('diningIds', dining.id)}
                 >
-                  <img src={dining.imageUrl} alt={dining.name} />
+                  <img 
+                    src={dining.imageUrl} 
+                    alt={dining.name}
+                    onError={handleImageError}
+                  />
                   <div className="card-content">
                     <h3>{dining.name}</h3>
                     <p className="cuisine">{dining.cuisine} Cuisine</p>
