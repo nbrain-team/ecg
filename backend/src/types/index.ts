@@ -47,7 +47,27 @@ export interface Resort {
   rating: number;
   images: string[];
   features: string[];
-  priceRange: '$' | '$$' | '$$$' | '$$$$';
+  priceRange: string;
+  vendorRating?: {
+    overall: number;
+    service: number;
+    facilities: number;
+    foodQuality: number;
+    eventExecution: number;
+    reviews: number;
+  };
+  beachInfo?: {
+    type: string;
+    size: string;
+    waterActivities: string[];
+  };
+  spaInfo?: {
+    name: string;
+    treatments: number;
+    size: string;
+  };
+  restaurantCount?: number;
+  restaurants?: string[];
 }
 
 export interface RoomType {

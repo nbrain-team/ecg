@@ -110,7 +110,33 @@ export const resorts: Resort[] = [
       'World-class spa',
       'Championship golf'
     ],
-    priceRange: '$$$$'
+    priceRange: '$$$$',
+    vendorRating: {
+      overall: 4.8,
+      service: 4.9,
+      facilities: 4.7,
+      foodQuality: 4.8,
+      eventExecution: 4.9,
+      reviews: 127
+    },
+    beachInfo: {
+      type: 'Private Beach',
+      size: '1000 meters',
+      waterActivities: ['Snorkeling', 'Kayaking', 'Paddleboarding', 'Jet Skiing']
+    },
+    spaInfo: {
+      name: 'Waldorf Astoria Spa',
+      treatments: 50,
+      size: '12,000 sq ft'
+    },
+    restaurantCount: 5,
+    restaurants: [
+      'El Farallon - Cliffside Seafood',
+      'Don Manuel\'s - Mexican Cuisine',
+      'Crudo Bar - Sushi & Raw Bar',
+      'Beach Club - Casual Dining',
+      'Peacock Alley - Lobby Bar'
+    ]
   },
   {
     id: 'resort-2',
@@ -130,7 +156,32 @@ export const resorts: Resort[] = [
       'Sea safari adventures',
       'Tequila tasting room'
     ],
-    priceRange: '$$$$'
+    priceRange: '$$$$',
+    vendorRating: {
+      overall: 4.7,
+      service: 4.8,
+      facilities: 4.6,
+      foodQuality: 4.7,
+      eventExecution: 4.8,
+      reviews: 89
+    },
+    beachInfo: {
+      type: 'Swimmable Beach',
+      size: '800 meters',
+      waterActivities: ['Swimming', 'Snorkeling', 'Stand-up Paddleboarding', 'Sailing']
+    },
+    spaInfo: {
+      name: 'Four Seasons Spa',
+      treatments: 40,
+      size: '10,000 sq ft'
+    },
+    restaurantCount: 4,
+    restaurants: [
+      'Estiatorio Milos - Mediterranean',
+      'Seta - Poolside Dining',
+      'Bella California - Italian',
+      'Tres Sirenas - Beach Bar'
+    ]
   },
   // Maui Resorts
   {

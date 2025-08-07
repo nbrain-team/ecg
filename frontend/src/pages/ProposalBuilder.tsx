@@ -17,6 +17,8 @@ interface FormData {
   startDate: string;
   endDate: string;
   attendeeCount: number;
+  roomsNeeded: number;
+  hotelRating: '5-star' | '4-star' | '';
   
   // Step 3-8: IDs for selections
   destinationId: string;
@@ -26,7 +28,32 @@ interface FormData {
   diningIds: string[];
   flightRouteIds: string[];
   
-  // Step 9: Branding
+  // Step 6: Event Space Details
+  spaceSetups: {
+    banquet: boolean;
+    theater: boolean;
+    halfCrescent: boolean;
+    reception: boolean;
+  };
+  stageSize: string;
+  
+  // Step 9: Program Inclusions
+  programInclusions: {
+    airportTransfers: boolean;
+    welcomeReception: boolean;
+    businessMeeting: boolean;
+    awardDinner: boolean;
+    activityOptions: boolean;
+    offSiteVenues: boolean;
+    offSiteRestaurants: boolean;
+    dineArounds: boolean;
+    finalNightDinner: boolean;
+    teamBuilding: boolean;
+    danceBand: boolean;
+    decorIdeas: boolean;
+  };
+  
+  // Step 10: Branding
   primaryColor: string;
   secondaryColor: string;
   theme: 'modern' | 'classic' | 'vibrant' | 'minimal';
@@ -42,7 +69,8 @@ const STEPS = [
   { number: 6, title: 'Event Spaces', icon: Users },
   { number: 7, title: 'Dining Options', icon: Utensils },
   { number: 8, title: 'Travel & Flights', icon: Plane },
-  { number: 9, title: 'Branding & Review', icon: Palette }
+  { number: 9, title: 'Program Inclusions', icon: Check },
+  { number: 10, title: 'Branding & Review', icon: Palette }
 ];
 
 function ProposalBuilder() {
@@ -70,12 +98,35 @@ function ProposalBuilder() {
     startDate: '',
     endDate: '',
     attendeeCount: 50,
+    roomsNeeded: 25,
+    hotelRating: '',
     destinationId: '',
     resortId: '',
     roomTypeIds: [],
     eventSpaceIds: [],
     diningIds: [],
     flightRouteIds: [],
+    spaceSetups: {
+      banquet: false,
+      theater: false,
+      halfCrescent: false,
+      reception: false
+    },
+    stageSize: '',
+    programInclusions: {
+      airportTransfers: false,
+      welcomeReception: false,
+      businessMeeting: false,
+      awardDinner: false,
+      activityOptions: false,
+      offSiteVenues: false,
+      offSiteRestaurants: false,
+      dineArounds: false,
+      finalNightDinner: false,
+      teamBuilding: false,
+      danceBand: false,
+      decorIdeas: false
+    },
     primaryColor: '#1e40af',
     secondaryColor: '#06b6d4',
     theme: 'modern',
@@ -200,7 +251,9 @@ function ProposalBuilder() {
           purpose: formData.eventPurpose,
           startDate: formData.startDate,
           endDate: formData.endDate,
-          attendeeCount: formData.attendeeCount
+          attendeeCount: formData.attendeeCount,
+          roomsNeeded: formData.roomsNeeded,
+          hotelRating: formData.hotelRating
         },
         destination: selectedDestination,
         resort: selectedResort,
@@ -208,6 +261,9 @@ function ProposalBuilder() {
         selectedSpaces,
         selectedDining,
         flightRoutes: selectedFlights,
+        spaceSetups: formData.spaceSetups,
+        stageSize: formData.stageSize,
+        programInclusions: formData.programInclusions,
         branding: {
           primaryColor: formData.primaryColor,
           secondaryColor: formData.secondaryColor,
@@ -338,7 +394,7 @@ function ProposalBuilder() {
                   required
                 />
               </div>
-              <div className="form-group full-width">
+              <div className="form-group">
                 <label className="form-label">Number of Attendees *</label>
                 <input
                   type="number"
@@ -348,6 +404,30 @@ function ProposalBuilder() {
                   min="1"
                   required
                 />
+              </div>
+              <div className="form-group">
+                <label className="form-label">Number of Rooms Needed *</label>
+                <input
+                  type="number"
+                  className="form-control"
+                  value={formData.roomsNeeded}
+                  onChange={(e) => updateFormData('roomsNeeded', parseInt(e.target.value))}
+                  min="1"
+                  required
+                />
+              </div>
+              <div className="form-group full-width">
+                <label className="form-label">Hotel Rating Preference *</label>
+                <select
+                  className="form-control"
+                  value={formData.hotelRating}
+                  onChange={(e) => updateFormData('hotelRating', e.target.value)}
+                  required
+                >
+                  <option value="">Select rating</option>
+                  <option value="5-star">5 Star Luxury</option>
+                  <option value="4-star">4 Star Premium</option>
+                </select>
               </div>
             </div>
           </div>
@@ -396,7 +476,7 @@ function ProposalBuilder() {
               {resorts.map(resort => (
                 <div
                   key={resort.id}
-                  className={`selection-card ${formData.resortId === resort.id ? 'selected' : ''}`}
+                  className={`selection-card resort-card ${formData.resortId === resort.id ? 'selected' : ''}`}
                   onClick={() => updateFormData('resortId', resort.id)}
                 >
                   <img 
@@ -406,13 +486,57 @@ function ProposalBuilder() {
                   />
                   <div className="card-content">
                     <h3>{resort.name}</h3>
-                    <p className="price-range">{resort.priceRange}</p>
+                    <div className="resort-rating">
+                      <span className="price-range">{resort.priceRange}</span>
+                      {resort.vendorRating && (
+                        <div className="vendor-rating">
+                          <span className="rating-score">⭐ {resort.vendorRating.overall}</span>
+                          <span className="rating-reviews">({resort.vendorRating.reviews} reviews)</span>
+                        </div>
+                      )}
+                    </div>
                     <p className="description">{resort.description}</p>
+                    
+                    {resort.beachInfo && (
+                      <div className="resort-detail">
+                        <strong>🏖️ Beach:</strong> {resort.beachInfo.type} • {resort.beachInfo.size}
+                      </div>
+                    )}
+                    
+                    {resort.restaurantCount && (
+                      <div className="resort-detail">
+                        <strong>🍽️ Restaurants:</strong> {resort.restaurantCount} on-site dining options
+                      </div>
+                    )}
+                    
+                    {resort.spaInfo && (
+                      <div className="resort-detail">
+                        <strong>💆 Spa:</strong> {resort.spaInfo.name} • {resort.spaInfo.size}
+                      </div>
+                    )}
+                    
                     <div className="amenities">
                       {resort.amenities.slice(0, 3).map((a: string, i: number) => (
                         <span key={i} className="amenity-tag">{a}</span>
                       ))}
                     </div>
+                    
+                    {resort.vendorRating && (
+                      <div className="rating-breakdown">
+                        <div className="rating-item">
+                          <span>Service</span>
+                          <span>{resort.vendorRating.service}</span>
+                        </div>
+                        <div className="rating-item">
+                          <span>Facilities</span>
+                          <span>{resort.vendorRating.facilities}</span>
+                        </div>
+                        <div className="rating-item">
+                          <span>Events</span>
+                          <span>{resort.vendorRating.eventExecution}</span>
+                        </div>
+                      </div>
+                    )}
                   </div>
                   {formData.resortId === resort.id && (
                     <div className="selected-badge"><Check size={20} /></div>
@@ -457,7 +581,86 @@ function ProposalBuilder() {
       case 6:
         return (
           <div className="step-content">
-            <h2>Event Spaces</h2>
+            <h2>Event Spaces & Setup</h2>
+            
+            <div className="setup-configuration">
+              <h3>Space Setup Requirements</h3>
+              <div className="setup-grid">
+                <div className="setup-option">
+                  <input
+                    type="checkbox"
+                    id="banquet"
+                    checked={formData.spaceSetups.banquet}
+                    onChange={() => updateFormData('spaceSetups', {
+                      ...formData.spaceSetups,
+                      banquet: !formData.spaceSetups.banquet
+                    })}
+                  />
+                  <label htmlFor="banquet">
+                    <span className="setup-icon">🍽️</span>
+                    Banquet Rounds
+                  </label>
+                </div>
+                <div className="setup-option">
+                  <input
+                    type="checkbox"
+                    id="theater"
+                    checked={formData.spaceSetups.theater}
+                    onChange={() => updateFormData('spaceSetups', {
+                      ...formData.spaceSetups,
+                      theater: !formData.spaceSetups.theater
+                    })}
+                  />
+                  <label htmlFor="theater">
+                    <span className="setup-icon">🎭</span>
+                    Theater Seating
+                  </label>
+                </div>
+                <div className="setup-option">
+                  <input
+                    type="checkbox"
+                    id="halfCrescent"
+                    checked={formData.spaceSetups.halfCrescent}
+                    onChange={() => updateFormData('spaceSetups', {
+                      ...formData.spaceSetups,
+                      halfCrescent: !formData.spaceSetups.halfCrescent
+                    })}
+                  />
+                  <label htmlFor="halfCrescent">
+                    <span className="setup-icon">🌙</span>
+                    Half Crescent
+                  </label>
+                </div>
+                <div className="setup-option">
+                  <input
+                    type="checkbox"
+                    id="reception"
+                    checked={formData.spaceSetups.reception}
+                    onChange={() => updateFormData('spaceSetups', {
+                      ...formData.spaceSetups,
+                      reception: !formData.spaceSetups.reception
+                    })}
+                  />
+                  <label htmlFor="reception">
+                    <span className="setup-icon">🥂</span>
+                    Reception Style
+                  </label>
+                </div>
+              </div>
+              
+              <div className="stage-requirements">
+                <label className="form-label">Stage Size Requirements</label>
+                <input
+                  type="text"
+                  className="form-control"
+                  value={formData.stageSize}
+                  onChange={(e) => updateFormData('stageSize', e.target.value)}
+                  placeholder="e.g., 20x16 feet, center stage with AV screens"
+                />
+              </div>
+            </div>
+
+            <h3>Select Event Spaces</h3>
             <div className="selection-grid">
               {eventSpaces.map(space => (
                 <div
@@ -477,6 +680,11 @@ function ProposalBuilder() {
                     <div className="features">
                       {space.features.slice(0, 2).map((f: string, i: number) => (
                         <span key={i} className="feature-tag">{f}</span>
+                      ))}
+                    </div>
+                    <div className="layout-types">
+                      {space.layoutTypes?.map((layout: string, i: number) => (
+                        <span key={i} className="layout-tag">{layout}</span>
                       ))}
                     </div>
                   </div>
@@ -550,6 +758,123 @@ function ProposalBuilder() {
       case 9:
         return (
           <div className="step-content">
+            <h2>Program Inclusions</h2>
+            <div className="inclusion-grid">
+              <div className="inclusion-item">
+                <input
+                  type="checkbox"
+                  id="airportTransfers"
+                  checked={formData.programInclusions.airportTransfers}
+                  onChange={() => updateFormData('programInclusions', { ...formData.programInclusions, airportTransfers: !formData.programInclusions.airportTransfers })}
+                />
+                <label htmlFor="airportTransfers">Airport Transfers</label>
+              </div>
+              <div className="inclusion-item">
+                <input
+                  type="checkbox"
+                  id="welcomeReception"
+                  checked={formData.programInclusions.welcomeReception}
+                  onChange={() => updateFormData('programInclusions', { ...formData.programInclusions, welcomeReception: !formData.programInclusions.welcomeReception })}
+                />
+                <label htmlFor="welcomeReception">Welcome Reception</label>
+              </div>
+              <div className="inclusion-item">
+                <input
+                  type="checkbox"
+                  id="businessMeeting"
+                  checked={formData.programInclusions.businessMeeting}
+                  onChange={() => updateFormData('programInclusions', { ...formData.programInclusions, businessMeeting: !formData.programInclusions.businessMeeting })}
+                />
+                <label htmlFor="businessMeeting">Business Meeting</label>
+              </div>
+              <div className="inclusion-item">
+                <input
+                  type="checkbox"
+                  id="awardDinner"
+                  checked={formData.programInclusions.awardDinner}
+                  onChange={() => updateFormData('programInclusions', { ...formData.programInclusions, awardDinner: !formData.programInclusions.awardDinner })}
+                />
+                <label htmlFor="awardDinner">Award Dinner</label>
+              </div>
+              <div className="inclusion-item">
+                <input
+                  type="checkbox"
+                  id="activityOptions"
+                  checked={formData.programInclusions.activityOptions}
+                  onChange={() => updateFormData('programInclusions', { ...formData.programInclusions, activityOptions: !formData.programInclusions.activityOptions })}
+                />
+                <label htmlFor="activityOptions">Activity Options</label>
+              </div>
+              <div className="inclusion-item">
+                <input
+                  type="checkbox"
+                  id="offSiteVenues"
+                  checked={formData.programInclusions.offSiteVenues}
+                  onChange={() => updateFormData('programInclusions', { ...formData.programInclusions, offSiteVenues: !formData.programInclusions.offSiteVenues })}
+                />
+                <label htmlFor="offSiteVenues">Off-Site Venues</label>
+              </div>
+              <div className="inclusion-item">
+                <input
+                  type="checkbox"
+                  id="offSiteRestaurants"
+                  checked={formData.programInclusions.offSiteRestaurants}
+                  onChange={() => updateFormData('programInclusions', { ...formData.programInclusions, offSiteRestaurants: !formData.programInclusions.offSiteRestaurants })}
+                />
+                <label htmlFor="offSiteRestaurants">Off-Site Restaurants</label>
+              </div>
+              <div className="inclusion-item">
+                <input
+                  type="checkbox"
+                  id="dineArounds"
+                  checked={formData.programInclusions.dineArounds}
+                  onChange={() => updateFormData('programInclusions', { ...formData.programInclusions, dineArounds: !formData.programInclusions.dineArounds })}
+                />
+                <label htmlFor="dineArounds">Dine Arounds</label>
+              </div>
+              <div className="inclusion-item">
+                <input
+                  type="checkbox"
+                  id="finalNightDinner"
+                  checked={formData.programInclusions.finalNightDinner}
+                  onChange={() => updateFormData('programInclusions', { ...formData.programInclusions, finalNightDinner: !formData.programInclusions.finalNightDinner })}
+                />
+                <label htmlFor="finalNightDinner">Final Night Dinner</label>
+              </div>
+              <div className="inclusion-item">
+                <input
+                  type="checkbox"
+                  id="teamBuilding"
+                  checked={formData.programInclusions.teamBuilding}
+                  onChange={() => updateFormData('programInclusions', { ...formData.programInclusions, teamBuilding: !formData.programInclusions.teamBuilding })}
+                />
+                <label htmlFor="teamBuilding">Team Building</label>
+              </div>
+              <div className="inclusion-item">
+                <input
+                  type="checkbox"
+                  id="danceBand"
+                  checked={formData.programInclusions.danceBand}
+                  onChange={() => updateFormData('programInclusions', { ...formData.programInclusions, danceBand: !formData.programInclusions.danceBand })}
+                />
+                <label htmlFor="danceBand">Dance Band</label>
+              </div>
+              <div className="inclusion-item">
+                <input
+                  type="checkbox"
+                  id="decorIdeas"
+                  checked={formData.programInclusions.decorIdeas}
+                  onChange={() => updateFormData('programInclusions', { ...formData.programInclusions, decorIdeas: !formData.programInclusions.decorIdeas })}
+                />
+                <label htmlFor="decorIdeas">Decor Ideas</label>
+              </div>
+            </div>
+          </div>
+        );
+
+      case 10:
+        return (
+          <div className="step-content">
             <h2>Branding & Review</h2>
             <div className="branding-section">
               <div className="form-grid">
@@ -595,7 +920,7 @@ function ProposalBuilder() {
                   />
                   {formData.logoUrl && (
                     <div className="logo-preview">
-                      <img src={formData.logoUrl} alt="Client Logo" />
+                      <img src={formData.logoUrl} alt="Client Logo" onError={handleImageError} />
                     </div>
                   )}
                 </div>
@@ -617,10 +942,28 @@ function ProposalBuilder() {
                     <strong>Attendees:</strong> {formData.attendeeCount}
                   </div>
                   <div className="review-item">
+                    <strong>Rooms:</strong> {formData.roomsNeeded}
+                  </div>
+                  <div className="review-item">
+                    <strong>Hotel Rating:</strong> {formData.hotelRating || 'Not specified'}
+                  </div>
+                  <div className="review-item">
                     <strong>Destination:</strong> {destinations.find(d => d.id === formData.destinationId)?.name}
                   </div>
                   <div className="review-item">
                     <strong>Resort:</strong> {resorts.find(r => r.id === formData.resortId)?.name}
+                  </div>
+                  <div className="review-item full-width">
+                    <strong>Program Inclusions:</strong>
+                    <div className="inclusion-summary">
+                      {Object.entries(formData.programInclusions)
+                        .filter(([_, value]) => value)
+                        .map(([key, _]) => (
+                          <span key={key} className="inclusion-tag">
+                            {key.replace(/([A-Z])/g, ' $1').trim()}
+                          </span>
+                        ))}
+                    </div>
                   </div>
                 </div>
               </div>
