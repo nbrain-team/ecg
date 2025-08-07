@@ -5,7 +5,6 @@ services:
     runtime: node
     repo: https://github.com/nbrain-team/ecg
     branch: main
-    rootDir: EventIntel
     buildCommand: cd backend && npm install && npm run build
     startCommand: cd backend && npm start
     envVars:
@@ -28,9 +27,8 @@ services:
     runtime: static
     repo: https://github.com/nbrain-team/ecg
     branch: main
-    rootDir: EventIntel
     buildCommand: cd frontend && npm install && npm run build
-    staticPublishPath: EventIntel/frontend/dist
+    staticPublishPath: frontend/dist
     envVars:
       - key: VITE_API_URL
         value: https://eventintel-api.onrender.com
