@@ -9,7 +9,7 @@ const users = [
   {
     id: '1',
     email: 'admin@eventintel.com',
-    password: '$2a$10$CwTycUXWue0Thq9StjUM0uJ8/9DQfEiW1av6KmFmCl2wnqOJqJqKe', // password: admin123
+    password: '$2a$10$YGM5Qwi65wOjwBURG1aDaenkV3iB6obQJS1Fiw5K0xKyvk1vCCQ52', // password: admin123
     name: 'Admin User',
     role: 'admin' as const
   }
