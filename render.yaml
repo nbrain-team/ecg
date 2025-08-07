@@ -1,14 +1,19 @@
 services:
-  # Backend API Service
+  # Backend API Service - Standard Tier
   - type: web
     name: eventintel-api
     runtime: node
-    repo: https://github.com/YOUR_USERNAME/eventintel
+    plan: standard
+    repo: https://github.com/nbrain-team/ecg
+    branch: main
+    rootDir: EventIntel
     buildCommand: cd backend && npm install && npm run build
     startCommand: cd backend && npm start
     envVars:
       - key: NODE_ENV
         value: production
+      - key: PORT
+        value: 5000
       - key: JWT_SECRET
         generateValue: true
       - key: DATABASE_URL
@@ -18,19 +23,24 @@ services:
       - key: FRONTEND_URL
         value: https://eventintel-app.onrender.com
 
-  # Frontend Service
+  # Frontend Service - Standard Tier
   - type: web
     name: eventintel-app
     runtime: static
-    repo: https://github.com/YOUR_USERNAME/eventintel
+    plan: standard
+    repo: https://github.com/nbrain-team/ecg
+    branch: main
+    rootDir: EventIntel
     buildCommand: cd frontend && npm install && npm run build
-    staticPublishPath: frontend/dist
+    staticPublishPath: EventIntel/frontend/dist
     envVars:
       - key: VITE_API_URL
         value: https://eventintel-api.onrender.com
 
 databases:
+  # PostgreSQL Database - Basic 1GB Tier
   - name: eventintel-db
     databaseName: eventintel
     user: eventintel
-    plan: starter 
+    plan: basic-1gb
+    postgresMajorVersion: 15 
