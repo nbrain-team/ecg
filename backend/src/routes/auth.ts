@@ -12,6 +12,13 @@ const users = [
     password: '$2a$10$YGM5Qwi65wOjwBURG1aDaenkV3iB6obQJS1Fiw5K0xKyvk1vCCQ52', // password: admin123
     name: 'Admin User',
     role: 'admin' as const
+  },
+  {
+    id: '2',
+    email: 'demo@eventintel.com',
+    password: '$2a$10$YGM5Qwi65wOjwBURG1aDaenkV3iB6obQJS1Fiw5K0xKyvk1vCCQ52', // password: admin123
+    name: 'Demo User',
+    role: 'admin' as const
   }
 ];
 
@@ -19,15 +26,20 @@ const users = [
 router.post('/login', async (req, res) => {
   try {
     const { email, password } = req.body;
+    
+    console.log('Login attempt for:', email);
 
     // Find user
     const user = users.find(u => u.email === email);
     if (!user) {
+      console.log('User not found:', email);
       return res.status(401).json({ message: 'Invalid credentials' });
     }
 
     // Check password
     const isValid = await bcrypt.compare(password, user.password);
+    console.log('Password validation result:', isValid);
+    
     if (!isValid) {
       return res.status(401).json({ message: 'Invalid credentials' });
     }
@@ -99,6 +111,18 @@ router.post('/register', async (req, res) => {
     console.error('Register error:', error);
     res.status(500).json({ message: 'Server error' });
   }
+});
+
+// Test endpoint to verify API and available users (remove in production)
+router.get('/test', (req, res) => {
+  res.json({
+    message: 'Auth API is working',
+    availableUsers: users.map(u => ({
+      email: u.email,
+      name: u.name,
+      hint: 'Password is: admin123'
+    }))
+  });
 });
 
 export default router; 
