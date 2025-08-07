@@ -30,6 +30,7 @@ interface FormData {
   primaryColor: string;
   secondaryColor: string;
   theme: 'modern' | 'classic' | 'vibrant' | 'minimal';
+  logoUrl?: string;
 }
 
 const STEPS = [
@@ -77,7 +78,8 @@ function ProposalBuilder() {
     flightRouteIds: [],
     primaryColor: '#1e40af',
     secondaryColor: '#06b6d4',
-    theme: 'modern'
+    theme: 'modern',
+    logoUrl: ''
   });
 
   const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:5000';
@@ -204,7 +206,8 @@ function ProposalBuilder() {
         branding: {
           primaryColor: formData.primaryColor,
           secondaryColor: formData.secondaryColor,
-          theme: formData.theme
+          theme: formData.theme,
+          logoUrl: formData.logoUrl
         }
       };
 
@@ -555,6 +558,21 @@ function ProposalBuilder() {
                     <option value="vibrant">Vibrant</option>
                     <option value="minimal">Minimal</option>
                   </select>
+                </div>
+                <div className="form-group full-width">
+                  <label className="form-label">Client Logo URL (optional)</label>
+                  <input
+                    type="url"
+                    className="form-control"
+                    value={formData.logoUrl || ''}
+                    onChange={(e) => updateFormData('logoUrl', e.target.value)}
+                    placeholder="https://example.com/logo.png"
+                  />
+                  {formData.logoUrl && (
+                    <div className="logo-preview">
+                      <img src={formData.logoUrl} alt="Client Logo" />
+                    </div>
+                  )}
                 </div>
               </div>
               

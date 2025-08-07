@@ -120,6 +120,11 @@
   display: grid;
   grid-template-columns: repeat(2, 1fr);
   gap: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+.form-group.full-width {
+  grid-column: 1 / -1;
 }
 
 .form-grid .full-width {
@@ -287,9 +292,7 @@
 
 /* Branding Section */
 .branding-section {
-  display: flex;
-  flex-direction: column;
-  gap: 2rem;
+  margin-top: 1.5rem;
 }
 
 .color-input {
@@ -299,6 +302,21 @@
   border-radius: var(--border-radius);
   cursor: pointer;
   padding: 2px;
+}
+
+.logo-preview {
+  margin-top: 1rem;
+  padding: 1rem;
+  background: var(--color-background);
+  border: 2px dashed var(--color-border);
+  border-radius: 8px;
+  text-align: center;
+}
+
+.logo-preview img {
+  max-width: 200px;
+  max-height: 100px;
+  object-fit: contain;
 }
 
 /* Review Section */
@@ -352,10 +370,16 @@
 }
 
 /* Responsive Design */
+/* Better responsive design */
 @media (max-width: 768px) {
   .progress-steps {
+    padding: 0 1rem;
     overflow-x: auto;
-    padding-bottom: 1rem;
+    -webkit-overflow-scrolling: touch;
+  }
+  
+  .progress-step {
+    min-width: 100px;
   }
   
   .step-label {
@@ -366,12 +390,17 @@
     grid-template-columns: 1fr;
   }
   
-  .form-grid .full-width {
-    grid-column: span 1;
-  }
-  
   .selection-grid {
     grid-template-columns: 1fr;
+  }
+  
+  .builder-actions {
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+  
+  .builder-actions button {
+    width: 100%;
   }
   
   .review-grid {
