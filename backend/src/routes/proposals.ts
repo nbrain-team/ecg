@@ -112,7 +112,7 @@ router.post('/:id/publish', (req, res) => {
   
   res.json({
     message: 'Proposal published successfully',
-    shareableLink: `/view/${proposal.shareableLink}`
+    shareableLink: `/proposal/share/${proposal.shareableLink}`
   });
 });
 

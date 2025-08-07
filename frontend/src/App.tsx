@@ -54,16 +54,16 @@ function App() {
           } 
         />
         <Route 
+          path="/proposal/share/:shareId" 
+          element={<PublicProposal />} 
+        />
+        <Route 
           path="/proposal/:id" 
           element={
             isAuthenticated ? 
               <ProposalView /> : 
               <Navigate to="/login" />
           } 
-        />
-        <Route 
-          path="/view/:shareId" 
-          element={<PublicProposal />} 
         />
         <Route 
           path="/" 
