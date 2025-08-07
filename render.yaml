@@ -1,9 +1,9 @@
 services:
-  # Backend API Service - Standard Tier
+  # Backend API Service - Paid Tier
   - type: web
     name: eventintel-api
     runtime: node
-    plan: standard
+    plan: starter-plus
     repo: https://github.com/nbrain-team/ecg
     branch: main
     rootDir: EventIntel
@@ -23,11 +23,10 @@ services:
       - key: FRONTEND_URL
         value: https://eventintel-app.onrender.com
 
-  # Frontend Service - Standard Tier
+  # Frontend Service - Static Site (automatically on paid tier with custom domain)
   - type: web
     name: eventintel-app
     runtime: static
-    plan: standard
     repo: https://github.com/nbrain-team/ecg
     branch: main
     rootDir: EventIntel
@@ -38,9 +37,9 @@ services:
         value: https://eventintel-api.onrender.com
 
 databases:
-  # PostgreSQL Database - Basic 1GB Tier
+  # PostgreSQL Database - Basic Tier
   - name: eventintel-db
     databaseName: eventintel
     user: eventintel
-    plan: basic-1gb
+    plan: basic
     postgresMajorVersion: 15 
