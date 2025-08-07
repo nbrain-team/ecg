@@ -1,5 +1,5 @@
--- EventIntel Database Schema
--- PostgreSQL Schema for Render Deployment
+-- ECG Intelligence Database Schema
+-- PostgreSQL database initialization
 
 -- Create users table
 CREATE TABLE IF NOT EXISTS users (
@@ -81,6 +81,6 @@ CREATE TRIGGER update_proposals_updated_at BEFORE UPDATE ON proposals
   FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
 
 -- Insert default admin user (password: admin123)
-INSERT INTO users (email, password, name, role)
-VALUES ('admin@eventintel.com', '$2a$10$CwTycUXWue0Thq9StjUM0uJ8/9DQfEiW1av6KmFmCl2wnqOJqJqKe', 'Admin User', 'admin')
+INSERT INTO users (email, password, name, role) 
+VALUES ('admin@eventconnectionsgroup.com', '$2a$10$CwTycUXWue0Thq9StjUM0uJ8/9DQfEiW1av6KmFmCl2wnqOJqJqKe', 'Admin User', 'admin')
 ON CONFLICT (email) DO NOTHING; 

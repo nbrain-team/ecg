@@ -51,10 +51,39 @@
 }
 
 .demo-hint {
-  text-align: center;
   margin-top: 1.5rem;
   padding-top: 1.5rem;
-  border-top: 1px solid #e5e7eb;
+  border-top: 1px solid var(--color-border);
+  text-align: center;
+}
+
+.demo-button {
+  background: none;
+  border: none;
+  color: var(--color-primary);
+  text-decoration: underline;
+  cursor: pointer;
+  font-size: 0.9rem;
+  padding: 0;
+  margin-bottom: 0.5rem;
+  transition: opacity 0.2s;
+}
+
+.demo-button:hover {
+  opacity: 0.8;
+}
+
+.demo-info {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  color: var(--color-text-light);
+  font-size: 0.85rem;
+  margin-top: 0.5rem;
+}
+
+.demo-info small {
+  display: block;
 }
 
 .link-button {

@@ -44,8 +44,8 @@ function Login({ onLogin }: LoginProps) {
   };
 
   // Demo credentials hint
-  const fillDemoCredentials = () => {
-    setEmail('admin@eventintel.com');
+  const handleDemoLogin = () => {
+    setEmail('admin@eventconnectionsgroup.com');
     setPassword('admin123');
   };
 
@@ -53,7 +53,7 @@ function Login({ onLogin }: LoginProps) {
     <div className="login-container">
       <div className="login-card">
         <div className="login-header">
-          <h1>EventIntel</h1>
+          <h1>ECG Intelligence</h1>
           <p>Corporate Travel & Event Planning Platform</p>
         </div>
 
@@ -107,21 +107,21 @@ function Login({ onLogin }: LoginProps) {
           <div className="demo-hint">
             <button 
               type="button"
-              className="link-button"
-              onClick={fillDemoCredentials}
+              className="demo-button"
+              onClick={handleDemoLogin}
             >
               Use demo credentials
             </button>
-            <div className="demo-credentials">
-              <small>Email: admin@eventintel.com</small>
+            <div className="demo-info">
+              <small>Email: admin@eventconnectionsgroup.com</small>
               <small>Password: admin123</small>
             </div>
           </div>
         </form>
-      </div>
 
-      <div className="login-footer">
-        <p>© 2024 EventIntel. All rights reserved.</p>
+        <div className="login-footer">
+          <p>© 2024 ECG Intelligence. All rights reserved.</p>
+        </div>
       </div>
     </div>
   );

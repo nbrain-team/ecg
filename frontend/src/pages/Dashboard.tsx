@@ -91,13 +91,20 @@ function Dashboard({ onLogout }: DashboardProps) {
     });
   };
 
+  const handleLogout = () => {
+    localStorage.removeItem('token');
+    localStorage.removeItem('user');
+    onLogout();
+    navigate('/login');
+  };
+
   return (
     <div className="dashboard">
-      <header className="dashboard-header">
+      <div className="dashboard-header">
         <div className="container">
           <div className="header-content">
             <div className="header-left">
-              <h1>EventIntel</h1>
+              <h1>ECG Intelligence</h1>
               <span className="welcome-text">
                 Welcome back, {user?.name || 'User'}
               </span>
@@ -112,7 +119,7 @@ function Dashboard({ onLogout }: DashboardProps) {
               </button>
               <button 
                 className="btn btn-outline"
-                onClick={onLogout}
+                onClick={handleLogout}
               >
                 <LogOut size={20} />
                 Logout
@@ -120,7 +127,7 @@ function Dashboard({ onLogout }: DashboardProps) {
             </div>
           </div>
         </div>
-      </header>
+      </div>
 
       <main className="dashboard-main">
         <div className="container">

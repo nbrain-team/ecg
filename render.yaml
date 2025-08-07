@@ -1,7 +1,7 @@
 services:
   # Backend API Service
   - type: web
-    name: eventintel-api
+    name: ecg-intelligence-api
     runtime: node
     repo: https://github.com/nbrain-team/ecg
     branch: main
@@ -16,14 +16,14 @@ services:
         generateValue: true
       - key: DATABASE_URL
         fromDatabase:
-          name: eventintel-db
+          name: ecg-intelligence-db
           property: connectionString
       - key: FRONTEND_URL
-        value: https://eventintel-app.onrender.com
+        value: https://ecg-intelligence-app.onrender.com
 
   # Frontend Service - Static Site
   - type: web
-    name: eventintel-app
+    name: ecg-intelligence-app
     runtime: static
     repo: https://github.com/nbrain-team/ecg
     branch: main
@@ -31,11 +31,11 @@ services:
     staticPublishPath: frontend/dist
     envVars:
       - key: VITE_API_URL
-        value: https://eventintel-api.onrender.com
+        value: https://ecg-intelligence-api.onrender.com
 
 databases:
   # PostgreSQL Database
-  - name: eventintel-db
-    databaseName: eventintel
-    user: eventintel
+  - name: ecg-intelligence-db
+    databaseName: ecg_intelligence
+    user: ecg_admin
     postgresMajorVersion: 15 

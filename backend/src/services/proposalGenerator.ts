@@ -115,7 +115,9 @@ This ${proposal.eventDetails.purpose} experience has been carefully crafted for 
 View your interactive proposal: [Link]
 
 Best regards,
-The EventIntel Team
+The ECG Intelligence Team
+Event Connections Group
+www.eventconnectionsgroup.com
   `.trim();
 }
 

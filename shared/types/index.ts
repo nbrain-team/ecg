@@ -1,4 +1,4 @@
-// Shared types for EventIntel platform
+// Shared types for ECG Intelligence platform
 
 export interface User {
   id: string;

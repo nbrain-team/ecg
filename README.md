@@ -1,206 +1,238 @@
-# EventIntel - Corporate Travel & Event Planning Platform
+# ECG Intelligence - Corporate Travel & Event Planning Platform
 
-## 🚀 Overview
+## Overview
 
-EventIntel is a modern, full-stack platform for creating interactive, personalized proposal pages for corporate travel and event planning. Similar to Qwilr, it generates beautiful, shareable proposals based on structured inputs and data.
+ECG Intelligence is a modern, full-stack platform for creating interactive, personalized proposal pages for corporate travel and event planning. Similar to Qwilr, it generates beautiful, shareable proposals based on structured inputs and AI-powered content generation.
 
-## 🏗 Architecture
+## Architecture
 
 ```
-EventIntel/
-├── frontend/          # React + TypeScript + Vite
-├── backend/           # Express + TypeScript + PostgreSQL
+ECG Intelligence/
+├── frontend/           # React + Vite frontend
+├── backend/           # Node.js + Express API
 ├── shared/            # Shared TypeScript types
-└── database/          # PostgreSQL schemas
+├── database/          # PostgreSQL schema and migrations
+└── render.yaml        # Render deployment configuration
 ```
 
-## ✨ Features
+## Features
 
-- **Admin Dashboard**: Multi-step proposal builder
-- **Client Viewer**: Interactive, shareable proposal pages
-- **Mock Data**: Pre-populated destinations, resorts, dining
-- **AI Generation**: Dynamic content creation
-- **Responsive Design**: Mobile-friendly interface
+### Admin Dashboard
+- Create and manage proposals
+- Multi-step form wizard for proposal creation
+- View proposal analytics and history
 
-## 🔑 Default Login
-
-- Email: `admin@eventintel.com`
+### Default Login
+- Email: `admin@eventconnectionsgroup.com`
 - Password: `admin123`
 
-## 🚀 Deployment to Render
+### Client Proposal Viewer
+- Beautiful, responsive proposal pages
+- Interactive components with smooth animations
+- Shareable links for clients
 
-### Prerequisites
-1. GitHub account
-2. Render account
-3. Push this code to your GitHub repository
+### AI Content Generation (Simulated)
+- Generates personalized descriptions
+- Creates compelling narratives for destinations
+- Tailors content to event type and audience
 
-### Step 1: Push to GitHub
+## Setup
 
+### GitHub Repository Setup
 ```bash
 git init
 git add .
 git commit -m "Initial commit"
-git branch -M main
-git remote add origin https://github.com/YOUR_USERNAME/eventintel.git
+git remote add origin https://github.com/YOUR_USERNAME/ecg-intelligence.git
 git push -u origin main
 ```
 
-### Step 2: Deploy to Render
+### Render Deployment - Using Blueprint
 
-#### Option A: Using render.yaml (Recommended)
-1. Update `render.yaml` with your GitHub repo URL
-2. Go to [Render Dashboard](https://dashboard.render.com)
+1. Fork/Push this code to your GitHub repository
+2. Go to Render Dashboard
 3. Click "New" → "Blueprint"
-4. Connect your GitHub repo
-5. Render will auto-detect `render.yaml` and create all services
+4. Connect your GitHub repo and select it
+5. Render will detect the `render.yaml` file
+6. Click "Apply"
+7. Render will create all services automatically
 
-#### Option B: Manual Setup
-1. **Create PostgreSQL Database**:
-   - New → PostgreSQL
-   - Name: `eventintel-db`
-   - Choose region
-   - Create Database
+### Render Deployment - Manual Setup
 
-2. **Deploy Backend**:
-   - New → Web Service
-   - Connect GitHub repo
-   - Name: `eventintel-api`
-   - Root Directory: `backend`
-   - Build Command: `npm install && npm run build`
-   - Start Command: `npm start`
-   - Add environment variables:
-     - `NODE_ENV` = `production`
-     - `JWT_SECRET` = (generate a secure key)
-     - `DATABASE_URL` = (copy from PostgreSQL)
-     - `FRONTEND_URL` = `https://your-frontend.onrender.com`
+If you prefer manual setup:
 
-3. **Deploy Frontend**:
-   - New → Static Site
-   - Connect GitHub repo
-   - Name: `eventintel-app`
-   - Root Directory: `frontend`
-   - Build Command: `npm install && npm run build`
-   - Publish Directory: `dist`
-   - Add environment variable:
-     - `VITE_API_URL` = `https://your-backend.onrender.com`
+#### 1. Database
+- Create new PostgreSQL database
+- Name: `ecg-intelligence-db`
+- Copy connection string for backend
 
-### Step 3: Initialize Database
+#### 2. Backend Web Service
+- Create new Web Service
+- Connect GitHub repo
+- Name: `ecg-intelligence-api`
+- Root Directory: Leave blank (repo root)
+- Build Command: `cd backend && npm install && npm run build`
+- Start Command: `cd backend && npm start`
+- Add environment variables:
+  - `NODE_ENV`: production
+  - `DATABASE_URL`: (from step 1)
+  - `JWT_SECRET`: (generate secure random string)
+  - `FRONTEND_URL`: https://your-frontend-url.onrender.com
 
-After backend is deployed, run the schema:
+#### 3. Frontend Static Site
+- Create new Static Site
+- Connect same GitHub repo
+- Name: `ecg-intelligence-app`
+- Root Directory: Leave blank (repo root)
+- Build Command: `cd frontend && npm install && npm run build`
+- Publish Directory: `frontend/dist`
+- Add environment variables:
+  - `VITE_API_URL`: https://your-backend-url.onrender.com
 
-1. Go to your PostgreSQL dashboard on Render
-2. Click "Connect" → "PSQL Command"
-3. Copy the command and run locally:
+## Local Development
+
+### Prerequisites
+- Node.js 18+
+- PostgreSQL (optional for local development)
+- npm or yarn
+
+### Installation
 ```bash
-psql [connection-string] < database/schema.sql
-```
-
-## 🛠 Local Development (Optional)
-
-```bash
-# Install dependencies
+# Install all dependencies
 npm run install:all
-
-# Set up .env files
-cp env.example backend/.env
-cp env.example frontend/.env
-
-# Run development servers
-npm run dev
 ```
 
-## 📱 Using the Platform
+### Development
+```bash
+# Run both frontend and backend
+npm run dev
 
-### Creating a Proposal
+# Or run separately:
+# Backend (port 5000)
+cd backend && npm run dev
 
-1. **Login** with default credentials
-2. Click **"Create New Proposal"**
-3. Complete the multi-step form:
+# Frontend (port 5173)
+cd frontend && npm run dev
+```
+
+## Usage
+
+### Admin Flow
+1. Login with admin credentials
+2. Click "Create New Proposal"
+3. Fill out the 9-step form wizard:
    - Client Information
    - Event Details
-   - Select Destination
-   - Choose Resort
-   - Pick Room Types
-   - Select Event Spaces
-   - Choose Dining Options
-   - Set Branding
-4. Click **"Generate Proposal"**
-5. Share the link with clients
+   - Destination Selection
+   - Resort Choice
+   - Room Types
+   - Event Spaces
+   - Dining Options
+   - Travel & Flights
+   - Branding & Review
+4. Generate and share proposal
 
-### Viewing Proposals
+### Client Flow
+1. Receive shareable link
+2. View interactive proposal
+3. Browse destination, resort, and amenity details
+4. Contact for booking
 
-- Clients receive a shareable link
-- No login required for viewing
-- Interactive, scrollable design
-- Mobile-responsive layout
-
-## 🔍 API Endpoints
+## API Endpoints
 
 ### Authentication
-- `POST /api/auth/login`
-- `POST /api/auth/register`
-
-### Destinations
-- `GET /api/destinations`
-- `GET /api/destinations/:id`
-- `GET /api/destinations/:id/resorts`
-- `GET /api/destinations/:id/flights`
+- `POST /api/auth/login` - User login
+- `POST /api/auth/register` - User registration
 
 ### Proposals
-- `GET /api/proposals`
-- `POST /api/proposals`
-- `GET /api/proposals/:id`
-- `PUT /api/proposals/:id`
-- `POST /api/proposals/:id/publish`
-- `GET /api/proposals/share/:shareId`
+- `GET /api/proposals` - List all proposals
+- `GET /api/proposals/:id` - Get single proposal
+- `POST /api/proposals` - Create proposal
+- `PUT /api/proposals/:id` - Update proposal
+- `DELETE /api/proposals/:id` - Delete proposal
+- `POST /api/proposals/:id/publish` - Publish proposal
+- `GET /api/proposals/share/:shareId` - Get proposal by share link
 
-## 📊 Mock Data
+### Destinations & Data
+- `GET /api/destinations` - List destinations
+- `GET /api/destinations/:id/resorts` - Get resorts for destination
+- `GET /api/destinations/resorts/:id/rooms` - Get rooms for resort
+- `GET /api/destinations/resorts/:id/spaces` - Get event spaces
+- `GET /api/destinations/resorts/:id/dining` - Get dining options
+- `GET /api/destinations/:id/flights` - Get flight routes
 
-The platform includes realistic mock data for:
-- **3 Destinations**: Los Cabos, Maui, Nassau
-- **6 Resorts**: 2 per destination
-- **Room Types**: Multiple options per resort
-- **Event Spaces**: Ballrooms, meeting rooms
-- **Dining Options**: Various cuisines
-- **Flight Routes**: Major US cities
+## Mock Data
 
-## 🎨 Customization
+The platform includes comprehensive mock data for:
+- 3 Destinations (Los Cabos, Maui, Nassau)
+- 2-3 Resorts per destination
+- Multiple room types per resort
+- Event spaces with various capacities
+- Dining options with different cuisines
+- Flight routes from major cities
 
-### Branding Themes
-- Modern
-- Classic
-- Vibrant
-- Minimal
+## Technologies
 
-### Color Schemes
-- Customizable primary/secondary colors
-- Logo upload support
+### Frontend
+- React 18
+- TypeScript
+- Vite
+- React Router
+- Axios
+- CSS Modules
+- Lucide Icons
 
-## 🔒 Security
+### Backend
+- Node.js
+- Express
+- TypeScript
+- PostgreSQL
+- JWT Authentication
+- Bcrypt
 
-- JWT authentication
-- Bcrypt password hashing
-- Environment variable configuration
-- CORS protection
+### Deployment
+- Render (Web Services + Database)
+- GitHub Actions (optional CI/CD)
+
+## Environment Variables
+
+### Backend (.env)
+```
+NODE_ENV=development
+PORT=5000
+DATABASE_URL=your_database_url
+JWT_SECRET=your_secret_key
+FRONTEND_URL=http://localhost:5173
+```
+
+### Frontend (.env)
+```
+VITE_API_URL=http://localhost:5000
+```
+
+## Security
+
+- JWT-based authentication
+- Password hashing with bcrypt
+- CORS configuration
+- Environment variable protection
 - SQL injection prevention
 
-## 📈 Future Enhancements
+## Future Enhancements
 
-- [ ] Real-time collaboration
-- [ ] PDF export
-- [ ] Email integration
-- [ ] Analytics dashboard
-- [ ] Payment integration
+- [ ] Real AI integration (OpenAI/Anthropic)
+- [ ] PDF export functionality
+- [ ] Email notifications
+- [ ] Advanced analytics dashboard
 - [ ] Multi-language support
+- [ ] Payment integration
+- [ ] Calendar integration
+- [ ] Mobile app
 
-## 🤝 Support
+## License
 
-For issues or questions, please create a GitHub issue.
+MIT
 
-## 📄 License
+## Support
 
-ISC License
-
----
-
-**Built with ❤️ for the event planning industry** 
+For questions or support, contact: support@eventconnectionsgroup.com 
