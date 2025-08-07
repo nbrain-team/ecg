@@ -1,0 +1,242 @@
+import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { Plus, Eye, Edit, Trash2, LogOut, Calendar, Users, MapPin } from 'lucide-react';
+import axios from 'axios';
+import './Dashboard.css';
+
+interface DashboardProps {
+  onLogout: () => void;
+}
+
+interface Proposal {
+  id: string;
+  client: { name: string; company: string };
+  eventDetails: { 
+    name: string; 
+    startDate: string; 
+    endDate: string; 
+    attendeeCount: number;
+  };
+  destination: { name: string };
+  status: 'draft' | 'published' | 'viewed';
+  createdAt: string;
+  viewCount: number;
+}
+
+function Dashboard({ onLogout }: DashboardProps) {
+  const [proposals, setProposals] = useState<Proposal[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [user, setUser] = useState<any>(null);
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    // Get user info
+    const userData = localStorage.getItem('user');
+    if (userData) {
+      setUser(JSON.parse(userData));
+    }
+
+    // Fetch proposals
+    fetchProposals();
+  }, []);
+
+  const fetchProposals = async () => {
+    try {
+      const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+      const token = localStorage.getItem('token');
+      
+      const response = await axios.get(`${apiUrl}/api/proposals`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      
+      setProposals(response.data);
+    } catch (error) {
+      console.error('Error fetching proposals:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleDelete = async (id: string) => {
+    if (!confirm('Are you sure you want to delete this proposal?')) return;
+    
+    try {
+      const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+      const token = localStorage.getItem('token');
+      
+      await axios.delete(`${apiUrl}/api/proposals/${id}`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      
+      setProposals(proposals.filter(p => p.id !== id));
+    } catch (error) {
+      console.error('Error deleting proposal:', error);
+    }
+  };
+
+  const getStatusBadge = (status: string) => {
+    const badges = {
+      draft: 'badge-warning',
+      published: 'badge-success',
+      viewed: 'badge-primary'
+    };
+    return badges[status as keyof typeof badges] || 'badge';
+  };
+
+  const formatDate = (dateString: string) => {
+    return new Date(dateString).toLocaleDateString('en-US', {
+      month: 'short',
+      day: 'numeric',
+      year: 'numeric'
+    });
+  };
+
+  return (
+    <div className="dashboard">
+      <header className="dashboard-header">
+        <div className="container">
+          <div className="header-content">
+            <div className="header-left">
+              <h1>EventIntel</h1>
+              <span className="welcome-text">
+                Welcome back, {user?.name || 'User'}
+              </span>
+            </div>
+            <div className="header-right">
+              <button 
+                className="btn btn-primary"
+                onClick={() => navigate('/proposal/new')}
+              >
+                <Plus size={20} />
+                New Proposal
+              </button>
+              <button 
+                className="btn btn-outline"
+                onClick={onLogout}
+              >
+                <LogOut size={20} />
+                Logout
+              </button>
+            </div>
+          </div>
+        </div>
+      </header>
+
+      <main className="dashboard-main">
+        <div className="container">
+          <div className="dashboard-stats">
+            <div className="stat-card">
+              <h3>{proposals.length}</h3>
+              <p>Total Proposals</p>
+            </div>
+            <div className="stat-card">
+              <h3>{proposals.filter(p => p.status === 'published').length}</h3>
+              <p>Published</p>
+            </div>
+            <div className="stat-card">
+              <h3>{proposals.filter(p => p.status === 'viewed').length}</h3>
+              <p>Viewed</p>
+            </div>
+            <div className="stat-card">
+              <h3>{proposals.reduce((sum, p) => sum + (p.viewCount || 0), 0)}</h3>
+              <p>Total Views</p>
+            </div>
+          </div>
+
+          <div className="proposals-section">
+            <h2>Your Proposals</h2>
+            
+            {loading ? (
+              <div className="loading-container">
+                <div className="spinner"></div>
+              </div>
+            ) : proposals.length === 0 ? (
+              <div className="empty-state">
+                <h3>No proposals yet</h3>
+                <p>Create your first proposal to get started</p>
+                <button 
+                  className="btn btn-primary"
+                  onClick={() => navigate('/proposal/new')}
+                >
+                  <Plus size={20} />
+                  Create Proposal
+                </button>
+              </div>
+            ) : (
+              <div className="proposals-grid">
+                {proposals.map(proposal => (
+                  <div key={proposal.id} className="proposal-card">
+                    <div className="proposal-header">
+                      <h3>{proposal.eventDetails.name}</h3>
+                      <span className={`badge ${getStatusBadge(proposal.status)}`}>
+                        {proposal.status}
+                      </span>
+                    </div>
+                    
+                    <div className="proposal-client">
+                      <strong>{proposal.client.company}</strong>
+                      <span>{proposal.client.name}</span>
+                    </div>
+                    
+                    <div className="proposal-details">
+                      <div className="detail-item">
+                        <MapPin size={16} />
+                        <span>{proposal.destination.name}</span>
+                      </div>
+                      <div className="detail-item">
+                        <Calendar size={16} />
+                        <span>
+                          {formatDate(proposal.eventDetails.startDate)} - 
+                          {formatDate(proposal.eventDetails.endDate)}
+                        </span>
+                      </div>
+                      <div className="detail-item">
+                        <Users size={16} />
+                        <span>{proposal.eventDetails.attendeeCount} attendees</span>
+                      </div>
+                    </div>
+                    
+                    <div className="proposal-stats">
+                      <span className="view-count">
+                        <Eye size={16} />
+                        {proposal.viewCount || 0} views
+                      </span>
+                      <span className="created-date">
+                        Created {formatDate(proposal.createdAt)}
+                      </span>
+                    </div>
+                    
+                    <div className="proposal-actions">
+                      <button 
+                        className="btn btn-primary"
+                        onClick={() => navigate(`/proposal/${proposal.id}`)}
+                      >
+                        <Eye size={16} />
+                        View
+                      </button>
+                      <button 
+                        className="btn btn-outline"
+                        onClick={() => navigate(`/proposal/${proposal.id}/edit`)}
+                      >
+                        <Edit size={16} />
+                        Edit
+                      </button>
+                      <button 
+                        className="btn btn-danger"
+                        onClick={() => handleDelete(proposal.id)}
+                      >
+                        <Trash2 size={16} />
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
+      </main>
+    </div>
+  );
+}
+
+export default Dashboard; 
