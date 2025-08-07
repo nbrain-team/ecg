@@ -5,7 +5,7 @@ import {
   EventSpace, 
   DiningOption, 
   FlightRoute 
-} from '../../../shared/types';
+} from '../types';
 
 // Mock Destinations
 export const destinations: Destination[] = [

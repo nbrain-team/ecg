@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { Proposal } from '../../../shared/types';
+import { Proposal } from '../types';
 import { generateProposalContent } from '../services/proposalGenerator';
 import { v4 as uuidv4 } from 'uuid';
 

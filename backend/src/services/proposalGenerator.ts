@@ -1,4 +1,4 @@
-import { Proposal } from '../../../shared/types';
+import { Proposal } from '../types';
 
 // Generate personalized proposal content
 export function generateProposalContent(proposal: any): Proposal['generatedContent'] {
