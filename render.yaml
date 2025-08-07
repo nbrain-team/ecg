@@ -21,17 +21,19 @@ services:
       - key: FRONTEND_URL
         value: https://ecg-intelligence-app.onrender.com
 
-  # Frontend Service - Static Site
+  # Frontend Service - Node.js Web Service
   - type: web
     name: ecg-intelligence-app
-    runtime: static
+    runtime: node
     repo: https://github.com/nbrain-team/ecg
     branch: main
     buildCommand: cd frontend && npm install && npm run build
-    staticPublishPath: frontend/dist
+    startCommand: cd frontend && npm start
     envVars:
       - key: VITE_API_URL
         value: https://ecg-intelligence-api.onrender.com
+      - key: PORT
+        value: 3000
 
 databases:
   # PostgreSQL Database
