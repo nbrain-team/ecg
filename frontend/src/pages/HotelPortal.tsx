@@ -241,6 +241,137 @@ function HotelPortal() {
       </section>
       )}
 
+      {activeTab==='profile' && (
+        <section className="card">
+          <h2>Profile</h2>
+          <h3>Identity</h3>
+          <div className="form-grid">
+            <div className="form-group"><label className="form-label">Legal Name</label><input className="form-control" value={schemaDraft?.identity?.legal_name||''} onChange={(e)=>setSchemaDraft((p:any)=>({...p, identity:{...(p?.identity||{}), legal_name:e.target.value}}))} /></div>
+            <div className="form-group"><label className="form-label">Brand Name</label><input className="form-control" value={schemaDraft?.identity?.brand_name||''} onChange={(e)=>setSchemaDraft((p:any)=>({...p, identity:{...(p?.identity||{}), brand_name:e.target.value}}))} /></div>
+            <div className="form-group"><label className="form-label">Chain</label><input className="form-control" value={schemaDraft?.identity?.chain||''} onChange={(e)=>setSchemaDraft((p:any)=>({...p, identity:{...(p?.identity||{}), chain:e.target.value}}))} /></div>
+            <div className="form-group"><label className="form-label">Opening Date</label><input type="date" className="form-control" value={schemaDraft?.identity?.opening_date||''} onChange={(e)=>setSchemaDraft((p:any)=>({...p, identity:{...(p?.identity||{}), opening_date:e.target.value}}))} /></div>
+            <div className="form-group"><label className="form-label">Last Renovation Date</label><input type="date" className="form-control" value={schemaDraft?.identity?.last_renovation_date||''} onChange={(e)=>setSchemaDraft((p:any)=>({...p, identity:{...(p?.identity||{}), last_renovation_date:e.target.value}}))} /></div>
+            <div className="form-group"><label className="form-label">Star Rating</label><input type="number" step="0.1" className="form-control" value={schemaDraft?.identity?.star_rating??''} onChange={(e)=>setSchemaDraft((p:any)=>({...p, identity:{...(p?.identity||{}), star_rating:Number(e.target.value||0)}}))} /></div>
+            <div className="form-group full-width"><label className="form-label">Short Description</label><input className="form-control" value={schemaDraft?.identity?.description_short||''} onChange={(e)=>setSchemaDraft((p:any)=>({...p, identity:{...(p?.identity||{}), description_short:e.target.value}}))} /></div>
+            <div className="form-group full-width"><label className="form-label">Long Description</label><textarea className="form-control" value={schemaDraft?.identity?.description_long||''} onChange={(e)=>setSchemaDraft((p:any)=>({...p, identity:{...(p?.identity||{}), description_long:e.target.value}}))} /></div>
+          </div>
+          <h3>Metadata</h3>
+          <div className="form-grid">
+            <div className="form-group"><label className="form-label">Status</label><select className="form-control" value={schemaDraft?.metadata?.status||'active'} onChange={(e)=>setSchemaDraft((p:any)=>({...p, metadata:{...(p?.metadata||{}), status:e.target.value}}))}><option>active</option><option>draft</option><option>suspended</option></select></div>
+            <div className="form-group"><label className="form-label">Visibility</label><select className="form-control" value={schemaDraft?.metadata?.visibility||'public'} onChange={(e)=>setSchemaDraft((p:any)=>({...p, metadata:{...(p?.metadata||{}), visibility:e.target.value}}))}><option>public</option><option>private</option></select></div>
+            <div className="form-group"><label className="form-label">Languages (comma)</label><input className="form-control" value={(schemaDraft?.metadata?.languages_supported||[]).join(', ')} onChange={(e)=>setSchemaDraft((p:any)=>({...p, metadata:{...(p?.metadata||{}), languages_supported:e.target.value.split(',').map(s=>s.trim()).filter(Boolean)}}))} /></div>
+            <div className="form-group"><label className="form-label">Timezone</label><input className="form-control" value={schemaDraft?.metadata?.timezone||''} onChange={(e)=>setSchemaDraft((p:any)=>({...p, metadata:{...(p?.metadata||{}), timezone:e.target.value}}))} /></div>
+          </div>
+          <div className="builder-actions mt-2">
+            <button className="btn btn-primary" onClick={()=>saveSection('identity')} disabled={saving}>{saving?'Saving...':'Save Identity'}</button>
+            <button className="btn btn-outline" onClick={()=>saveSection('metadata')} disabled={saving}>Save Metadata</button>
+          </div>
+        </section>
+      )}
+
+      {activeTab==='contact' && (
+        <section className="card">
+          <h2>Contact</h2>
+          <div className="form-grid">
+            <div className="form-group"><label className="form-label">Primary Name</label><input className="form-control" value={schemaDraft?.contact?.primary_contact?.name||''} onChange={(e)=>setSchemaDraft((p:any)=>({...p, contact:{...(p?.contact||{}), primary_contact:{...(p?.contact?.primary_contact||{}), name:e.target.value}}))} /></div>
+            <div className="form-group"><label className="form-label">Title</label><input className="form-control" value={schemaDraft?.contact?.primary_contact?.title||''} onChange={(e)=>setSchemaDraft((p:any)=>({...p, contact:{...(p?.contact||{}), primary_contact:{...(p?.contact?.primary_contact||{}), title:e.target.value}}))} /></div>
+            <div className="form-group"><label className="form-label">Email</label><input className="form-control" value={schemaDraft?.contact?.primary_contact?.email||''} onChange={(e)=>setSchemaDraft((p:any)=>({...p, contact:{...(p?.contact||{}), primary_contact:{...(p?.contact?.primary_contact||{}), email:e.target.value}}))} /></div>
+            <div className="form-group"><label className="form-label">Phone</label><input className="form-control" value={schemaDraft?.contact?.primary_contact?.phone||''} onChange={(e)=>setSchemaDraft((p:any)=>({...p, contact:{...(p?.contact||{}), primary_contact:{...(p?.contact?.primary_contact||{}), phone:e.target.value}}))} /></div>
+            <div className="form-group"><label className="form-label">Preferred Contact</label><select className="form-control" value={schemaDraft?.contact?.primary_contact?.preferred_contact_method||'email'} onChange={(e)=>setSchemaDraft((p:any)=>({...p, contact:{...(p?.contact||{}), primary_contact:{...(p?.contact?.primary_contact||{}), preferred_contact_method:e.target.value}}))}><option>email</option><option>phone</option></select></div>
+            <div className="form-group full-width"><label className="form-label">RFP Inbox Email</label><input className="form-control" value={schemaDraft?.contact?.rfp_inbox_email||''} onChange={(e)=>setSchemaDraft((p:any)=>({...p, contact:{...(p?.contact||{}), rfp_inbox_email:e.target.value}}))} /></div>
+            <div className="form-group"><label className="form-label">Website URL</label><input className="form-control" value={schemaDraft?.contact?.website_url||''} onChange={(e)=>setSchemaDraft((p:any)=>({...p, contact:{...(p?.contact||{}), website_url:e.target.value}}))} /></div>
+            <div className="form-group"><label className="form-label">Booking Portal URL</label><input className="form-control" value={schemaDraft?.contact?.booking_portal_url||''} onChange={(e)=>setSchemaDraft((p:any)=>({...p, contact:{...(p?.contact||{}), booking_portal_url:e.target.value}}))} /></div>
+            <div className="form-group"><label className="form-label">Virtual Tour URL</label><input className="form-control" value={schemaDraft?.contact?.virtual_tour_url||''} onChange={(e)=>setSchemaDraft((p:any)=>({...p, contact:{...(p?.contact||{}), virtual_tour_url:e.target.value}}))} /></div>
+            <div className="form-group"><label className="form-label">Instagram</label><input className="form-control" value={schemaDraft?.contact?.social?.instagram||''} onChange={(e)=>setSchemaDraft((p:any)=>({...p, contact:{...(p?.contact||{}), social:{...(p?.contact?.social||{}), instagram:e.target.value}}))} /></div>
+            <div className="form-group"><label className="form-label">LinkedIn</label><input className="form-control" value={schemaDraft?.contact?.social?.linkedin||''} onChange={(e)=>setSchemaDraft((p:any)=>({...p, contact:{...(p?.contact||{}), social:{...(p?.contact?.social||{}), linkedin:e.target.value}}))} /></div>
+          </div>
+          <div className="builder-actions mt-2">
+            <button className="btn btn-primary" onClick={()=>saveSection('contact')} disabled={saving}>{saving?'Saving...':'Save Contact'}</button>
+          </div>
+        </section>
+      )}
+
+      {activeTab==='location' && (
+        <section className="card">
+          <h2>Location</h2>
+          <div className="form-grid">
+            <div className="form-group"><label className="form-label">Address Line 1</label><input className="form-control" value={schemaDraft?.location?.address?.line1||''} onChange={(e)=>setSchemaDraft((p:any)=>({...p, location:{...(p?.location||{}), address:{...(p?.location?.address||{}), line1:e.target.value}}))} /></div>
+            <div className="form-group"><label className="form-label">Line 2</label><input className="form-control" value={schemaDraft?.location?.address?.line2||''} onChange={(e)=>setSchemaDraft((p:any)=>({...p, location:{...(p?.location||{}), address:{...(p?.location?.address||{}), line2:e.target.value}}))} /></div>
+            <div className="form-group"><label className="form-label">City</label><input className="form-control" value={schemaDraft?.location?.address?.city||''} onChange={(e)=>setSchemaDraft((p:any)=>({...p, location:{...(p?.location||{}), address:{...(p?.location?.address||{}), city:e.target.value}}))} /></div>
+            <div className="form-group"><label className="form-label">State/Region</label><input className="form-control" value={schemaDraft?.location?.address?.state_region||''} onChange={(e)=>setSchemaDraft((p:any)=>({...p, location:{...(p?.location||{}), address:{...(p?.location?.address||{}), state_region:e.target.value}}))} /></div>
+            <div className="form-group"><label className="form-label">Postal Code</label><input className="form-control" value={schemaDraft?.location?.address?.postal_code||''} onChange={(e)=>setSchemaDraft((p:any)=>({...p, location:{...(p?.location||{}), address:{...(p?.location?.address||{}), postal_code:e.target.value}}))} /></div>
+            <div className="form-group"><label className="form-label">Country</label><input className="form-control" value={schemaDraft?.location?.address?.country||''} onChange={(e)=>setSchemaDraft((p:any)=>({...p, location:{...(p?.location||{}), address:{...(p?.location?.address||{}), country:e.target.value}}))} /></div>
+            <div className="form-group"><label className="form-label">Latitude</label><input type="number" className="form-control" value={schemaDraft?.location?.latitude??''} onChange={(e)=>setSchemaDraft((p:any)=>({...p, location:{...(p?.location||{}), latitude:Number(e.target.value||0)}}))} /></div>
+            <div className="form-group"><label className="form-label">Longitude</label><input type="number" className="form-control" value={schemaDraft?.location?.longitude??''} onChange={(e)=>setSchemaDraft((p:any)=>({...p, location:{...(p?.location||{}), longitude:Number(e.target.value||0)}}))} /></div>
+            <div className="form-group full-width"><label className="form-label">Neighborhood</label><input className="form-control" value={schemaDraft?.location?.neighborhood||''} onChange={(e)=>setSchemaDraft((p:any)=>({...p, location:{...(p?.location||{}), neighborhood:e.target.value}}))} /></div>
+          </div>
+          <div className="builder-actions mt-2">
+            <button className="btn btn-primary" onClick={()=>saveSection('location')} disabled={saving}>{saving?'Saving...':'Save Location'}</button>
+          </div>
+        </section>
+      )}
+
+      {activeTab==='policies' && (
+        <section className="card">
+          <h2>Policies</h2>
+          <div className="form-grid">
+            <div className="form-group"><label className="form-label">Check-in Time</label><input className="form-control" value={schemaDraft?.policies?.check_in_time||''} onChange={(e)=>setSchemaDraft((p:any)=>({...p, policies:{...(p?.policies||{}), check_in_time:e.target.value}}))} /></div>
+            <div className="form-group"><label className="form-label">Check-out Time</label><input className="form-control" value={schemaDraft?.policies?.check_out_time||''} onChange={(e)=>setSchemaDraft((p:any)=>({...p, policies:{...(p?.policies||{}), check_out_time:e.target.value}}))} /></div>
+            <div className="form-group"><label className="form-label">Smoking</label><input className="form-control" value={schemaDraft?.policies?.smoking||''} onChange={(e)=>setSchemaDraft((p:any)=>({...p, policies:{...(p?.policies||{}), smoking:e.target.value}}))} /></div>
+            <div className="form-group"><label className="form-label">Pets Allowed</label><select className="form-control" value={String(!!schemaDraft?.policies?.pets_allowed)} onChange={(e)=>setSchemaDraft((p:any)=>({...p, policies:{...(p?.policies||{}), pets_allowed:e.target.value==='true'}}))}><option value="true">true</option><option value="false">false</option></select></div>
+          </div>
+          <div className="builder-actions mt-2">
+            <button className="btn btn-primary" onClick={()=>saveSection('policies')} disabled={saving}>{saving?'Saving...':'Save Policies'}</button>
+          </div>
+        </section>
+      )}
+
+      {activeTab==='financials' && (
+        <section className="card">
+          <h2>Financials & Group Contracting</h2>
+          <div className="form-grid">
+            <div className="form-group"><label className="form-label">Currency</label><input className="form-control" value={schemaDraft?.financials_group_contracting?.currency||''} onChange={(e)=>setSchemaDraft((p:any)=>({...p, financials_group_contracting:{...(p?.financials_group_contracting||{}), currency:e.target.value}}))} /></div>
+            <div className="form-group"><label className="form-label">Rate Types (comma)</label><input className="form-control" value={(schemaDraft?.financials_group_contracting?.rate_types_supported||[]).join(', ')} onChange={(e)=>setSchemaDraft((p:any)=>({...p, financials_group_contracting:{...(p?.financials_group_contracting||{}), rate_types_supported:e.target.value.split(',').map(s=>s.trim()).filter(Boolean)}}))} /></div>
+            <div className="form-group"><label className="form-label">Group Rate Min</label><input type="number" className="form-control" value={schemaDraft?.financials_group_contracting?.group_rate_range_usd_per_night?.min??''} onChange={(e)=>setSchemaDraft((p:any)=>({...p, financials_group_contracting:{...(p?.financials_group_contracting||{}), group_rate_range_usd_per_night:{...(p?.financials_group_contracting?.group_rate_range_usd_per_night||{}), min:Number(e.target.value||0)}}))} /></div>
+            <div className="form-group"><label className="form-label">Group Rate Max</label><input type="number" className="form-control" value={schemaDraft?.financials_group_contracting?.group_rate_range_usd_per_night?.max??''} onChange={(e)=>setSchemaDraft((p:any)=>({...p, financials_group_contracting:{...(p?.financials_group_contracting||{}), group_rate_range_usd_per_night:{...(p?.financials_group_contracting?.group_rate_range_usd_per_night||{}), max:Number(e.target.value||0)}}))} /></div>
+          </div>
+          <div className="builder-actions mt-2">
+            <button className="btn btn-primary" onClick={()=>saveSection('financials_group_contracting')} disabled={saving}>{saving?'Saving...':'Save Financials'}</button>
+          </div>
+        </section>
+      )}
+
+      {activeTab==='amenities' && (
+        <section className="card">
+          <h2>Amenities</h2>
+          <div className="form-grid">
+            <div className="form-group"><label className="form-label">Outdoor Pool</label><select className="form-control" value={String(!!schemaDraft?.amenities_property?.pool?.outdoor)} onChange={(e)=>setSchemaDraft((p:any)=>({...p, amenities_property:{...(p?.amenities_property||{}), pool:{...(p?.amenities_property?.pool||{}), outdoor:e.target.value==='true'}}))}><option value="true">true</option><option value="false">false</option></select></div>
+            <div className="form-group"><label className="form-label">Heated Pool</label><select className="form-control" value={String(!!schemaDraft?.amenities_property?.pool?.heated)} onChange={(e)=>setSchemaDraft((p:any)=>({...p, amenities_property:{...(p?.amenities_property||{}), pool:{...(p?.amenities_property?.pool||{}), heated:e.target.value==='true'}}))}><option value="true">true</option><option value="false">false</option></select></div>
+            <div className="form-group"><label className="form-label">Fitness Hours</label><input className="form-control" value={schemaDraft?.amenities_property?.fitness_center?.hours||''} onChange={(e)=>setSchemaDraft((p:any)=>({...p, amenities_property:{...(p?.amenities_property||{}), fitness_center:{...(p?.amenities_property?.fitness_center||{}), hours:e.target.value}}))} /></div>
+          </div>
+          <div className="builder-actions mt-2">
+            <button className="btn btn-primary" onClick={()=>saveSection('amenities_property')} disabled={saving}>{saving?'Saving...':'Save Amenities'}</button>
+          </div>
+        </section>
+      )}
+
+      {activeTab==='workflow' && (
+        <section className="card">
+          <h2>Workflow</h2>
+          <div className="form-grid">
+            <div className="form-group"><label className="form-label">Lead Time Min Days (Large Events)</label><input type="number" className="form-control" value={schemaDraft?.workflow?.lead_time_min_days_for_large_events??''} onChange={(e)=>setSchemaDraft((p:any)=>({...p, workflow:{...(p?.workflow||{}), lead_time_min_days_for_large_events:Number(e.target.value||0)}}))} /></div>
+            <div className="form-group"><label className="form-label">RFP SLA Hours</label><input type="number" className="form-control" value={schemaDraft?.workflow?.rfp_response_sla_hours??''} onChange={(e)=>setSchemaDraft((p:any)=>({...p, workflow:{...(p?.workflow||{}), rfp_response_sla_hours:Number(e.target.value||0)}}))} /></div>
+            <div className="form-group"><label className="form-label">Proposal Template URL</label><input className="form-control" value={schemaDraft?.workflow?.proposal_template_url||''} onChange={(e)=>setSchemaDraft((p:any)=>({...p, workflow:{...(p?.workflow||{}), proposal_template_url:e.target.value}}))} /></div>
+            <div className="form-group"><label className="form-label">Contract Template URL</label><input className="form-control" value={schemaDraft?.workflow?.contract_template_url||''} onChange={(e)=>setSchemaDraft((p:any)=>({...p, workflow:{...(p?.workflow||{}), contract_template_url:e.target.value}}))} /></div>
+            <div className="form-group"><label className="form-label">E-signature Supported</label><select className="form-control" value={String(!!schemaDraft?.workflow?.e_signature_supported)} onChange={(e)=>setSchemaDraft((p:any)=>({...p, workflow:{...(p?.workflow||{}), e_signature_supported:e.target.value==='true'}}))}><option value="true">true</option><option value="false">false</option></select></div>
+            <div className="form-group"><label className="form-label">Analytics Opt-in</label><select className="form-control" value={String(!!schemaDraft?.workflow?.analytics_opt_in)} onChange={(e)=>setSchemaDraft((p:any)=>({...p, workflow:{...(p?.workflow||{}), analytics_opt_in:e.target.value==='true'}}))}><option value="true">true</option><option value="false">false</option></select></div>
+          </div>
+          <div className="builder-actions mt-2">
+            <button className="btn btn-primary" onClick={()=>saveSection('workflow')} disabled={saving}>{saving?'Saving...':'Save Workflow'}</button>
+          </div>
+        </section>
+      )}
+
       {activeTab==='images' && (
       <section className="card">
         <h2>Images & Media</h2>
