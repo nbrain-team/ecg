@@ -45,6 +45,19 @@ function HotelPortal() {
     }
   };
 
+  const saveSection = async (sectionKey: string) => {
+    setSaving(true);
+    try {
+      const updates: any = { [sectionKey]: schemaDraft?.[sectionKey] ?? {} };
+      await axios.put(`${apiUrl}/api/hotels/sections`, { updates }, auth);
+      setSchema((prev:any)=>({ ...prev, [sectionKey]: schemaDraft?.[sectionKey] }));
+    } catch (e: any) {
+      setError(e.response?.data?.message || 'Failed to save');
+    } finally {
+      setSaving(false);
+    }
+  };
+
   const token = localStorage.getItem('hotelToken');
   const auth = { headers: { Authorization: `Bearer ${token}` } };
 
