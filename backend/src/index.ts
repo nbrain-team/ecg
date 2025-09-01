@@ -5,7 +5,7 @@ import proposalRoutes from './routes/proposals';
 import destinationRoutes from './routes/destinations';
 import authRoutes from './routes/auth';
 import hotelRoutes from './routes/hotels';
-import './db/migrate';
+import { applySchema } from './db/migrate';
 import { bootstrapGrandVelasIfMissing } from './db/bootstrap';
 
 dotenv.config();
@@ -51,9 +51,13 @@ app.use((req, res) => {
 });
 
 // Start server
-app.listen(PORT, () => {
+app.listen(PORT, async () => {
   console.log(`Server running on port ${PORT}`);
   console.log(`Environment: ${process.env.NODE_ENV || 'development'}`);
-  // Best-effort bootstrap on startup (safe if DB connected)
-  bootstrapGrandVelasIfMissing().catch(() => {});
+  try {
+    await applySchema();
+    await bootstrapGrandVelasIfMissing();
+  } catch (err) {
+    console.error('Startup tasks failed:', err);
+  }
 }); 

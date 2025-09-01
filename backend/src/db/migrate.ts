@@ -2,7 +2,7 @@ import fs from 'fs';
 import path from 'path';
 import pool from '../config/database';
 
-async function runSchema(): Promise<void> {
+export async function applySchema(): Promise<void> {
   const schemaPaths = [
     path.join(__dirname, 'schema.sql'),
     path.join(__dirname, 'schema_extra.sql')
@@ -14,16 +14,8 @@ async function runSchema(): Promise<void> {
       await pool.query(sql);
     }
   }
+  console.log('Database schema applied successfully');
 }
 
-runSchema()
-  .then(() => {
-    console.log('Database schema applied successfully');
-    process.exit(0);
-  })
-  .catch((err) => {
-    console.error('Migration failed:', err);
-    process.exit(1);
-  });
 
 
