@@ -119,6 +119,19 @@ function Login({ onLogin }: LoginProps) {
           </div>
         </form>
 
+        <div className="demo-hint">
+          <button
+            type="button"
+            className="btn btn-secondary btn-block"
+            onClick={() => navigate('/hotel/login')}
+          >
+            Hotel Admin
+          </button>
+          <div className="demo-info">
+            <small>Hotel portal for property managers</small>
+          </div>
+        </div>
+
         <div className="login-footer">
           <p>© 2024 ECG Intelligence. All rights reserved.</p>
         </div>
