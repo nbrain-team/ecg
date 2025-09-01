@@ -105,6 +105,16 @@ export interface Proposal {
     endDate: string;
     attendeeCount: number;
     purpose: 'corporate' | 'incentive' | 'conference' | 'retreat';
+    // Optional extended fields captured by the builder form
+    roomsNeeded?: number;
+    hotelRating?: '5-star' | '4-star';
+    ratingStandard?: 'forbes' | 'aaa';
+    programLengthDays?: number;
+    roomPreferences?: {
+      kingRooms: number;
+      doubleRooms: number;
+      suitesNotes?: string;
+    };
   };
   destination: Destination;
   resort: Resort;

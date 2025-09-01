@@ -18,7 +18,13 @@ interface FormData {
   endDate: string;
   attendeeCount: number;
   roomsNeeded: number;
+  ratingStandard: 'forbes' | 'aaa';
   hotelRating: '5-star' | '4-star' | '';
+  roomPreferences: {
+    kingRooms: number;
+    doubleRooms: number;
+    suitesNotes: string;
+  };
   
   // Step 3-8: IDs for selections
   destinationId: string;
@@ -51,6 +57,8 @@ interface FormData {
     teamBuilding: boolean;
     danceBand: boolean;
     decorIdeas: boolean;
+    csrOptions: boolean;
+    giftingIdeas: boolean;
   };
   
   // Step 10: Branding
@@ -99,7 +107,13 @@ function ProposalBuilder() {
     endDate: '',
     attendeeCount: 50,
     roomsNeeded: 25,
+    ratingStandard: 'forbes',
     hotelRating: '',
+    roomPreferences: {
+      kingRooms: 0,
+      doubleRooms: 0,
+      suitesNotes: ''
+    },
     destinationId: '',
     resortId: '',
     roomTypeIds: [],
@@ -125,7 +139,9 @@ function ProposalBuilder() {
       finalNightDinner: false,
       teamBuilding: false,
       danceBand: false,
-      decorIdeas: false
+      decorIdeas: false,
+      csrOptions: false,
+      giftingIdeas: false
     },
     primaryColor: '#1e40af',
     secondaryColor: '#06b6d4',
@@ -203,6 +219,16 @@ function ProposalBuilder() {
   const updateFormData = (field: string, value: any) => {
     setFormData(prev => ({ ...prev, [field]: value }));
   };
+  const calculateProgramLengthDays = (): number | null => {
+    if (!formData.startDate || !formData.endDate) return null;
+    const start = new Date(formData.startDate);
+    const end = new Date(formData.endDate);
+    const diff = end.getTime() - start.getTime();
+    if (isNaN(diff) || diff < 0) return null;
+    const days = Math.round(diff / (1000 * 60 * 60 * 24)) + 1;
+    return days;
+  };
+
 
   const toggleArrayItem = (field: string, itemId: string) => {
     setFormData(prev => {
@@ -253,7 +279,10 @@ function ProposalBuilder() {
           endDate: formData.endDate,
           attendeeCount: formData.attendeeCount,
           roomsNeeded: formData.roomsNeeded,
-          hotelRating: formData.hotelRating
+          hotelRating: formData.hotelRating,
+          ratingStandard: formData.ratingStandard,
+          programLengthDays: calculateProgramLengthDays() || undefined,
+          roomPreferences: formData.roomPreferences
         },
         destination: selectedDestination,
         resort: selectedResort,
@@ -395,6 +424,16 @@ function ProposalBuilder() {
                 />
               </div>
               <div className="form-group">
+                <label className="form-label">Program Length</label>
+                <input
+                  type="text"
+                  className="form-control"
+                  value={calculateProgramLengthDays() ? `${calculateProgramLengthDays()} days` : ''}
+                  readOnly
+                  placeholder="Calculated from dates"
+                />
+              </div>
+              <div className="form-group">
                 <label className="form-label">Number of Attendees *</label>
                 <input
                   type="number"
@@ -416,6 +455,18 @@ function ProposalBuilder() {
                   required
                 />
               </div>
+              <div className="form-group">
+                <label className="form-label">Hotel Rating Standard *</label>
+                <select
+                  className="form-control"
+                  value={formData.ratingStandard}
+                  onChange={(e) => updateFormData('ratingStandard', e.target.value)}
+                  required
+                >
+                  <option value="forbes">Forbes Stars</option>
+                  <option value="aaa">AAA Diamonds</option>
+                </select>
+              </div>
               <div className="form-group full-width">
                 <label className="form-label">Hotel Rating Preference *</label>
                 <select
@@ -425,9 +476,31 @@ function ProposalBuilder() {
                   required
                 >
                   <option value="">Select rating</option>
-                  <option value="5-star">5 Star Luxury</option>
-                  <option value="4-star">4 Star Premium</option>
+                  <option value="5-star">{formData.ratingStandard === 'aaa' ? '5 Diamonds' : '5 Stars'}</option>
+                  <option value="4-star">{formData.ratingStandard === 'aaa' ? '4 Diamonds' : '4 Stars'}</option>
                 </select>
+              </div>
+              <div className="form-group">
+                <label className="form-label">Preferred King Rooms</label>
+                <input
+                  type="number"
+                  className="form-control"
+                  value={formData.roomPreferences.kingRooms}
+                  onChange={(e) => updateFormData('roomPreferences', { ...formData.roomPreferences, kingRooms: parseInt(e.target.value || '0') })}
+                  min="0"
+                  placeholder="e.g., 15"
+                />
+              </div>
+              <div className="form-group">
+                <label className="form-label">Preferred Double/Queen Rooms</label>
+                <input
+                  type="number"
+                  className="form-control"
+                  value={formData.roomPreferences.doubleRooms}
+                  onChange={(e) => updateFormData('roomPreferences', { ...formData.roomPreferences, doubleRooms: parseInt(e.target.value || '0') })}
+                  min="0"
+                  placeholder="e.g., 10"
+                />
               </div>
             </div>
           </div>
@@ -575,6 +648,18 @@ function ProposalBuilder() {
                 </div>
               ))}
             </div>
+            <div className="form-grid" style={{ marginTop: '1rem' }}>
+              <div className="form-group full-width">
+                <label className="form-label">Suite Preferences / Notes</label>
+                <input
+                  type="text"
+                  className="form-control"
+                  value={formData.roomPreferences.suitesNotes}
+                  onChange={(e) => updateFormData('roomPreferences', { ...formData.roomPreferences, suitesNotes: e.target.value })}
+                  placeholder="Describe suite types or special requirements"
+                />
+              </div>
+            </div>
           </div>
         );
 
@@ -657,6 +742,11 @@ function ProposalBuilder() {
                   onChange={(e) => updateFormData('stageSize', e.target.value)}
                   placeholder="e.g., 20x16 feet, center stage with AV screens"
                 />
+              </div>
+              <div className="mt-2">
+                <button className="btn btn-outline" disabled title="Layout visual tool coming soon">
+                  Generate Layout Visual
+                </button>
               </div>
             </div>
 
@@ -867,6 +957,24 @@ function ProposalBuilder() {
                   onChange={() => updateFormData('programInclusions', { ...formData.programInclusions, decorIdeas: !formData.programInclusions.decorIdeas })}
                 />
                 <label htmlFor="decorIdeas">Decor Ideas</label>
+              </div>
+              <div className="inclusion-item">
+                <input
+                  type="checkbox"
+                  id="csrOptions"
+                  checked={formData.programInclusions.csrOptions}
+                  onChange={() => updateFormData('programInclusions', { ...formData.programInclusions, csrOptions: !formData.programInclusions.csrOptions })}
+                />
+                <label htmlFor="csrOptions">Corporate Social Responsibility</label>
+              </div>
+              <div className="inclusion-item">
+                <input
+                  type="checkbox"
+                  id="giftingIdeas"
+                  checked={formData.programInclusions.giftingIdeas}
+                  onChange={() => updateFormData('programInclusions', { ...formData.programInclusions, giftingIdeas: !formData.programInclusions.giftingIdeas })}
+                />
+                <label htmlFor="giftingIdeas">Gifting Ideas</label>
               </div>
             </div>
           </div>

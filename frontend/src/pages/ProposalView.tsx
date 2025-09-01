@@ -163,6 +163,12 @@ function ProposalView() {
                     <label>Attendees</label>
                     <p>{proposal.eventDetails.attendeeCount}</p>
                   </div>
+                  {proposal.eventDetails.roomsNeeded && (
+                    <div className="detail-item">
+                      <label>Rooms Needed</label>
+                      <p>{proposal.eventDetails.roomsNeeded}</p>
+                    </div>
+                  )}
                   <div className="detail-item">
                     <label>Start Date</label>
                     <p>{formatDate(proposal.eventDetails.startDate)}</p>
@@ -171,6 +177,30 @@ function ProposalView() {
                     <label>End Date</label>
                     <p>{formatDate(proposal.eventDetails.endDate)}</p>
                   </div>
+                  {proposal.eventDetails.programLengthDays && (
+                    <div className="detail-item">
+                      <label>Program Length</label>
+                      <p>{proposal.eventDetails.programLengthDays} days</p>
+                    </div>
+                  )}
+                  {(proposal.eventDetails.hotelRating || proposal.eventDetails.ratingStandard) && (
+                    <div className="detail-item">
+                      <label>Hotel Rating</label>
+                      <p>
+                        {proposal.eventDetails.hotelRating || 'N/A'}
+                        {proposal.eventDetails.ratingStandard ? ` (${proposal.eventDetails.ratingStandard === 'aaa' ? 'AAA' : 'Forbes'})` : ''}
+                      </p>
+                    </div>
+                  )}
+                  {proposal.eventDetails.roomPreferences && (
+                    <div className="detail-item">
+                      <label>Room Preferences</label>
+                      <p>
+                        {proposal.eventDetails.roomPreferences.kingRooms} King, {proposal.eventDetails.roomPreferences.doubleRooms} Double/Queen
+                        {proposal.eventDetails.roomPreferences.suitesNotes ? ` — ${proposal.eventDetails.roomPreferences.suitesNotes}` : ''}
+                      </p>
+                    </div>
+                  )}
                 </div>
               </section>
 
