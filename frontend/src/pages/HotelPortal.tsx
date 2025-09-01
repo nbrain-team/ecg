@@ -101,18 +101,7 @@ function HotelPortal() {
   useEffect(() => { fetchAll(); }, []);
 
   // Helpers: save single section
-  const saveSection = async (sectionKey: string) => {
-    setSaving(true);
-    try {
-      const updates: any = { [sectionKey]: schemaDraft?.[sectionKey] ?? {} };
-      await axios.put(`${apiUrl}/api/hotels/sections`, { updates }, auth);
-      setSchema((prev:any)=>({ ...prev, [sectionKey]: schemaDraft?.[sectionKey] }));
-    } catch (e: any) {
-      setError(e.response?.data?.message || 'Failed to save');
-    } finally {
-      setSaving(false);
-    }
-  };
+  
 
   // Images CRUD
   const addImage = async () => {
