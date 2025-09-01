@@ -27,6 +27,21 @@ function HotelPortal() {
   const [saving, setSaving] = useState(false);
   const [schemaDraft, setSchemaDraft] = useState<any>({});
 
+  // Images form state
+  const [imageForm, setImageForm] = useState<{url:string;alt:string;category:string}>({ url: '', alt: '', category: '' });
+  // Rooms forms state
+  const [newRoom, setNewRoom] = useState<any>({ name: '', description: '', size_sqft: '', view: '', capacity: '', base_rate: '', image1: '' });
+  const [editingRoomId, setEditingRoomId] = useState<string | null>(null);
+  const [editRoomForm, setEditRoomForm] = useState<any>({ name: '', description: '', size_sqft: '', view: '', capacity: '', base_rate: '', image1: '' });
+  // Venues forms
+  const [newVenue, setNewVenue] = useState<any>({ name: '', description: '', sqft: '', ceiling_height_ft: '', capacity_reception: '', capacity_banquet: '', capacity_theater: '', image1: '' });
+  const [editingVenueId, setEditingVenueId] = useState<string | null>(null);
+  const [editVenueForm, setEditVenueForm] = useState<any>({ name: '', description: '', sqft: '', ceiling_height_ft: '', capacity_reception: '', capacity_banquet: '', capacity_theater: '', image1: '' });
+  // Dining forms
+  const [newDiningOutlet, setNewDiningOutlet] = useState<any>({ name: '', cuisine: '', description: '', hours: '', dress_code: '', image1: '' });
+  const [editingDiningId, setEditingDiningId] = useState<string | null>(null);
+  const [editDiningForm, setEditDiningForm] = useState<any>({ name: '', cuisine: '', description: '', hours: '', dress_code: '', image1: '' });
+
   useEffect(() => {
     setSchemaDraft(schema);
   }, [schema]);
@@ -85,6 +100,117 @@ function HotelPortal() {
 
   useEffect(() => { fetchAll(); }, []);
 
+  // Helpers: save single section
+  const saveSection = async (sectionKey: string) => {
+    setSaving(true);
+    try {
+      const updates: any = { [sectionKey]: schemaDraft?.[sectionKey] ?? {} };
+      await axios.put(`${apiUrl}/api/hotels/sections`, { updates }, auth);
+      setSchema((prev:any)=>({ ...prev, [sectionKey]: schemaDraft?.[sectionKey] }));
+    } catch (e: any) {
+      setError(e.response?.data?.message || 'Failed to save');
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  // Images CRUD
+  const addImage = async () => {
+    try {
+      await axios.post(`${apiUrl}/api/hotels/images`, { url: imageForm.url, alt: imageForm.alt, category: imageForm.category }, auth);
+      setImageForm({ url: '', alt: '', category: '' });
+      fetchAll();
+    } catch (e:any) { setError(e.response?.data?.message || 'Failed to add image'); }
+  };
+  const deleteImage = async (id: string) => {
+    try { await axios.delete(`${apiUrl}/api/hotels/images/${id}`, auth); fetchAll(); } catch (e:any) { setError(e.response?.data?.message || 'Delete failed'); }
+  };
+
+  // Rooms CRUD
+  const addRoom = async () => {
+    try {
+      const payload:any = {
+        name: newRoom.name,
+        description: newRoom.description,
+        size_sqft: Number(newRoom.size_sqft||0),
+        view: newRoom.view,
+        capacity: Number(newRoom.capacity||0),
+        base_rate: Number(newRoom.base_rate||0),
+        images: newRoom.image1 ? [newRoom.image1] : []
+      };
+      await axios.post(`${apiUrl}/api/hotels/rooms`, payload, auth);
+      setNewRoom({ name: '', description: '', size_sqft: '', view: '', capacity: '', base_rate: '', image1: '' });
+      fetchAll();
+    } catch (e:any) { setError(e.response?.data?.message || 'Failed to add room'); }
+  };
+  const startEditRoom = (r:any) => {
+    setEditingRoomId(r.id);
+    setEditRoomForm({ name: r.name||'', description: r.description||'', size_sqft: r.size_sqft||'', view: r.view||'', capacity: r.capacity||'', base_rate: r.base_rate||'', image1: Array.isArray(r.images)&&r.images[0]?r.images[0]:'' });
+  };
+  const saveEditRoom = async () => {
+    try {
+      if (!editingRoomId) return;
+      const payload:any = {
+        name: editRoomForm.name,
+        description: editRoomForm.description,
+        size_sqft: editRoomForm.size_sqft === '' ? null : Number(editRoomForm.size_sqft),
+        view: editRoomForm.view,
+        capacity: editRoomForm.capacity === '' ? null : Number(editRoomForm.capacity),
+        base_rate: editRoomForm.base_rate === '' ? null : Number(editRoomForm.base_rate),
+        images: editRoomForm.image1 ? [editRoomForm.image1] : []
+      };
+      await axios.put(`${apiUrl}/api/hotels/rooms/${editingRoomId}`, payload, auth);
+      setEditingRoomId(null);
+      fetchAll();
+    } catch (e:any) { setError(e.response?.data?.message || 'Failed to save room'); }
+  };
+  const removeRoom = async (id:string) => { try { await axios.delete(`${apiUrl}/api/hotels/rooms/${id}`, auth); fetchAll(); } catch(e:any){ setError(e.response?.data?.message || 'Delete failed'); } };
+
+  // Venues CRUD
+  const addVenue = async () => {
+    try {
+      const payload:any = {
+        name: newVenue.name, description: newVenue.description, sqft: Number(newVenue.sqft||0), ceiling_height_ft: Number(newVenue.ceiling_height_ft||0),
+        capacity_reception: Number(newVenue.capacity_reception||0), capacity_banquet: Number(newVenue.capacity_banquet||0), capacity_theater: Number(newVenue.capacity_theater||0),
+        images: newVenue.image1 ? [newVenue.image1] : []
+      };
+      await axios.post(`${apiUrl}/api/hotels/venues`, payload, auth);
+      setNewVenue({ name: '', description: '', sqft: '', ceiling_height_ft: '', capacity_reception: '', capacity_banquet: '', capacity_theater: '', image1: '' });
+      fetchAll();
+    } catch (e:any) { setError(e.response?.data?.message || 'Failed to add venue'); }
+  };
+  const startEditVenue = (v:any) => {
+    setEditingVenueId(v.id);
+    setEditVenueForm({ name: v.name||'', description: v.description||'', sqft: v.sqft||'', ceiling_height_ft: v.ceiling_height_ft||'', capacity_reception: v.capacity_reception||'', capacity_banquet: v.capacity_banquet||'', capacity_theater: v.capacity_theater||'', image1: Array.isArray(v.images)&&v.images[0]?v.images[0]:'' });
+  };
+  const saveEditVenue = async () => {
+    try {
+      if (!editingVenueId) return;
+      const payload:any = {
+        name: editVenueForm.name, description: editVenueForm.description, sqft: editVenueForm.sqft===''?null:Number(editVenueForm.sqft), ceiling_height_ft: editVenueForm.ceiling_height_ft===''?null:Number(editVenueForm.ceiling_height_ft),
+        capacity_reception: editVenueForm.capacity_reception===''?null:Number(editVenueForm.capacity_reception), capacity_banquet: editVenueForm.capacity_banquet===''?null:Number(editVenueForm.capacity_banquet), capacity_theater: editVenueForm.capacity_theater===''?null:Number(editVenueForm.capacity_theater),
+        images: editVenueForm.image1 ? [editVenueForm.image1] : []
+      };
+      await axios.put(`${apiUrl}/api/hotels/venues/${editingVenueId}`, payload, auth);
+      setEditingVenueId(null);
+      fetchAll();
+    } catch (e:any) { setError(e.response?.data?.message || 'Failed to save venue'); }
+  };
+  const removeVenue = async (id:string) => { try { await axios.delete(`${apiUrl}/api/hotels/venues/${id}`, auth); fetchAll(); } catch(e:any){ setError(e.response?.data?.message || 'Delete failed'); } };
+
+  // Dining CRUD
+  const addDining = async () => {
+    try {
+      const payload:any = { name: newDiningOutlet.name, cuisine: newDiningOutlet.cuisine, description: newDiningOutlet.description, hours: newDiningOutlet.hours, dress_code: newDiningOutlet.dress_code, images: newDiningOutlet.image1?[newDiningOutlet.image1]:[] };
+      await axios.post(`${apiUrl}/api/hotels/dining`, payload, auth);
+      setNewDiningOutlet({ name: '', cuisine: '', description: '', hours: '', dress_code: '', image1: '' });
+      fetchAll();
+    } catch (e:any) { setError(e.response?.data?.message || 'Failed to add outlet'); }
+  };
+  const startEditDining = (d:any) => { setEditingDiningId(d.id); setEditDiningForm({ name: d.name||'', cuisine: d.cuisine||'', description: d.description||'', hours: d.hours||'', dress_code: d.dress_code||'', image1: Array.isArray(d.images)&&d.images[0]?d.images[0]:'' }); };
+  const saveEditDining = async () => { try { if(!editingDiningId) return; const payload:any = { name: editDiningForm.name, cuisine: editDiningForm.cuisine, description: editDiningForm.description, hours: editDiningForm.hours, dress_code: editDiningForm.dress_code, images: editDiningForm.image1?[editDiningForm.image1]:[] }; await axios.put(`${apiUrl}/api/hotels/dining/${editingDiningId}`, payload, auth); setEditingDiningId(null); fetchAll(); } catch(e:any){ setError(e.response?.data?.message || 'Failed to save outlet'); } };
+  const removeDining = async (id:string) => { try { await axios.delete(`${apiUrl}/api/hotels/dining/${id}`, auth); fetchAll(); } catch(e:any){ setError(e.response?.data?.message || 'Delete failed'); } };
+
   if (!token) {
     return (
       <div className="container">
@@ -128,13 +254,33 @@ function HotelPortal() {
 
       {activeTab==='images' && (
       <section className="card">
-        <h2>Images</h2>
+        <h2>Images & Media</h2>
+        <div className="form-grid">
+          <div className="form-group">
+            <label className="form-label">New Image URL</label>
+            <input className="form-control" value={imageForm.url} onChange={(e)=>setImageForm({...imageForm, url:e.target.value})} />
+          </div>
+          <div className="form-group">
+            <label className="form-label">Alt Text</label>
+            <input className="form-control" value={imageForm.alt} onChange={(e)=>setImageForm({...imageForm, alt:e.target.value})} />
+          </div>
+          <div className="form-group">
+            <label className="form-label">Category</label>
+            <input className="form-control" value={imageForm.category} onChange={(e)=>setImageForm({...imageForm, category:e.target.value})} />
+          </div>
+        </div>
+        <div className="builder-actions" style={{ marginBottom: '1rem' }}>
+          <button className="btn btn-primary" onClick={addImage}>Add Image</button>
+        </div>
         <div className="selection-grid">
           {images.map(i => (
             <div key={i.id} className="selection-card">
               <img src={i.url} alt={i.alt || ''} />
               <div className="card-content">
                 <p className="description">{i.category || 'image'}</p>
+                <div className="builder-actions">
+                  <button className="btn btn-outline" onClick={()=>deleteImage(i.id)}>Delete</button>
+                </div>
               </div>
             </div>
           ))}
@@ -145,6 +291,18 @@ function HotelPortal() {
       {activeTab==='rooms' && (
       <section className="card">
         <h2>Rooms</h2>
+        <div className="form-grid">
+          <div className="form-group"><label className="form-label">Name</label><input className="form-control" value={newRoom.name} onChange={(e)=>setNewRoom({...newRoom, name:e.target.value})} /></div>
+          <div className="form-group"><label className="form-label">Description</label><input className="form-control" value={newRoom.description} onChange={(e)=>setNewRoom({...newRoom, description:e.target.value})} /></div>
+          <div className="form-group"><label className="form-label">Size (sqft)</label><input className="form-control" value={newRoom.size_sqft} onChange={(e)=>setNewRoom({...newRoom, size_sqft:e.target.value})} /></div>
+          <div className="form-group"><label className="form-label">View</label><input className="form-control" value={newRoom.view} onChange={(e)=>setNewRoom({...newRoom, view:e.target.value})} /></div>
+          <div className="form-group"><label className="form-label">Capacity</label><input className="form-control" value={newRoom.capacity} onChange={(e)=>setNewRoom({...newRoom, capacity:e.target.value})} /></div>
+          <div className="form-group"><label className="form-label">Base Rate (USD)</label><input className="form-control" value={newRoom.base_rate} onChange={(e)=>setNewRoom({...newRoom, base_rate:e.target.value})} /></div>
+          <div className="form-group full-width"><label className="form-label">Image URL</label><input className="form-control" value={newRoom.image1} onChange={(e)=>setNewRoom({...newRoom, image1:e.target.value})} /></div>
+        </div>
+        <div className="builder-actions" style={{ marginBottom: '1rem' }}>
+          <button className="btn btn-primary" onClick={addRoom}>Add Room</button>
+        </div>
         <div className="selection-grid">
           {rooms.map(r => (
             <div key={r.id} className={`selection-card`}>
@@ -156,6 +314,19 @@ function HotelPortal() {
                 <p className="description">{r.description}</p>
                 <p className="room-info">{r.size_sqft ? `${r.size_sqft} sqft` : ''} {r.view ? `• ${r.view} view` : ''}</p>
                 <p className="capacity">Sleeps {r.capacity}</p>
+                <div className="builder-actions">
+                  {editingRoomId===r.id ? (
+                    <>
+                      <button className="btn btn-primary" onClick={saveEditRoom}>Save</button>
+                      <button className="btn btn-outline" onClick={()=>setEditingRoomId(null)}>Cancel</button>
+                    </>
+                  ) : (
+                    <>
+                      <button className="btn btn-outline" onClick={()=>startEditRoom(r)}>Edit</button>
+                      <button className="btn btn-outline" onClick={()=>removeRoom(r.id)}>Delete</button>
+                    </>
+                  )}
+                </div>
               </div>
             </div>
           ))}
@@ -166,6 +337,19 @@ function HotelPortal() {
       {activeTab==='venues' && (
       <section className="card">
         <h2>Venues</h2>
+        <div className="form-grid">
+          <div className="form-group"><label className="form-label">Name</label><input className="form-control" value={newVenue.name} onChange={(e)=>setNewVenue({...newVenue, name:e.target.value})} /></div>
+          <div className="form-group"><label className="form-label">Description</label><input className="form-control" value={newVenue.description} onChange={(e)=>setNewVenue({...newVenue, description:e.target.value})} /></div>
+          <div className="form-group"><label className="form-label">Sq Ft</label><input className="form-control" value={newVenue.sqft} onChange={(e)=>setNewVenue({...newVenue, sqft:e.target.value})} /></div>
+          <div className="form-group"><label className="form-label">Ceiling Height (ft)</label><input className="form-control" value={newVenue.ceiling_height_ft} onChange={(e)=>setNewVenue({...newVenue, ceiling_height_ft:e.target.value})} /></div>
+          <div className="form-group"><label className="form-label">Reception Capacity</label><input className="form-control" value={newVenue.capacity_reception} onChange={(e)=>setNewVenue({...newVenue, capacity_reception:e.target.value})} /></div>
+          <div className="form-group"><label className="form-label">Banquet Capacity</label><input className="form-control" value={newVenue.capacity_banquet} onChange={(e)=>setNewVenue({...newVenue, capacity_banquet:e.target.value})} /></div>
+          <div className="form-group"><label className="form-label">Theater Capacity</label><input className="form-control" value={newVenue.capacity_theater} onChange={(e)=>setNewVenue({...newVenue, capacity_theater:e.target.value})} /></div>
+          <div className="form-group full-width"><label className="form-label">Image URL</label><input className="form-control" value={newVenue.image1} onChange={(e)=>setNewVenue({...newVenue, image1:e.target.value})} /></div>
+        </div>
+        <div className="builder-actions" style={{ marginBottom: '1rem' }}>
+          <button className="btn btn-primary" onClick={addVenue}>Add Venue</button>
+        </div>
         <div className="selection-grid">
           {venues.map(v => (
             <div key={v.id} className="selection-card">
@@ -177,6 +361,19 @@ function HotelPortal() {
                 <p className="description">{v.description}</p>
                 <p className="size">{v.sqft} sq ft • {v.ceiling_height_ft} ft ceiling</p>
                 <p className="capacity">Reception {v.capacity_reception} • Banquet {v.capacity_banquet} • Theater {v.capacity_theater}</p>
+                <div className="builder-actions">
+                  {editingVenueId===v.id ? (
+                    <>
+                      <button className="btn btn-primary" onClick={saveEditVenue}>Save</button>
+                      <button className="btn btn-outline" onClick={()=>setEditingVenueId(null)}>Cancel</button>
+                    </>
+                  ) : (
+                    <>
+                      <button className="btn btn-outline" onClick={()=>startEditVenue(v)}>Edit</button>
+                      <button className="btn btn-outline" onClick={()=>removeVenue(v.id)}>Delete</button>
+                    </>
+                  )}
+                </div>
               </div>
             </div>
           ))}
@@ -187,6 +384,16 @@ function HotelPortal() {
       {activeTab==='dining' && (
       <section className="card">
         <h2>Dining</h2>
+        <div className="form-grid">
+          <div className="form-group"><label className="form-label">Name</label><input className="form-control" value={newDiningOutlet.name} onChange={(e)=>setNewDiningOutlet({...newDiningOutlet, name:e.target.value})} /></div>
+          <div className="form-group"><label className="form-label">Cuisine</label><input className="form-control" value={newDiningOutlet.cuisine} onChange={(e)=>setNewDiningOutlet({...newDiningOutlet, cuisine:e.target.value})} /></div>
+          <div className="form-group"><label className="form-label">Hours</label><input className="form-control" value={newDiningOutlet.hours} onChange={(e)=>setNewDiningOutlet({...newDiningOutlet, hours:e.target.value})} /></div>
+          <div className="form-group"><label className="form-label">Dress Code</label><input className="form-control" value={newDiningOutlet.dress_code} onChange={(e)=>setNewDiningOutlet({...newDiningOutlet, dress_code:e.target.value})} /></div>
+          <div className="form-group full-width"><label className="form-label">Image URL</label><input className="form-control" value={newDiningOutlet.image1} onChange={(e)=>setNewDiningOutlet({...newDiningOutlet, image1:e.target.value})} /></div>
+        </div>
+        <div className="builder-actions" style={{ marginBottom: '1rem' }}>
+          <button className="btn btn-primary" onClick={addDining}>Add Dining Outlet</button>
+        </div>
         <div className="selection-grid">
           {dining.map(d => (
             <div key={d.id} className="selection-card">
@@ -197,6 +404,19 @@ function HotelPortal() {
                 <h3>{d.name}</h3>
                 <p className="description">{d.description}</p>
                 <p className="room-info">{d.cuisine} • {d.hours} • {d.dress_code}</p>
+                <div className="builder-actions">
+                  {editingDiningId===d.id ? (
+                    <>
+                      <button className="btn btn-primary" onClick={saveEditDining}>Save</button>
+                      <button className="btn btn-outline" onClick={()=>setEditingDiningId(null)}>Cancel</button>
+                    </>
+                  ) : (
+                    <>
+                      <button className="btn btn-outline" onClick={()=>startEditDining(d)}>Edit</button>
+                      <button className="btn btn-outline" onClick={()=>removeDining(d.id)}>Delete</button>
+                    </>
+                  )}
+                </div>
               </div>
             </div>
           ))}
@@ -204,34 +424,7 @@ function HotelPortal() {
       </section>
       )}
 
-      {activeTab==='schema' && (
-      <section className="card">
-        <h2>Schema Sections</h2>
-        <div className="review-grid">
-          {Object.keys(schemaDraft || {}).map((k) => (
-            <div key={k} className="review-item">
-              <strong>{k}</strong>
-              <textarea
-                className="form-control"
-                style={{ minHeight: '160px' }}
-                value={JSON.stringify(schemaDraft[k] ?? {}, null, 2)}
-                onChange={(e)=>{
-                  try {
-                    const val = JSON.parse(e.target.value || '{}');
-                    setSchemaDraft((prev:any)=>({ ...prev, [k]: val }));
-                  } catch {
-                    // ignore until valid JSON
-                  }
-                }}
-              />
-            </div>
-          ))}
-        </div>
-        <div className="builder-actions" style={{ marginTop: '1rem' }}>
-          <button className="btn btn-primary" onClick={saveSchema} disabled={saving}>{saving ? 'Saving...' : 'Save Schema'}</button>
-        </div>
-      </section>
-      )}
+      {/* Sectioned forms for Profile/Contact/Location/Policies/Financials/Amenities/Workflow will continue to be expanded similarly. */}
     </div>
   );
 }
