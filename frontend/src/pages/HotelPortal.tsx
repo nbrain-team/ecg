@@ -23,7 +23,7 @@ function HotelPortal() {
   const [dining, setDining] = useState<any[]>([]);
   const [error, setError] = useState('');
   const [schema, setSchema] = useState<any>({});
-  const [activeTab, setActiveTab] = useState<'overview'|'schema'|'images'|'rooms'|'venues'|'dining'>('overview');
+  const [activeTab, setActiveTab] = useState<'overview'|'profile'|'contact'|'location'|'images'|'policies'|'financials'|'amenities'|'workflow'|'rooms'|'venues'|'dining'>('overview');
   const [saving, setSaving] = useState(false);
   const [schemaDraft, setSchemaDraft] = useState<any>({});
 
@@ -103,8 +103,14 @@ function HotelPortal() {
 
       <div className="builder-actions" style={{ marginBottom: '1rem' }}>
         <button className={`btn ${activeTab==='overview'?'btn-primary':'btn-outline'}`} onClick={()=>setActiveTab('overview')}>Overview</button>
-        <button className={`btn ${activeTab==='schema'?'btn-primary':'btn-outline'}`} onClick={()=>setActiveTab('schema')}>Schema</button>
-        <button className={`btn ${activeTab==='images'?'btn-primary':'btn-outline'}`} onClick={()=>setActiveTab('images')}>Images</button>
+        <button className={`btn ${activeTab==='profile'?'btn-primary':'btn-outline'}`} onClick={()=>setActiveTab('profile')}>Profile</button>
+        <button className={`btn ${activeTab==='contact'?'btn-primary':'btn-outline'}`} onClick={()=>setActiveTab('contact')}>Contact</button>
+        <button className={`btn ${activeTab==='location'?'btn-primary':'btn-outline'}`} onClick={()=>setActiveTab('location')}>Location</button>
+        <button className={`btn ${activeTab==='images'?'btn-primary':'btn-outline'}`} onClick={()=>setActiveTab('images')}>Images & Media</button>
+        <button className={`btn ${activeTab==='policies'?'btn-primary':'btn-outline'}`} onClick={()=>setActiveTab('policies')}>Policies</button>
+        <button className={`btn ${activeTab==='financials'?'btn-primary':'btn-outline'}`} onClick={()=>setActiveTab('financials')}>Financials</button>
+        <button className={`btn ${activeTab==='amenities'?'btn-primary':'btn-outline'}`} onClick={()=>setActiveTab('amenities')}>Amenities</button>
+        <button className={`btn ${activeTab==='workflow'?'btn-primary':'btn-outline'}`} onClick={()=>setActiveTab('workflow')}>Workflow</button>
         <button className={`btn ${activeTab==='rooms'?'btn-primary':'btn-outline'}`} onClick={()=>setActiveTab('rooms')}>Rooms</button>
         <button className={`btn ${activeTab==='venues'?'btn-primary':'btn-outline'}`} onClick={()=>setActiveTab('venues')}>Venues</button>
         <button className={`btn ${activeTab==='dining'?'btn-primary':'btn-outline'}`} onClick={()=>setActiveTab('dining')}>Dining</button>
