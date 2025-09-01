@@ -52,6 +52,8 @@ export async function applySchema(): Promise<void> {
     taxes_fees JSONB,
     network_it JSONB,
     financials_group_contracting JSONB,
+    catering_banquets JSONB,
+    dining_outlets JSONB,
     availability_calendar JSONB,
     amenities_property JSONB,
     accommodations JSONB,
@@ -78,6 +80,8 @@ export async function applySchema(): Promise<void> {
   ALTER TABLE hotels ADD COLUMN IF NOT EXISTS taxes_fees JSONB;
   ALTER TABLE hotels ADD COLUMN IF NOT EXISTS network_it JSONB;
   ALTER TABLE hotels ADD COLUMN IF NOT EXISTS financials_group_contracting JSONB;
+  ALTER TABLE hotels ADD COLUMN IF NOT EXISTS catering_banquets JSONB;
+  ALTER TABLE hotels ADD COLUMN IF NOT EXISTS dining_outlets JSONB;
   ALTER TABLE hotels ADD COLUMN IF NOT EXISTS availability_calendar JSONB;
   ALTER TABLE hotels ADD COLUMN IF NOT EXISTS amenities_property JSONB;
   ALTER TABLE hotels ADD COLUMN IF NOT EXISTS accommodations JSONB;

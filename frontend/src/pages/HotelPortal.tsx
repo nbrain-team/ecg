@@ -24,6 +24,26 @@ function HotelPortal() {
   const [error, setError] = useState('');
   const [schema, setSchema] = useState<any>({});
   const [activeTab, setActiveTab] = useState<'overview'|'schema'|'images'|'rooms'|'venues'|'dining'>('overview');
+  const [saving, setSaving] = useState(false);
+  const [schemaDraft, setSchemaDraft] = useState<any>({});
+
+  useEffect(() => {
+    setSchemaDraft(schema);
+  }, [schema]);
+
+  const saveSchema = async () => {
+    setSaving(true);
+    try {
+      const updates: any = {};
+      Object.keys(schemaDraft || {}).forEach((k) => { updates[k] = schemaDraft[k]; });
+      await axios.put(`${apiUrl}/api/hotels/sections`, { updates }, auth);
+      setSchema(schemaDraft);
+    } catch (e: any) {
+      setError(e.response?.data?.message || 'Failed to save');
+    } finally {
+      setSaving(false);
+    }
+  };
 
   const token = localStorage.getItem('hotelToken');
   const auth = { headers: { Authorization: `Bearer ${token}` } };
@@ -169,12 +189,27 @@ function HotelPortal() {
       <section className="card">
         <h2>Schema Sections</h2>
         <div className="review-grid">
-          {Object.keys(schema || {}).map((k) => (
+          {Object.keys(schemaDraft || {}).map((k) => (
             <div key={k} className="review-item">
               <strong>{k}</strong>
-              <pre style={{ whiteSpace: 'pre-wrap' }}>{JSON.stringify(schema[k], null, 2)}</pre>
+              <textarea
+                className="form-control"
+                style={{ minHeight: '160px' }}
+                value={JSON.stringify(schemaDraft[k] ?? {}, null, 2)}
+                onChange={(e)=>{
+                  try {
+                    const val = JSON.parse(e.target.value || '{}');
+                    setSchemaDraft((prev:any)=>({ ...prev, [k]: val }));
+                  } catch {
+                    // ignore until valid JSON
+                  }
+                }}
+              />
             </div>
           ))}
+        </div>
+        <div className="builder-actions" style={{ marginTop: '1rem' }}>
+          <button className="btn btn-primary" onClick={saveSchema} disabled={saving}>{saving ? 'Saving...' : 'Save Schema'}</button>
         </div>
       </section>
       )}

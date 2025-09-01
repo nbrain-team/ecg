@@ -98,7 +98,7 @@ router.put('/sections', requireAuth(['hotel', 'admin']), async (req: Authenticat
     const updates = req.body?.updates || {};
     const allowed = [
       'schema_header','metadata','identity','contact','location','images_media','accessibility_ada','sustainability',
-      'policies','taxes_fees','network_it','financials_group_contracting','availability_calendar','amenities_property',
+      'policies','taxes_fees','network_it','financials_group_contracting','catering_banquets','dining_outlets','availability_calendar','amenities_property',
       'accommodations','meeting_event_spaces','outdoor_spaces','activities','risk_safety_compliance','ai_hints','workflow'
     ];
     const setFragments: string[] = [];
