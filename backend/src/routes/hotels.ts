@@ -72,6 +72,57 @@ router.put('/me', requireAuth(['hotel', 'admin']), async (req: AuthenticatedRequ
   }
 });
 
+// Get only schema JSON sections
+router.get('/schema', requireAuth(['hotel', 'admin']), async (req: AuthenticatedRequest, res) => {
+  try {
+    const hotelId = req.user?.role === 'admin' ? (req.query.hotelId as string) : req.user?.hotelId;
+    if (!hotelId) return res.status(400).json({ message: 'Missing hotelId' });
+    const { rows } = await pool.query(
+      `SELECT 
+        schema_header, metadata, identity, contact, location, images_media, accessibility_ada, sustainability,
+        policies, taxes_fees, network_it, financials_group_contracting, availability_calendar, amenities_property,
+        accommodations, meeting_event_spaces, outdoor_spaces, activities, risk_safety_compliance, ai_hints, workflow
+       FROM hotels WHERE id = $1`, [hotelId]);
+    res.json(rows[0] || {});
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: 'Server error' });
+  }
+});
+
+// Update one or more schema JSON sections
+router.put('/sections', requireAuth(['hotel', 'admin']), async (req: AuthenticatedRequest, res) => {
+  try {
+    const hotelId = req.user?.role === 'admin' ? (req.body.hotelId as string) : req.user?.hotelId;
+    if (!hotelId) return res.status(400).json({ message: 'Missing hotelId' });
+    const updates = req.body?.updates || {};
+    const allowed = [
+      'schema_header','metadata','identity','contact','location','images_media','accessibility_ada','sustainability',
+      'policies','taxes_fees','network_it','financials_group_contracting','availability_calendar','amenities_property',
+      'accommodations','meeting_event_spaces','outdoor_spaces','activities','risk_safety_compliance','ai_hints','workflow'
+    ];
+    const setFragments: string[] = [];
+    const values: any[] = [hotelId];
+    let i = 2;
+    for (const key of allowed) {
+      if (updates[key] !== undefined) {
+        setFragments.push(`${key} = $${i}`);
+        values.push(updates[key]);
+        i++;
+      }
+    }
+    if (setFragments.length === 0) {
+      return res.status(400).json({ message: 'No valid sections provided' });
+    }
+    const sql = `UPDATE hotels SET ${setFragments.join(', ')}, updated_at = NOW() WHERE id = $1 RETURNING *`;
+    const { rows } = await pool.query(sql, values);
+    res.json(rows[0]);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: 'Server error' });
+  }
+});
+
 // Images
 router.get('/images', requireAuth(['hotel', 'admin']), async (req: AuthenticatedRequest, res) => {
   const hotelId = req.user?.role === 'admin' ? (req.query.hotelId as string) : req.user?.hotelId;

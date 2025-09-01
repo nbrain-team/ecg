@@ -40,9 +40,53 @@ export async function applySchema(): Promise<void> {
     longitude DECIMAL(9,6),
     rating_standard VARCHAR(20),
     rating_level VARCHAR(20),
+    schema_header JSONB,
+    metadata JSONB,
+    identity JSONB,
+    contact JSONB,
+    location JSONB,
+    images_media JSONB,
+    accessibility_ada JSONB,
+    sustainability JSONB,
+    policies JSONB,
+    taxes_fees JSONB,
+    network_it JSONB,
+    financials_group_contracting JSONB,
+    availability_calendar JSONB,
+    amenities_property JSONB,
+    accommodations JSONB,
+    meeting_event_spaces JSONB,
+    outdoor_spaces JSONB,
+    activities JSONB,
+    risk_safety_compliance JSONB,
+    ai_hints JSONB,
+    workflow JSONB,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
   );
+
+  -- Add JSONB columns if table already existed
+  ALTER TABLE hotels ADD COLUMN IF NOT EXISTS schema_header JSONB;
+  ALTER TABLE hotels ADD COLUMN IF NOT EXISTS metadata JSONB;
+  ALTER TABLE hotels ADD COLUMN IF NOT EXISTS identity JSONB;
+  ALTER TABLE hotels ADD COLUMN IF NOT EXISTS contact JSONB;
+  ALTER TABLE hotels ADD COLUMN IF NOT EXISTS location JSONB;
+  ALTER TABLE hotels ADD COLUMN IF NOT EXISTS images_media JSONB;
+  ALTER TABLE hotels ADD COLUMN IF NOT EXISTS accessibility_ada JSONB;
+  ALTER TABLE hotels ADD COLUMN IF NOT EXISTS sustainability JSONB;
+  ALTER TABLE hotels ADD COLUMN IF NOT EXISTS policies JSONB;
+  ALTER TABLE hotels ADD COLUMN IF NOT EXISTS taxes_fees JSONB;
+  ALTER TABLE hotels ADD COLUMN IF NOT EXISTS network_it JSONB;
+  ALTER TABLE hotels ADD COLUMN IF NOT EXISTS financials_group_contracting JSONB;
+  ALTER TABLE hotels ADD COLUMN IF NOT EXISTS availability_calendar JSONB;
+  ALTER TABLE hotels ADD COLUMN IF NOT EXISTS amenities_property JSONB;
+  ALTER TABLE hotels ADD COLUMN IF NOT EXISTS accommodations JSONB;
+  ALTER TABLE hotels ADD COLUMN IF NOT EXISTS meeting_event_spaces JSONB;
+  ALTER TABLE hotels ADD COLUMN IF NOT EXISTS outdoor_spaces JSONB;
+  ALTER TABLE hotels ADD COLUMN IF NOT EXISTS activities JSONB;
+  ALTER TABLE hotels ADD COLUMN IF NOT EXISTS risk_safety_compliance JSONB;
+  ALTER TABLE hotels ADD COLUMN IF NOT EXISTS ai_hints JSONB;
+  ALTER TABLE hotels ADD COLUMN IF NOT EXISTS workflow JSONB;
 
   CREATE TABLE IF NOT EXISTS hotel_users (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -87,9 +131,13 @@ export async function applySchema(): Promise<void> {
     capacity_reception INTEGER,
     capacity_banquet INTEGER,
     capacity_theater INTEGER,
+    outdoor BOOLEAN DEFAULT false,
+    details JSONB,
     images JSONB,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
   );
+  ALTER TABLE hotel_venues ADD COLUMN IF NOT EXISTS outdoor BOOLEAN DEFAULT false;
+  ALTER TABLE hotel_venues ADD COLUMN IF NOT EXISTS details JSONB;
 
   CREATE TABLE IF NOT EXISTS hotel_dining (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -99,9 +147,11 @@ export async function applySchema(): Promise<void> {
     description TEXT,
     hours VARCHAR(255),
     dress_code VARCHAR(100),
+    details JSONB,
     images JSONB,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
   );
+  ALTER TABLE hotel_dining ADD COLUMN IF NOT EXISTS details JSONB;
 
   CREATE TABLE IF NOT EXISTS hotel_rates (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),

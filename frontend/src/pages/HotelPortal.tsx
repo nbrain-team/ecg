@@ -22,6 +22,8 @@ function HotelPortal() {
   const [venues, setVenues] = useState<any[]>([]);
   const [dining, setDining] = useState<any[]>([]);
   const [error, setError] = useState('');
+  const [schema, setSchema] = useState<any>({});
+  const [activeTab, setActiveTab] = useState<'overview'|'schema'|'images'|'rooms'|'venues'|'dining'>('overview');
 
   const token = localStorage.getItem('hotelToken');
   const auth = { headers: { Authorization: `Bearer ${token}` } };
@@ -29,14 +31,16 @@ function HotelPortal() {
   const fetchAll = async () => {
     try {
       setError('');
-      const [h, im, rm, vn, dn] = await Promise.all([
+      const [h, sc, im, rm, vn, dn] = await Promise.all([
         axios.get(`${apiUrl}/api/hotels/me`, auth),
+        axios.get(`${apiUrl}/api/hotels/schema`, auth),
         axios.get(`${apiUrl}/api/hotels/images`, auth),
         axios.get(`${apiUrl}/api/hotels/rooms`, auth),
         axios.get(`${apiUrl}/api/hotels/venues`, auth),
         axios.get(`${apiUrl}/api/hotels/dining`, auth)
       ]);
       setHotel(h.data);
+      setSchema(sc.data || {});
       setImages(im.data);
       setRooms(rm.data);
       setVenues(vn.data);
@@ -64,6 +68,26 @@ function HotelPortal() {
       </div>
       {error && <div className="alert alert-error">{error}</div>}
 
+      <div className="builder-actions" style={{ marginBottom: '1rem' }}>
+        <button className={`btn ${activeTab==='overview'?'btn-primary':'btn-outline'}`} onClick={()=>setActiveTab('overview')}>Overview</button>
+        <button className={`btn ${activeTab==='schema'?'btn-primary':'btn-outline'}`} onClick={()=>setActiveTab('schema')}>Schema</button>
+        <button className={`btn ${activeTab==='images'?'btn-primary':'btn-outline'}`} onClick={()=>setActiveTab('images')}>Images</button>
+        <button className={`btn ${activeTab==='rooms'?'btn-primary':'btn-outline'}`} onClick={()=>setActiveTab('rooms')}>Rooms</button>
+        <button className={`btn ${activeTab==='venues'?'btn-primary':'btn-outline'}`} onClick={()=>setActiveTab('venues')}>Venues</button>
+        <button className={`btn ${activeTab==='dining'?'btn-primary':'btn-outline'}`} onClick={()=>setActiveTab('dining')}>Dining</button>
+      </div>
+
+      {activeTab==='overview' && (
+      <section className="card">
+        <h2>Overview</h2>
+        <div className="review-grid">
+          <div className="review-item"><strong>Website:</strong> {hotel?.website}</div>
+          <div className="review-item"><strong>Address:</strong> {hotel?.address}, {hotel?.city}, {hotel?.country}</div>
+        </div>
+      </section>
+      )}
+
+      {activeTab==='images' && (
       <section className="card">
         <h2>Images</h2>
         <div className="selection-grid">
@@ -77,7 +101,9 @@ function HotelPortal() {
           ))}
         </div>
       </section>
+      )}
 
+      {activeTab==='rooms' && (
       <section className="card">
         <h2>Rooms</h2>
         <div className="selection-grid">
@@ -96,7 +122,9 @@ function HotelPortal() {
           ))}
         </div>
       </section>
+      )}
 
+      {activeTab==='venues' && (
       <section className="card">
         <h2>Venues</h2>
         <div className="selection-grid">
@@ -115,7 +143,9 @@ function HotelPortal() {
           ))}
         </div>
       </section>
+      )}
 
+      {activeTab==='dining' && (
       <section className="card">
         <h2>Dining</h2>
         <div className="selection-grid">
@@ -133,6 +163,21 @@ function HotelPortal() {
           ))}
         </div>
       </section>
+      )}
+
+      {activeTab==='schema' && (
+      <section className="card">
+        <h2>Schema Sections</h2>
+        <div className="review-grid">
+          {Object.keys(schema || {}).map((k) => (
+            <div key={k} className="review-item">
+              <strong>{k}</strong>
+              <pre style={{ whiteSpace: 'pre-wrap' }}>{JSON.stringify(schema[k], null, 2)}</pre>
+            </div>
+          ))}
+        </div>
+      </section>
+      )}
     </div>
   );
 }
