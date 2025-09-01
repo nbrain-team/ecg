@@ -79,9 +79,10 @@ router.get('/schema', requireAuth(['hotel', 'admin']), async (req: Authenticated
     if (!hotelId) return res.status(400).json({ message: 'Missing hotelId' });
     const { rows } = await pool.query(
       `SELECT 
-        schema_header, metadata, identity, contact, location, images_media, accessibility_ada, sustainability,
-        policies, taxes_fees, network_it, financials_group_contracting, availability_calendar, amenities_property,
-        accommodations, meeting_event_spaces, outdoor_spaces, activities, risk_safety_compliance, ai_hints, workflow
+        "schema_header", "metadata", "identity" as identity, "contact", "location", "images_media", "accessibility_ada", "sustainability",
+        "policies", "taxes_fees", "network_it", "financials_group_contracting", "availability_calendar", "amenities_property",
+        "accommodations", "meeting_event_spaces", "outdoor_spaces", "activities", "risk_safety_compliance", "ai_hints", "workflow",
+        "catering_banquets", "dining_outlets"
        FROM hotels WHERE id = $1`, [hotelId]);
     res.json(rows[0] || {});
   } catch (err) {
@@ -106,7 +107,7 @@ router.put('/sections', requireAuth(['hotel', 'admin']), async (req: Authenticat
     let i = 2;
     for (const key of allowed) {
       if (updates[key] !== undefined) {
-        setFragments.push(`${key} = $${i}`);
+        setFragments.push(`"${key}" = $${i}`);
         values.push(updates[key]);
         i++;
       }
