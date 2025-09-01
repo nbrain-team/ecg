@@ -4,6 +4,9 @@ import dotenv from 'dotenv';
 import proposalRoutes from './routes/proposals';
 import destinationRoutes from './routes/destinations';
 import authRoutes from './routes/auth';
+import hotelRoutes from './routes/hotels';
+import './db/migrate';
+import { bootstrapGrandVelasIfMissing } from './db/bootstrap';
 
 dotenv.config();
 
@@ -31,6 +34,7 @@ app.get('/health', (req, res) => {
 app.use('/api/auth', authRoutes);
 app.use('/api/proposals', proposalRoutes);
 app.use('/api/destinations', destinationRoutes);
+app.use('/api/hotels', hotelRoutes);
 
 // Error handling middleware
 app.use((err: any, req: express.Request, res: express.Response, next: express.NextFunction) => {
@@ -50,4 +54,6 @@ app.use((req, res) => {
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
   console.log(`Environment: ${process.env.NODE_ENV || 'development'}`);
+  // Best-effort bootstrap on startup (safe if DB connected)
+  bootstrapGrandVelasIfMissing().catch(() => {});
 }); 
