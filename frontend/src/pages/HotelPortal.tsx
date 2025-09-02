@@ -65,7 +65,31 @@ function HotelPortal() {
   const [editDiningForm, setEditDiningForm] = useState<any>({ name: '', cuisine: '', description: '', hours: '', dress_code: '', image1: '', attributes: { buyout_available: 'false', buyout_min_spend_usd: '', seating_capacity: '', standing_capacity: '', private_rooms_csv: '', outdoor: 'false', noise_restrictions_after: '' } });
 
   useEffect(() => {
-    setSchemaDraft(schema);
+    // Convert old amenities_property object format to array format
+    if (schema && schema.amenities_property && !Array.isArray(schema.amenities_property)) {
+      const amenitiesArray = Object.entries(schema.amenities_property)
+        .filter(([_, value]) => value)
+        .map(([key]) => {
+          // Convert snake_case to Title Case for matching with AMENITIES_LIST
+          const formatted = key.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
+          // Map to exact names in AMENITIES_LIST
+          const mapping: {[key: string]: string} = {
+            'Pool': 'Pool',
+            'Fitness Center': 'Fitness Center',
+            'Spa': 'Spa',
+            'Beach Access': 'Beach Access',
+            'Business Center': 'Business Center'
+          };
+          return mapping[formatted] || formatted;
+        })
+        .filter(amenity => AMENITIES_LIST.includes(amenity));
+      setSchemaDraft({
+        ...schema,
+        amenities_property: amenitiesArray
+      });
+    } else {
+      setSchemaDraft(schema);
+    }
   }, [schema]);
 
   const saveSchema = async () => {
@@ -424,11 +448,19 @@ function HotelPortal() {
             <div className="hotel-section">
               <h3>Amenities & Features</h3>
               <div className="amenity-grid">
-                {(schemaDraft?.amenities_property || []).map((amenity: string, i: number) => (
-                  <div key={i} className="amenity-item">
-                    <span>✓</span> {amenity}
-                  </div>
-                ))}
+                {Array.isArray(schemaDraft?.amenities_property) ? 
+                  schemaDraft.amenities_property.map((amenity: string, i: number) => (
+                    <div key={i} className="amenity-item">
+                      <span>✓</span> {amenity}
+                    </div>
+                  )) : 
+                  // If it's the old object format, show what's available
+                  Object.entries(schemaDraft?.amenities_property || {}).filter(([_, value]) => value).map(([key], i) => (
+                    <div key={i} className="amenity-item">
+                      <span>✓</span> {key.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase())}
+                    </div>
+                  ))
+                }
               </div>
             </div>
             
@@ -674,9 +706,16 @@ function HotelPortal() {
                 <input 
                   type="checkbox" 
                   id={amenity}
-                  checked={(schemaDraft?.amenities_property || []).includes(amenity)}
+                  checked={
+                    Array.isArray(schemaDraft?.amenities_property) 
+                      ? schemaDraft.amenities_property.includes(amenity)
+                      : false
+                  }
                   onChange={(e) => {
-                    const current = schemaDraft?.amenities_property || [];
+                    // Convert to array format if needed
+                    const current = Array.isArray(schemaDraft?.amenities_property) 
+                      ? schemaDraft.amenities_property 
+                      : [];
                     if (e.target.checked) {
                       updateDraft(['amenities_property'], [...current, amenity]);
                     } else {
