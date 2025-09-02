@@ -417,6 +417,7 @@ function HotelPortal() {
         <button className={`btn btn-sm ${activeTab==='dining'?'btn-primary':'btn-outline'}`} onClick={()=>setActiveTab('dining')}>Dining</button>
       </div>
 
+      <div className="tab-content">
       {activeTab==='overview' && (
       <div className="hotel-profile">
         {/* Hero Section */}
@@ -869,6 +870,7 @@ function HotelPortal() {
         </div>
       </section>
       )}
+      </div>
 
       {/* Modal for editing */}
       <Modal 

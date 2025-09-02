@@ -432,6 +432,11 @@ a:hover {
   margin-top: 0.75rem;
 }
 
+/* Tab content wrapper for consistent spacing */
+.tab-content {
+  margin-top: 1rem;
+}
+
 /* Compact selection grid */
 .selection-grid {
   gap: 0.5rem;
@@ -563,6 +568,7 @@ a:hover {
 .hotel-profile {
   max-width: 1200px;
   margin: 0 auto;
+  padding: 0;
 }
 
 .hotel-hero {
