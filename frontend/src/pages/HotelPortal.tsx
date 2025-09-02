@@ -141,7 +141,8 @@ function HotelPortal() {
         view: newRoom.view,
         capacity: Number(newRoom.capacity||0),
         base_rate: Number(newRoom.base_rate||0),
-        images: newRoom.image1 ? [newRoom.image1] : []
+        images: newRoom.image1 ? [newRoom.image1] : [],
+        attributes: newRoom.attributes || null
       };
       await axios.post(`${apiUrl}/api/hotels/rooms`, payload, auth);
       setNewRoom({ name: '', description: '', size_sqft: '', view: '', capacity: '', base_rate: '', image1: '' });
@@ -162,7 +163,8 @@ function HotelPortal() {
         view: editRoomForm.view,
         capacity: editRoomForm.capacity === '' ? null : Number(editRoomForm.capacity),
         base_rate: editRoomForm.base_rate === '' ? null : Number(editRoomForm.base_rate),
-        images: editRoomForm.image1 ? [editRoomForm.image1] : []
+        images: editRoomForm.image1 ? [editRoomForm.image1] : [],
+        attributes: editRoomForm.attributes || null
       };
       await axios.put(`${apiUrl}/api/hotels/rooms/${editingRoomId}`, payload, auth);
       setEditingRoomId(null);
@@ -504,23 +506,35 @@ function HotelPortal() {
                 <img src={v.images[0]} alt={v.name} />
               )}
               <div className="card-content">
-                <h3>{v.name}</h3>
-                <p className="description">{v.description}</p>
-                <p className="size">{v.sqft} sq ft • {v.ceiling_height_ft} ft ceiling</p>
-                <p className="capacity">Reception {v.capacity_reception} • Banquet {v.capacity_banquet} • Theater {v.capacity_theater}</p>
-                <div className="builder-actions">
-                  {editingVenueId===v.id ? (
-                    <>
+                {editingVenueId===v.id ? (
+                  <>
+                    <div className="form-grid">
+                      <div className="form-group"><label className="form-label">Name</label><input className="form-control" value={editVenueForm.name} onChange={(e)=>setEditVenueForm({...editVenueForm, name:e.target.value})} /></div>
+                      <div className="form-group"><label className="form-label">Description</label><input className="form-control" value={editVenueForm.description} onChange={(e)=>setEditVenueForm({...editVenueForm, description:e.target.value})} /></div>
+                      <div className="form-group"><label className="form-label">Sq Ft</label><input className="form-control" value={editVenueForm.sqft} onChange={(e)=>setEditVenueForm({...editVenueForm, sqft:e.target.value})} /></div>
+                      <div className="form-group"><label className="form-label">Ceiling Height (ft)</label><input className="form-control" value={editVenueForm.ceiling_height_ft} onChange={(e)=>setEditVenueForm({...editVenueForm, ceiling_height_ft:e.target.value})} /></div>
+                      <div className="form-group"><label className="form-label">Reception Capacity</label><input className="form-control" value={editVenueForm.capacity_reception} onChange={(e)=>setEditVenueForm({...editVenueForm, capacity_reception:e.target.value})} /></div>
+                      <div className="form-group"><label className="form-label">Banquet Capacity</label><input className="form-control" value={editVenueForm.capacity_banquet} onChange={(e)=>setEditVenueForm({...editVenueForm, capacity_banquet:e.target.value})} /></div>
+                      <div className="form-group"><label className="form-label">Theater Capacity</label><input className="form-control" value={editVenueForm.capacity_theater} onChange={(e)=>setEditVenueForm({...editVenueForm, capacity_theater:e.target.value})} /></div>
+                      <div className="form-group full-width"><label className="form-label">Image URL</label><input className="form-control" value={editVenueForm.image1} onChange={(e)=>setEditVenueForm({...editVenueForm, image1:e.target.value})} /></div>
+                    </div>
+                    <div className="builder-actions">
                       <button className="btn btn-primary" onClick={saveEditVenue}>Save</button>
                       <button className="btn btn-outline" onClick={()=>setEditingVenueId(null)}>Cancel</button>
-                    </>
-                  ) : (
-                    <>
+                    </div>
+                  </>
+                ) : (
+                  <>
+                    <h3>{v.name}</h3>
+                    <p className="description">{v.description}</p>
+                    <p className="size">{v.sqft} sq ft • {v.ceiling_height_ft} ft ceiling</p>
+                    <p className="capacity">Reception {v.capacity_reception} • Banquet {v.capacity_banquet} • Theater {v.capacity_theater}</p>
+                    <div className="builder-actions">
                       <button className="btn btn-outline" onClick={()=>startEditVenue(v)}>Edit</button>
                       <button className="btn btn-outline" onClick={()=>removeVenue(v.id)}>Delete</button>
-                    </>
-                  )}
-                </div>
+                    </div>
+                  </>
+                )}
               </div>
             </div>
           ))}
@@ -548,22 +562,31 @@ function HotelPortal() {
                 <img src={d.images[0]} alt={d.name} />
               )}
               <div className="card-content">
-                <h3>{d.name}</h3>
-                <p className="description">{d.description}</p>
-                <p className="room-info">{d.cuisine} • {d.hours} • {d.dress_code}</p>
-                <div className="builder-actions">
-                  {editingDiningId===d.id ? (
-                    <>
+                {editingDiningId===d.id ? (
+                  <>
+                    <div className="form-grid">
+                      <div className="form-group"><label className="form-label">Name</label><input className="form-control" value={editDiningForm.name} onChange={(e)=>setEditDiningForm({...editDiningForm, name:e.target.value})} /></div>
+                      <div className="form-group"><label className="form-label">Cuisine</label><input className="form-control" value={editDiningForm.cuisine} onChange={(e)=>setEditDiningForm({...editDiningForm, cuisine:e.target.value})} /></div>
+                      <div className="form-group"><label className="form-label">Hours</label><input className="form-control" value={editDiningForm.hours} onChange={(e)=>setEditDiningForm({...editDiningForm, hours:e.target.value})} /></div>
+                      <div className="form-group"><label className="form-label">Dress Code</label><input className="form-control" value={editDiningForm.dress_code} onChange={(e)=>setEditDiningForm({...editDiningForm, dress_code:e.target.value})} /></div>
+                      <div className="form-group full-width"><label className="form-label">Image URL</label><input className="form-control" value={editDiningForm.image1} onChange={(e)=>setEditDiningForm({...editDiningForm, image1:e.target.value})} /></div>
+                    </div>
+                    <div className="builder-actions">
                       <button className="btn btn-primary" onClick={saveEditDining}>Save</button>
                       <button className="btn btn-outline" onClick={()=>setEditingDiningId(null)}>Cancel</button>
-                    </>
-                  ) : (
-                    <>
+                    </div>
+                  </>
+                ) : (
+                  <>
+                    <h3>{d.name}</h3>
+                    <p className="description">{d.description}</p>
+                    <p className="room-info">{d.cuisine} • {d.hours} • {d.dress_code}</p>
+                    <div className="builder-actions">
                       <button className="btn btn-outline" onClick={()=>startEditDining(d)}>Edit</button>
                       <button className="btn btn-outline" onClick={()=>removeDining(d.id)}>Delete</button>
-                    </>
-                  )}
-                </div>
+                    </div>
+                  </>
+                )}
               </div>
             </div>
           ))}

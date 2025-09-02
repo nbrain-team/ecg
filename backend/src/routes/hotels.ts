@@ -230,11 +230,11 @@ router.get('/rooms', requireAuth(['hotel', 'admin']), async (req: AuthenticatedR
 
 router.post('/rooms', requireAuth(['hotel', 'admin']), async (req: AuthenticatedRequest, res) => {
   const hotelId = req.user?.role === 'admin' ? (req.body.hotelId as string) : req.user?.hotelId;
-  const { name, description, size_sqft, view, capacity, base_rate, images } = req.body;
+  const { name, description, size_sqft, view, capacity, base_rate, images, attributes } = req.body;
   const { rows } = await pool.query(
-    `INSERT INTO hotel_rooms (hotel_id, name, description, size_sqft, view, capacity, base_rate, images)
-     VALUES ($1,$2,$3,$4,$5,$6,$7,$8) RETURNING *`,
-    [hotelId, name, description, size_sqft, view, capacity, base_rate, JSON.stringify(images || [])]
+    `INSERT INTO hotel_rooms (hotel_id, name, description, size_sqft, view, capacity, base_rate, images, attributes)
+     VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9) RETURNING *`,
+    [hotelId, name, description, size_sqft, view, capacity, base_rate, JSON.stringify(images || []), attributes || null]
   );
   res.status(201).json(rows[0]);
 });
@@ -242,11 +242,11 @@ router.post('/rooms', requireAuth(['hotel', 'admin']), async (req: Authenticated
 router.put('/rooms/:id', requireAuth(['hotel', 'admin']), async (req: AuthenticatedRequest, res) => {
   const hotelId = req.user?.role === 'admin' ? (req.body.hotelId as string) : req.user?.hotelId;
   const { id } = req.params;
-  const { name, description, size_sqft, view, capacity, base_rate, images } = req.body;
+  const { name, description, size_sqft, view, capacity, base_rate, images, attributes } = req.body;
   const { rows } = await pool.query(
-    `UPDATE hotel_rooms SET name=COALESCE($3,name), description=COALESCE($4,description), size_sqft=COALESCE($5,size_sqft), view=COALESCE($6,view), capacity=COALESCE($7,capacity), base_rate=COALESCE($8,base_rate), images=COALESCE($9,images)
+    `UPDATE hotel_rooms SET name=COALESCE($3,name), description=COALESCE($4,description), size_sqft=COALESCE($5,size_sqft), view=COALESCE($6,view), capacity=COALESCE($7,capacity), base_rate=COALESCE($8,base_rate), images=COALESCE($9,images), attributes=COALESCE($10,attributes)
      WHERE id=$1 AND hotel_id=$2 RETURNING *`,
-    [id, hotelId, name, description, size_sqft, view, capacity, base_rate, JSON.stringify(images || null)]
+    [id, hotelId, name, description, size_sqft, view, capacity, base_rate, JSON.stringify(images || null), attributes || null]
   );
   res.json(rows[0]);
 });
@@ -267,11 +267,11 @@ router.get('/venues', requireAuth(['hotel', 'admin']), async (req: Authenticated
 
 router.post('/venues', requireAuth(['hotel', 'admin']), async (req: AuthenticatedRequest, res) => {
   const hotelId = req.user?.role === 'admin' ? (req.body.hotelId as string) : req.user?.hotelId;
-  const { name, description, sqft, ceiling_height_ft, capacity_reception, capacity_banquet, capacity_theater, images } = req.body;
+  const { name, description, sqft, ceiling_height_ft, capacity_reception, capacity_banquet, capacity_theater, images, outdoor, details, attributes } = req.body;
   const { rows } = await pool.query(
-    `INSERT INTO hotel_venues (hotel_id, name, description, sqft, ceiling_height_ft, capacity_reception, capacity_banquet, capacity_theater, images)
-     VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9) RETURNING *`,
-    [hotelId, name, description, sqft, ceiling_height_ft, capacity_reception, capacity_banquet, capacity_theater, JSON.stringify(images || [])]
+    `INSERT INTO hotel_venues (hotel_id, name, description, sqft, ceiling_height_ft, capacity_reception, capacity_banquet, capacity_theater, images, outdoor, details, attributes)
+     VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12) RETURNING *`,
+    [hotelId, name, description, sqft, ceiling_height_ft, capacity_reception, capacity_banquet, capacity_theater, JSON.stringify(images || []), outdoor ?? false, details || null, attributes || null]
   );
   res.status(201).json(rows[0]);
 });
@@ -306,11 +306,11 @@ router.get('/dining', requireAuth(['hotel', 'admin']), async (req: Authenticated
 
 router.post('/dining', requireAuth(['hotel', 'admin']), async (req: AuthenticatedRequest, res) => {
   const hotelId = req.user?.role === 'admin' ? (req.body.hotelId as string) : req.user?.hotelId;
-  const { name, cuisine, description, hours, dress_code, images } = req.body;
+  const { name, cuisine, description, hours, dress_code, images, details, attributes } = req.body;
   const { rows } = await pool.query(
-    `INSERT INTO hotel_dining (hotel_id, name, cuisine, description, hours, dress_code, images)
-     VALUES ($1,$2,$3,$4,$5,$6,$7) RETURNING *`,
-    [hotelId, name, cuisine, description, hours, dress_code, JSON.stringify(images || [])]
+    `INSERT INTO hotel_dining (hotel_id, name, cuisine, description, hours, dress_code, images, details, attributes)
+     VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9) RETURNING *`,
+    [hotelId, name, cuisine, description, hours, dress_code, JSON.stringify(images || []), details || null, attributes || null]
   );
   res.status(201).json(rows[0]);
 });
