@@ -7,6 +7,7 @@ import Dashboard from './pages/Dashboard';
 import ProposalBuilder from './pages/ProposalBuilder';
 import ProposalView from './pages/ProposalView';
 import PublicProposal from './pages/PublicProposal';
+import ChatbotProposal from './pages/ChatbotProposal';
 import './App.css';
 
 function App() {
@@ -76,13 +77,21 @@ function App() {
               <Navigate to="/hotel/login" />
           } 
         />
-        <Route 
+                <Route 
           path="/proposal/new" 
           element={
             isAuthenticated ? 
               <ProposalBuilder /> : 
               <Navigate to="/login" />
-          } 
+          }
+        />
+        <Route 
+          path="/proposal/chat" 
+          element={
+            isAuthenticated ? 
+              <ChatbotProposal /> : 
+              <Navigate to="/login" />
+          }
         />
         <Route 
           path="/proposal/share/:shareId" 

@@ -112,10 +112,17 @@ function Dashboard({ onLogout }: DashboardProps) {
             <div className="header-right">
               <button 
                 className="btn btn-primary"
+                onClick={() => navigate('/proposal/chat')}
+              >
+                <Plus size={20} />
+                Chat Assistant
+              </button>
+              <button 
+                className="btn btn-outline"
                 onClick={() => navigate('/proposal/new')}
               >
                 <Plus size={20} />
-                New Proposal
+                Form Builder
               </button>
               <button 
                 className="btn btn-outline"
