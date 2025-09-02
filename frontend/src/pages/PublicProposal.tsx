@@ -40,9 +40,11 @@ function PublicProposal() {
     try {
       const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:5000';
       const response = await axios.get(`${apiUrl}/api/proposals/share/${shareId}`);
+      console.log('Fetched proposal data:', response.data);
       setProposal(response.data);
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error fetching proposal:', error);
+      console.error('Error details:', error.response?.data || error.message);
     } finally {
       setLoading(false);
     }
@@ -135,7 +137,7 @@ function PublicProposal() {
                 <li><strong>Event Type:</strong> {proposal.eventDetails.purpose}</li>
                 <li><strong>Duration:</strong> {Math.ceil((new Date(proposal.eventDetails.endDate).getTime() - new Date(proposal.eventDetails.startDate).getTime()) / (1000 * 60 * 60 * 24)) + 1} days</li>
                 <li><strong>Group Size:</strong> {proposal.eventDetails.attendeeCount} attendees</li>
-                <li><strong>Venue:</strong> {proposal.resort.name}</li>
+                <li><strong>Venue:</strong> {proposal.resort?.name || 'Venue TBD'}</li>
               </ul>
             </div>
           </div>
@@ -179,35 +181,36 @@ function PublicProposal() {
       </section>
 
       {/* Resort Section */}
+      {proposal.resort && (
       <section id="resort" className="proposal-section resort-section">
         <div className="section-container">
-          <h2 className="section-title">{proposal.resort.name}</h2>
+          <h2 className="section-title">{proposal.resort?.name || 'Resort Information'}</h2>
           <div className="resort-header">
             <div className="resort-rating">
               {[...Array(5)].map((_, i) => (
-                <Star key={i} size={20} fill={i < proposal.resort.rating ? 'currentColor' : 'none'} />
+                <Star key={i} size={20} fill={i < (proposal.resort?.rating || 0) ? 'currentColor' : 'none'} />
               ))}
-              <span className="price-range">{proposal.resort.priceRange}</span>
+              <span className="price-range">{proposal.resort?.priceRange || ''}</span>
             </div>
           </div>
           
-          <p className="resort-description">{proposal.generatedContent?.resortHighlight || proposal.resort.description}</p>
+          <p className="resort-description">{proposal.generatedContent?.resortHighlight || proposal.resort?.description || 'Resort description coming soon.'}</p>
           
           {/* Enhanced gallery with full-width hero image */}
-          {proposal.resort.images?.length > 0 && (
+          {proposal.resort?.images?.length > 0 && (
             <div className="resort-gallery-enhanced">
               <div className="gallery-hero">
-                <img src={proposal.resort.images[0]} alt={proposal.resort.name} />
+                <img src={proposal.resort.images[0]} alt={proposal.resort?.name || 'Resort'} />
                 <div className="gallery-overlay">
                   <h3>Welcome to Paradise</h3>
-                  <p>Experience luxury redefined at {proposal.resort.name}</p>
+                  <p>Experience luxury redefined at {proposal.resort?.name || 'this resort'}</p>
                 </div>
               </div>
-              {proposal.resort.images.length > 1 && (
+              {proposal.resort?.images?.length > 1 && (
                 <div className="gallery-grid">
-                  {proposal.resort.images.slice(1, 5).map((image: string, index: number) => (
+                  {proposal.resort?.images?.slice(1, 5).map((image: string, index: number) => (
                     <div key={index} className="gallery-item">
-                      <img src={image} alt={`${proposal.resort.name} ${index + 2}`} />
+                      <img src={image} alt={`${proposal.resort?.name || 'Resort'} ${index + 2}`} />
                     </div>
                   ))}
                 </div>
@@ -234,6 +237,7 @@ function PublicProposal() {
           </div>
         </div>
       </section>
+      )}
 
       {/* Accommodations Section */}
       <section id="accommodations" className="proposal-section">

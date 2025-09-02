@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Proposal Locally</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .proposal-container {
+            background: white;
+            border-radius: 8px;
+            padding: 40px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+            padding-bottom: 30px;
+            border-bottom: 3px solid #1e40af;
+        }
+        .company-name {
+            font-size: 28px;
+            font-weight: bold;
+            color: #1e40af;
+            margin-bottom: 10px;
+        }
+        .event-name {
+            font-size: 36px;
+            margin: 20px 0;
+            color: #333;
+        }
+        .dates {
+            font-size: 18px;
+            color: #666;
+        }
+        .section {
+            margin: 40px 0;
+        }
+        .section-title {
+            font-size: 24px;
+            color: #1e40af;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #e5e7eb;
+        }
+        .resort-gallery {
+            display: grid;
+            grid-template-columns: 2fr 1fr 1fr;
+            gap: 10px;
+            margin: 20px 0;
+        }
+        .resort-gallery img {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+            border-radius: 8px;
+        }
+        .resort-gallery img:first-child {
+            grid-row: span 2;
+            height: 410px;
+        }
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+        .feature-item {
+            background: #f3f4f6;
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+        }
+        .room-card, .space-card, .dining-card {
+            background: #f9fafb;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 15px 0;
+        }
+        .card-title {
+            font-size: 20px;
+            font-weight: bold;
+            color: #374151;
+            margin-bottom: 10px;
+        }
+        .flight-routes {
+            background: #eff6ff;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 20px 0;
+        }
+        .route-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px 0;
+            border-bottom: 1px solid #dbeafe;
+        }
+        .route-item:last-child {
+            border-bottom: none;
+        }
+        .error {
+            background: #fee;
+            color: #dc2626;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 20px 0;
+        }
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #6b7280;
+        }
+    </style>
+</head>
+<body>
+    <h1>Local Proposal Test</h1>
+    
+    <div id="content"></div>
+
+    <script>
+        // Sample proposal data that mimics what the backend would send
+        const sampleProposal = {
+            id: "test-123",
+            shareableLink: "test-share-123",
+            client: {
+                name: "John Smith",
+                company: "Tech Corp",
+                email: "john@techcorp.com",
+                phone: "555-0123"
+            },
+            eventDetails: {
+                eventName: "Annual Sales Kickoff 2025",
+                eventPurpose: "Motivate and align the sales team for 2025 goals",
+                startDate: "2025-03-15",
+                endDate: "2025-03-18",
+                attendeeCount: 150,
+                roomsNeeded: 75
+            },
+            destination: {
+                id: "dest-1",
+                name: "Los Cabos",
+                description: "Beautiful beaches and luxury resorts"
+            },
+            resort: {
+                id: "hotel-gv",
+                name: "Grand Velas Los Cabos",
+                description: "An all-inclusive luxury resort experience in Los Cabos",
+                rating: 5,
+                priceRange: "$$$$",
+                images: [
+                    "https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=1200&q=80",
+                    "https://images.unsplash.com/photo-1582719508461-905c673771fd?auto=format&fit=crop&w=600&q=80",
+                    "https://images.unsplash.com/photo-1520250497591-112f2f40a3f4?auto=format&fit=crop&w=600&q=80",
+                    "https://images.unsplash.com/photo-1551882547-ff40c63fe5fa?auto=format&fit=crop&w=600&q=80"
+                ],
+                features: ["Beachfront Location", "Multiple Pools", "Spa & Wellness Center", "Kids Club"],
+                amenities: ["Free WiFi", "24/7 Room Service", "Concierge", "Fitness Center", "Business Center"]
+            },
+            selectedRooms: [
+                {
+                    id: "room-1",
+                    name: "Grand Master Suite Ocean View",
+                    quantity: 5,
+                    maxOccupancy: 4,
+                    typicalGroupRateUsd: { low: 800, high: 1200 }
+                },
+                {
+                    id: "room-2", 
+                    name: "Ambassador Suite Ocean Front",
+                    quantity: 70,
+                    maxOccupancy: 2,
+                    typicalGroupRateUsd: { low: 500, high: 800 }
+                }
+            ],
+            selectedSpaces: [
+                {
+                    id: "space-1",
+                    name: "Grand Ballroom",
+                    sqft: 10000,
+                    capacity: 500,
+                    features: ["Natural Light", "Ocean View", "State-of-the-art AV"]
+                }
+            ],
+            selectedDining: [
+                {
+                    id: "dining-1",
+                    name: "Frida Restaurant",
+                    cuisine: "Mexican Haute Cuisine",
+                    capacity: 120
+                },
+                {
+                    id: "dining-2",
+                    name: "Piaf Restaurant", 
+                    cuisine: "French Fine Dining",
+                    capacity: 80
+                }
+            ],
+            flightRoutes: [
+                { origin: "New York (JFK)", travelers: 50 },
+                { origin: "San Francisco (SFO)", travelers: 50 },
+                { origin: "Chicago (ORD)", travelers: 50 }
+            ],
+            branding: {
+                primaryColor: "#1e40af",
+                secondaryColor: "#06b6d4",
+                theme: "modern"
+            },
+            generatedContent: {
+                resortHighlight: "Experience the pinnacle of luxury at Grand Velas Los Cabos, where pristine beaches meet world-class amenities. Your team will enjoy spacious suites, gourmet dining, and state-of-the-art meeting facilities, all while being pampered with our signature all-inclusive service."
+            }
+        };
+
+        function renderProposal(proposal) {
+            if (!proposal) {
+                return '<div class="error">No proposal data available</div>';
+            }
+
+            try {
+                return `
+                    <div class="proposal-container">
+                        <div class="header">
+                            <div class="company-name">${proposal.client?.company || 'Company Name'}</div>
+                            <h1 class="event-name">${proposal.eventDetails?.eventName || 'Event Name'}</h1>
+                            <div class="dates">
+                                ${proposal.eventDetails?.startDate ? formatDate(proposal.eventDetails.startDate) : 'Start Date'} - 
+                                ${proposal.eventDetails?.endDate ? formatDate(proposal.eventDetails.endDate) : 'End Date'}
+                            </div>
+                        </div>
+
+                        <div class="section">
+                            <h2 class="section-title">Event Overview</h2>
+                            <p><strong>Purpose:</strong> ${proposal.eventDetails?.eventPurpose || 'Event purpose'}</p>
+                            <p><strong>Attendees:</strong> ${proposal.eventDetails?.attendeeCount || 0} guests</p>
+                            <p><strong>Location:</strong> ${proposal.destination?.name || 'Destination'}</p>
+                        </div>
+
+                        ${proposal.resort ? `
+                            <div class="section">
+                                <h2 class="section-title">${proposal.resort.name}</h2>
+                                <p>${proposal.generatedContent?.resortHighlight || proposal.resort.description}</p>
+                                
+                                ${proposal.resort.images?.length > 0 ? `
+                                    <div class="resort-gallery">
+                                        ${proposal.resort.images.slice(0, 4).map((img, i) => 
+                                            `<img src="${img}" alt="${proposal.resort.name} ${i + 1}" />`
+                                        ).join('')}
+                                    </div>
+                                ` : ''}
+
+                                ${proposal.resort.features?.length > 0 || proposal.resort.amenities?.length > 0 ? `
+                                    <div class="features-grid">
+                                        ${(proposal.resort.features || []).map(f => 
+                                            `<div class="feature-item">${f}</div>`
+                                        ).join('')}
+                                        ${(proposal.resort.amenities || []).map(a => 
+                                            `<div class="feature-item">${a}</div>`
+                                        ).join('')}
+                                    </div>
+                                ` : ''}
+                            </div>
+                        ` : ''}
+
+                        ${proposal.selectedRooms?.length > 0 ? `
+                            <div class="section">
+                                <h2 class="section-title">Accommodations</h2>
+                                ${proposal.selectedRooms.map(room => `
+                                    <div class="room-card">
+                                        <div class="card-title">${room.name}</div>
+                                        <p>Quantity: ${room.quantity} rooms</p>
+                                        <p>Max Occupancy: ${room.maxOccupancy} guests per room</p>
+                                        ${room.typicalGroupRateUsd ? 
+                                            `<p>Rate: $${room.typicalGroupRateUsd.low} - $${room.typicalGroupRateUsd.high} per night</p>` 
+                                            : ''}
+                                    </div>
+                                `).join('')}
+                            </div>
+                        ` : ''}
+
+                        ${proposal.flightRoutes?.length > 0 ? `
+                            <div class="section">
+                                <h2 class="section-title">Flight Information</h2>
+                                <div class="flight-routes">
+                                    ${proposal.flightRoutes.map(route => `
+                                        <div class="route-item">
+                                            <span>From ${route.origin}</span>
+                                            <span>${route.travelers} travelers</span>
+                                        </div>
+                                    `).join('')}
+                                </div>
+                            </div>
+                        ` : ''}
+                    </div>
+                `;
+            } catch (error) {
+                console.error('Error rendering proposal:', error);
+                return `<div class="error">Error rendering proposal: ${error.message}</div>`;
+            }
+        }
+
+        function formatDate(dateStr) {
+            try {
+                return new Date(dateStr).toLocaleDateString('en-US', {
+                    month: 'long',
+                    day: 'numeric', 
+                    year: 'numeric'
+                });
+            } catch (e) {
+                return dateStr;
+            }
+        }
+
+        // Render the sample proposal
+        document.getElementById('content').innerHTML = renderProposal(sampleProposal);
+
+        // Also log the proposal structure for debugging
+        console.log('Sample Proposal Structure:', sampleProposal);
+    </script>
+</body>
+</html>

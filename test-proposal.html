@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Proposal Generation</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .status {
+            background: #f0f0f0;
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 5px;
+        }
+        .error {
+            background: #fee;
+            color: #c00;
+        }
+        .success {
+            background: #efe;
+            color: #060;
+        }
+        button {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        button:hover {
+            background: #0056b3;
+        }
+        pre {
+            background: #f5f5f5;
+            padding: 10px;
+            overflow-x: auto;
+        }
+    </style>
+</head>
+<body>
+    <h1>Test Proposal Generation</h1>
+    
+    <button onclick="testProposalCreation()">Create Test Proposal</button>
+    
+    <div id="status"></div>
+    
+    <h2>Test Data:</h2>
+    <pre id="testData"></pre>
+    
+    <h2>Response:</h2>
+    <pre id="response"></pre>
+
+    <script>
+        const testProposalData = {
+            clientName: "John Smith",
+            clientCompany: "Tech Corp",
+            clientEmail: "john@techcorp.com",
+            clientPhone: "555-0123",
+            eventName: "Annual Sales Kickoff 2025",
+            eventPurpose: "Motivate and align the sales team for 2025 goals",
+            startDate: "2025-03-15",
+            endDate: "2025-03-18",
+            attendeeCount: 150,
+            roomsNeeded: 75,
+            ratingStandard: "forbes",
+            hotelRating: "5-star",
+            destinationId: "dest-1",
+            resortId: "hotel-1", // This should use Grand Velas
+            roomTypeIds: ["room-1", "room-2"],
+            eventSpaceIds: ["space-1"],
+            diningIds: ["dining-1"],
+            flightRoutes: [
+                { origin: "New York", travelers: 50 },
+                { origin: "San Francisco", travelers: 50 },
+                { origin: "Chicago", travelers: 50 }
+            ],
+            setupPreferences: ["theater", "banquet"],
+            spaceSetups: {
+                banquet: true,
+                theater: true,
+                halfCrescent: false,
+                reception: true
+            },
+            stageSize: "large",
+            programInclusions: {
+                airportTransfers: true,
+                welcomeReception: true,
+                businessMeeting: true,
+                finalNightDinner: true,
+                teamBuilding: true,
+                offSiteVenues: false,
+                awardDinner: true,
+                csrOptions: false,
+                danceBand: true,
+                decorIdeas: true,
+                giftingIdeas: true
+            },
+            roomPreferences: {
+                kingRooms: 40,
+                doubleRooms: 30,
+                suiteRooms: 5,
+                accessibleRooms: 5
+            },
+            inclusions: {
+                welcome: true,
+                farewell: true,
+                cocktailParty: true,
+                galaDinner: true,
+                teamBuilding: true,
+                danceBand: true,
+                decorIdeas: true,
+                csrOptions: false,
+                giftingIdeas: true
+            },
+            primaryColor: "#1e40af",
+            secondaryColor: "#06b6d4",
+            theme: "modern",
+            logoUrl: ""
+        };
+
+        document.getElementById('testData').textContent = JSON.stringify(testProposalData, null, 2);
+
+        async function testProposalCreation() {
+            const statusEl = document.getElementById('status');
+            const responseEl = document.getElementById('response');
+            
+            statusEl.innerHTML = '<div class="status">Testing proposal creation...</div>';
+            
+            try {
+                // First, let's check if the backend is running
+                const healthCheck = await fetch('http://localhost:5001/health').catch(() => null);
+                
+                if (!healthCheck || !healthCheck.ok) {
+                    statusEl.innerHTML = '<div class="status error">Backend is not running on port 5001. Please start it with: cd backend && PORT=5001 npm run dev</div>';
+                    return;
+                }
+                
+                // Try to create the proposal
+                const response = await fetch('http://localhost:5001/api/proposals', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        // We'll need a valid token - let's try without it first
+                    },
+                    body: JSON.stringify(testProposalData)
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok) {
+                    statusEl.innerHTML = `<div class="status success">Proposal created successfully! ID: ${data.id}</div>`;
+                    if (data.shareableLink) {
+                        statusEl.innerHTML += `<div class="status success">Shareable link: <a href="http://localhost:5173/proposal/share/${data.shareableLink}" target="_blank">View Proposal</a></div>`;
+                    }
+                } else {
+                    statusEl.innerHTML = `<div class="status error">Error: ${data.message || 'Unknown error'}</div>`;
+                }
+                
+                responseEl.textContent = JSON.stringify(data, null, 2);
+                
+            } catch (error) {
+                statusEl.innerHTML = `<div class="status error">Error: ${error.message}</div>`;
+                responseEl.textContent = error.stack;
+            }
+        }
+    </script>
+</body>
+</html>
