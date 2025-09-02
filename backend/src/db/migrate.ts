@@ -58,9 +58,32 @@ export async function applySchema(): Promise<void> {
     `ALTER TABLE hotel_dining ADD COLUMN IF NOT EXISTS attributes JSONB;`,
     `ALTER TABLE hotel_dining ADD COLUMN IF NOT EXISTS details JSONB;`,
     `CREATE TABLE IF NOT EXISTS hotel_rates (id UUID PRIMARY KEY DEFAULT gen_random_uuid(), hotel_id UUID REFERENCES hotels(id) ON DELETE CASCADE, room_id UUID REFERENCES hotel_rooms(id) ON DELETE CASCADE, season VARCHAR(100), start_date DATE, end_date DATE, rate NUMERIC(10,2));`,
+    // Proposals table
+    `CREATE TABLE IF NOT EXISTS proposals (
+      id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+      user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+      shareable_link UUID DEFAULT gen_random_uuid(),
+      status VARCHAR(20) DEFAULT 'draft',
+      view_count INTEGER DEFAULT 0,
+      last_viewed_at TIMESTAMP,
+      client JSONB NOT NULL,
+      event_details JSONB NOT NULL,
+      destination JSONB,
+      resort JSONB,
+      selected_rooms JSONB[],
+      selected_spaces JSONB[],
+      selected_dining JSONB[],
+      flight_routes JSONB[],
+      program_flow JSONB,
+      branding JSONB,
+      generated_content JSONB,
+      created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+      updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    )`,
     // Triggers idempotent
     `DO $$ BEGIN IF NOT EXISTS (SELECT 1 FROM pg_trigger WHERE tgname = 'update_hotels_updated_at') THEN CREATE TRIGGER update_hotels_updated_at BEFORE UPDATE ON hotels FOR EACH ROW EXECUTE FUNCTION update_updated_at_column(); END IF; END$$;`,
-    `DO $$ BEGIN IF NOT EXISTS (SELECT 1 FROM pg_trigger WHERE tgname = 'update_hotel_users_updated_at') THEN CREATE TRIGGER update_hotel_users_updated_at BEFORE UPDATE ON hotel_users FOR EACH ROW EXECUTE FUNCTION update_updated_at_column(); END IF; END$$;`
+    `DO $$ BEGIN IF NOT EXISTS (SELECT 1 FROM pg_trigger WHERE tgname = 'update_hotel_users_updated_at') THEN CREATE TRIGGER update_hotel_users_updated_at BEFORE UPDATE ON hotel_users FOR EACH ROW EXECUTE FUNCTION update_updated_at_column(); END IF; END$$;`,
+    `DO $$ BEGIN IF NOT EXISTS (SELECT 1 FROM pg_trigger WHERE tgname = 'update_proposals_updated_at') THEN CREATE TRIGGER update_proposals_updated_at BEFORE UPDATE ON proposals FOR EACH ROW EXECUTE FUNCTION update_updated_at_column(); END IF; END$$;`
   ];
 
   for (const q of safeQueries) {

@@ -27,6 +27,8 @@ function Dashboard({ onLogout }: DashboardProps) {
   const [proposals, setProposals] = useState<Proposal[]>([]);
   const [loading, setLoading] = useState(true);
   const [user, setUser] = useState<any>(null);
+  const [hasDraft, setHasDraft] = useState(false);
+  const [draftInfo, setDraftInfo] = useState<any>(null);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -34,6 +36,18 @@ function Dashboard({ onLogout }: DashboardProps) {
     const userData = localStorage.getItem('user');
     if (userData) {
       setUser(JSON.parse(userData));
+    }
+
+    // Check for saved draft
+    const savedDraft = localStorage.getItem('proposalDraft');
+    if (savedDraft) {
+      try {
+        const draft = JSON.parse(savedDraft);
+        setHasDraft(true);
+        setDraftInfo(draft);
+      } catch (e) {
+        console.error('Error loading draft info:', e);
+      }
     }
 
     // Fetch proposals
@@ -159,6 +173,38 @@ function Dashboard({ onLogout }: DashboardProps) {
 
           <div className="proposals-section">
             <h2>Your Proposals</h2>
+            
+            {/* Draft Notification */}
+            {hasDraft && draftInfo && (
+              <div className="draft-notification">
+                <div className="draft-info">
+                  <h4>Continue where you left off</h4>
+                  <p>You have an unsaved proposal draft from {new Date(draftInfo.savedAt).toLocaleDateString()}</p>
+                  <p className="draft-details">
+                    {draftInfo.formData?.eventName ? `Event: ${draftInfo.formData.eventName}` : 'Untitled Event'} • 
+                    Step {draftInfo.currentStep} of 10
+                  </p>
+                </div>
+                <div className="draft-actions">
+                  <button 
+                    className="btn btn-primary"
+                    onClick={() => navigate('/proposal/new')}
+                  >
+                    Continue Editing
+                  </button>
+                  <button 
+                    className="btn btn-outline"
+                    onClick={() => {
+                      localStorage.removeItem('proposalDraft');
+                      setHasDraft(false);
+                      setDraftInfo(null);
+                    }}
+                  >
+                    Discard Draft
+                  </button>
+                </div>
+              </div>
+            )}
             
             {loading ? (
               <div className="loading-container">

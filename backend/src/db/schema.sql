@@ -90,3 +90,42 @@ CREATE TRIGGER update_hotels_updated_at BEFORE UPDATE ON hotels
   FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
 CREATE TRIGGER update_hotel_users_updated_at BEFORE UPDATE ON hotel_users
   FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+
+
+-- Proposals table
+CREATE TABLE IF NOT EXISTS proposals (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  shareable_link UUID DEFAULT gen_random_uuid(),
+  status VARCHAR(20) DEFAULT 'draft',
+  view_count INTEGER DEFAULT 0,
+  last_viewed_at TIMESTAMP,
+  
+  -- Client info
+  client JSONB NOT NULL,
+  
+  -- Event details
+  event_details JSONB NOT NULL,
+  
+  -- Selections
+  destination JSONB,
+  resort JSONB,
+  selected_rooms JSONB[],
+  selected_spaces JSONB[],
+  selected_dining JSONB[],
+  flight_routes JSONB[],
+  program_flow JSONB,
+  
+  -- Branding
+  branding JSONB,
+  
+  -- Generated content
+  generated_content JSONB,
+  
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Add trigger for proposals
+CREATE TRIGGER update_proposals_updated_at BEFORE UPDATE ON proposals
+  FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();

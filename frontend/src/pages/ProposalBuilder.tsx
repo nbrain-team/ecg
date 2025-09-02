@@ -83,7 +83,22 @@ const STEPS = [
 
 function ProposalBuilder() {
   const navigate = useNavigate();
-  const [currentStep, setCurrentStep] = useState(1);
+  const loadDraftKey = 'proposalDraft';
+  
+  // Load saved step from draft
+  const [currentStep, setCurrentStep] = useState(() => {
+    const savedDraft = localStorage.getItem(loadDraftKey);
+    if (savedDraft) {
+      try {
+        const parsed = JSON.parse(savedDraft);
+        return parsed.currentStep || 1;
+      } catch (e) {
+        return 1;
+      }
+    }
+    return 1;
+  });
+  
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState('');
   
@@ -95,18 +110,23 @@ function ProposalBuilder() {
   const [diningOptions, setDiningOptions] = useState<any[]>([]);
   const [flightRoutes, setFlightRoutes] = useState<any[]>([]);
 
-  // Form data
-  const [formData, setFormData] = useState<FormData>({
-    clientName: '',
-    clientCompany: '',
-    clientEmail: '',
-    clientPhone: '',
-    eventName: '',
-    eventPurpose: '',
-    startDate: '',
-    endDate: '',
-    attendeeCount: 50,
-    roomsNeeded: 25,
+  // Form data with draft loading
+  const [formData, setFormData] = useState<FormData>(() => {
+    const savedDraft = localStorage.getItem(loadDraftKey);
+    if (savedDraft) {
+      try {
+        const parsed = JSON.parse(savedDraft);
+        return parsed.formData || {
+          clientName: '',
+          clientCompany: '',
+          clientEmail: '',
+          clientPhone: '',
+          eventName: '',
+          eventPurpose: '',
+          startDate: '',
+          endDate: '',
+          attendeeCount: 50,
+          roomsNeeded: 25,
     ratingStandard: 'forbes',
     hotelRating: '',
     roomPreferences: {
@@ -147,9 +167,68 @@ function ProposalBuilder() {
     secondaryColor: '#06b6d4',
     theme: 'modern',
     logoUrl: ''
+        };
+      } catch (e) {
+        console.error('Error loading draft:', e);
+      }
+    }
+    
+    // Return default values if no draft
+    return {
+      clientName: '',
+      clientCompany: '',
+      clientEmail: '',
+      clientPhone: '',
+      eventName: '',
+      eventPurpose: '',
+      startDate: '',
+      endDate: '',
+      attendeeCount: 50,
+      roomsNeeded: 25,
+      ratingStandard: 'forbes',
+      hotelRating: '',
+      roomPreferences: {
+        kingRooms: 0,
+        doubleRooms: 0,
+        suiteRooms: 0,
+        accessibleRooms: 0
+      },
+      destinationId: '',
+      resortId: '',
+      roomTypeIds: [],
+      eventSpaceIds: [],
+      diningIds: [],
+      flightRouteIds: [],
+      setupPreferences: [],
+      inclusions: {
+        welcome: false,
+        farewell: false,
+        cocktailParty: false,
+        galaDinner: false,
+        teamBuilding: false,
+        danceBand: false,
+        decorIdeas: false,
+        csrOptions: false,
+        giftingIdeas: false
+      },
+      primaryColor: '#1e40af',
+      secondaryColor: '#06b6d4',
+      theme: 'modern',
+      logoUrl: ''
+    };
   });
 
   const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+  
+  // Autosave draft to localStorage
+  useEffect(() => {
+    const draft = {
+      formData,
+      currentStep,
+      savedAt: new Date().toISOString()
+    };
+    localStorage.setItem(loadDraftKey, JSON.stringify(draft));
+  }, [formData, currentStep]);
 
   // Image error handler
   const handleImageError = (e: React.SyntheticEvent<HTMLImageElement>) => {
@@ -344,6 +423,9 @@ function ProposalBuilder() {
         { headers: { Authorization: `Bearer ${token}` } }
       );
 
+      // Clear the draft after successful submission
+      localStorage.removeItem(loadDraftKey);
+      
       // Navigate to the created proposal
       navigate(`/proposal/${response.data.id}`);
     } catch (err: any) {

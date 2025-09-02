@@ -1,77 +1,114 @@
 import { Router } from 'express';
-import { Proposal } from '../types';
-import { generateProposalContent } from '../services/proposalGenerator';
 import { v4 as uuidv4 } from 'uuid';
+import pool from '../config/database';
+import { requireAuth } from '../middleware/auth';
 
 const router = Router();
 
-// In-memory storage (in production, use database)
-const proposals: Proposal[] = [];
-
-// Get all proposals
-router.get('/', (req, res) => {
-  res.json(proposals);
+// Get all proposals for authenticated user
+router.get('/', requireAuth(['admin', 'viewer']), async (req, res) => {
+  try {
+    const userId = (req as any).userId;
+    const { rows } = await pool.query(
+      'SELECT * FROM proposals WHERE user_id = $1 ORDER BY created_at DESC',
+      [userId]
+    );
+    res.json(rows);
+  } catch (error) {
+    console.error('Error fetching proposals:', error);
+    res.status(500).json({ message: 'Failed to fetch proposals' });
+  }
 });
 
-// Get single proposal
-router.get('/:id', (req, res) => {
-  const proposal = proposals.find(p => p.id === req.params.id);
-  if (!proposal) {
-    return res.status(404).json({ message: 'Proposal not found' });
+// Get proposal by ID
+router.get('/:id', requireAuth(['admin', 'viewer']), async (req, res) => {
+  try {
+    const userId = (req as any).userId;
+    const { rows } = await pool.query(
+      'SELECT * FROM proposals WHERE id = $1 AND user_id = $2',
+      [req.params.id, userId]
+    );
+    
+    if (rows.length === 0) {
+      return res.status(404).json({ message: 'Proposal not found' });
+    }
+    
+    res.json(rows[0]);
+  } catch (error) {
+    console.error('Error fetching proposal:', error);
+    res.status(500).json({ message: 'Failed to fetch proposal' });
   }
-  res.json(proposal);
 });
 
-// Get proposal by shareable link
-router.get('/share/:shareId', (req, res) => {
-  const proposal = proposals.find(p => p.shareableLink === req.params.shareId);
-  if (!proposal) {
-    return res.status(404).json({ message: 'Proposal not found' });
+// Get proposal by shareable link (public endpoint)
+router.get('/share/:shareId', async (req, res) => {
+  try {
+    // Update view count and last viewed timestamp
+    const { rows } = await pool.query(
+      `UPDATE proposals 
+       SET view_count = COALESCE(view_count, 0) + 1,
+           last_viewed_at = CURRENT_TIMESTAMP
+       WHERE shareable_link = $1
+       RETURNING *`,
+      [req.params.shareId]
+    );
+    
+    if (rows.length === 0) {
+      return res.status(404).json({ message: 'Proposal not found' });
+    }
+    
+    res.json(rows[0]);
+  } catch (error) {
+    console.error('Error fetching proposal:', error);
+    res.status(500).json({ message: 'Failed to fetch proposal' });
   }
-  
-  // Update view count
-  proposal.viewCount = (proposal.viewCount || 0) + 1;
-  proposal.lastViewedAt = new Date();
-  
-  res.json(proposal);
 });
 
 // Create new proposal
-router.post('/', (req, res) => {
+router.post('/', requireAuth(['admin', 'viewer']), async (req, res) => {
   try {
-    const proposalData = req.body;
+    const userId = (req as any).userId;
     
-    // Generate AI content
-    const generatedContent = generateProposalContent(proposalData);
+    const {
+      client,
+      eventDetails,
+      destination,
+      resort,
+      selectedRooms,
+      selectedSpaces,
+      selectedDining,
+      flightRoutes,
+      programFlow,
+      branding,
+      generatedContent
+    } = req.body;
     
-    // Create proposal
-    const newProposal: Proposal = {
-      id: uuidv4(),
-      userId: proposalData.userId || '1',
-      client: proposalData.client,
-      eventDetails: proposalData.eventDetails,
-      destination: proposalData.destination,
-      resort: proposalData.resort,
-      selectedRooms: proposalData.selectedRooms || [],
-      selectedSpaces: proposalData.selectedSpaces || [],
-      selectedDining: proposalData.selectedDining || [],
-      flightRoutes: proposalData.flightRoutes || [],
-      branding: proposalData.branding || {
-        primaryColor: '#1e40af',
-        secondaryColor: '#3b82f6',
-        theme: 'modern'
-      },
-      generatedContent,
-      status: 'draft',
-      shareableLink: uuidv4(),
-      createdAt: new Date(),
-      updatedAt: new Date(),
-      viewCount: 0
-    };
+    const { rows } = await pool.query(
+      `INSERT INTO proposals (
+        user_id, client, event_details, destination, resort,
+        selected_rooms, selected_spaces, selected_dining,
+        flight_routes, program_flow, branding, generated_content,
+        status
+      ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13)
+      RETURNING *`,
+      [
+        userId,
+        JSON.stringify(client),
+        JSON.stringify(eventDetails),
+        JSON.stringify(destination),
+        JSON.stringify(resort),
+        JSON.stringify(selectedRooms),
+        JSON.stringify(selectedSpaces),
+        JSON.stringify(selectedDining),
+        JSON.stringify(flightRoutes),
+        JSON.stringify(programFlow),
+        JSON.stringify(branding),
+        JSON.stringify(generatedContent),
+        'draft'
+      ]
+    );
     
-    proposals.push(newProposal);
-    
-    res.status(201).json(newProposal);
+    res.status(201).json(rows[0]);
   } catch (error) {
     console.error('Error creating proposal:', error);
     res.status(500).json({ message: 'Failed to create proposal' });
@@ -79,52 +116,120 @@ router.post('/', (req, res) => {
 });
 
 // Update proposal
-router.put('/:id', (req, res) => {
-  const index = proposals.findIndex(p => p.id === req.params.id);
-  if (index === -1) {
-    return res.status(404).json({ message: 'Proposal not found' });
+router.put('/:id', requireAuth(['admin', 'viewer']), async (req, res) => {
+  try {
+    const userId = (req as any).userId;
+    
+    // First check if the proposal belongs to the user
+    const { rows: existing } = await pool.query(
+      'SELECT id FROM proposals WHERE id = $1 AND user_id = $2',
+      [req.params.id, userId]
+    );
+    
+    if (existing.length === 0) {
+      return res.status(404).json({ message: 'Proposal not found' });
+    }
+    
+    const {
+      client,
+      eventDetails,
+      destination,
+      resort,
+      selectedRooms,
+      selectedSpaces,
+      selectedDining,
+      flightRoutes,
+      programFlow,
+      branding,
+      generatedContent
+    } = req.body;
+    
+    const { rows } = await pool.query(
+      `UPDATE proposals SET
+        client = $3,
+        event_details = $4,
+        destination = $5,
+        resort = $6,
+        selected_rooms = $7,
+        selected_spaces = $8,
+        selected_dining = $9,
+        flight_routes = $10,
+        program_flow = $11,
+        branding = $12,
+        generated_content = $13,
+        updated_at = CURRENT_TIMESTAMP
+      WHERE id = $1 AND user_id = $2
+      RETURNING *`,
+      [
+        req.params.id,
+        userId,
+        JSON.stringify(client),
+        JSON.stringify(eventDetails),
+        JSON.stringify(destination),
+        JSON.stringify(resort),
+        JSON.stringify(selectedRooms),
+        JSON.stringify(selectedSpaces),
+        JSON.stringify(selectedDining),
+        JSON.stringify(flightRoutes),
+        JSON.stringify(programFlow),
+        JSON.stringify(branding),
+        JSON.stringify(generatedContent)
+      ]
+    );
+    
+    res.json(rows[0]);
+  } catch (error) {
+    console.error('Error updating proposal:', error);
+    res.status(500).json({ message: 'Failed to update proposal' });
   }
-  
-  const updatedProposal = {
-    ...proposals[index],
-    ...req.body,
-    updatedAt: new Date()
-  };
-  
-  // Regenerate content if needed
-  if (req.body.regenerateContent) {
-    updatedProposal.generatedContent = generateProposalContent(updatedProposal);
-  }
-  
-  proposals[index] = updatedProposal;
-  res.json(updatedProposal);
 });
 
 // Publish proposal
-router.post('/:id/publish', (req, res) => {
-  const proposal = proposals.find(p => p.id === req.params.id);
-  if (!proposal) {
-    return res.status(404).json({ message: 'Proposal not found' });
+router.post('/:id/publish', requireAuth(['admin', 'viewer']), async (req, res) => {
+  try {
+    const userId = (req as any).userId;
+    
+    const { rows } = await pool.query(
+      `UPDATE proposals 
+       SET status = 'published', updated_at = CURRENT_TIMESTAMP
+       WHERE id = $1 AND user_id = $2
+       RETURNING shareable_link`,
+      [req.params.id, userId]
+    );
+    
+    if (rows.length === 0) {
+      return res.status(404).json({ message: 'Proposal not found' });
+    }
+    
+    res.json({
+      message: 'Proposal published successfully',
+      shareableLink: `/proposal/share/${rows[0].shareable_link}`
+    });
+  } catch (error) {
+    console.error('Error publishing proposal:', error);
+    res.status(500).json({ message: 'Failed to publish proposal' });
   }
-  
-  proposal.status = 'published';
-  proposal.updatedAt = new Date();
-  
-  res.json({
-    message: 'Proposal published successfully',
-    shareableLink: `/proposal/share/${proposal.shareableLink}`
-  });
 });
 
 // Delete proposal
-router.delete('/:id', (req, res) => {
-  const index = proposals.findIndex(p => p.id === req.params.id);
-  if (index === -1) {
-    return res.status(404).json({ message: 'Proposal not found' });
+router.delete('/:id', requireAuth(['admin', 'viewer']), async (req, res) => {
+  try {
+    const userId = (req as any).userId;
+    
+    const { rowCount } = await pool.query(
+      'DELETE FROM proposals WHERE id = $1 AND user_id = $2',
+      [req.params.id, userId]
+    );
+    
+    if (rowCount === 0) {
+      return res.status(404).json({ message: 'Proposal not found' });
+    }
+    
+    res.json({ message: 'Proposal deleted successfully' });
+  } catch (error) {
+    console.error('Error deleting proposal:', error);
+    res.status(500).json({ message: 'Failed to delete proposal' });
   }
-  
-  proposals.splice(index, 1);
-  res.json({ message: 'Proposal deleted successfully' });
 });
 
-export default router; 
+export default router;
