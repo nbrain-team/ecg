@@ -57,6 +57,16 @@ export async function applySchema(): Promise<void> {
     // Other tables
     `CREATE TABLE IF NOT EXISTS hotel_users (id UUID PRIMARY KEY DEFAULT gen_random_uuid(), hotel_id UUID REFERENCES hotels(id) ON DELETE CASCADE, email VARCHAR(255) UNIQUE NOT NULL, password VARCHAR(255) NOT NULL, name VARCHAR(255) NOT NULL, role VARCHAR(50) DEFAULT 'hotel', created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP, updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP);`,
     `CREATE TABLE IF NOT EXISTS hotel_images (id UUID PRIMARY KEY DEFAULT gen_random_uuid(), hotel_id UUID REFERENCES hotels(id) ON DELETE CASCADE, url TEXT NOT NULL, alt TEXT, category VARCHAR(50), created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP);`,
+    // Binary uploads table for storing image bytes safely
+    `CREATE TABLE IF NOT EXISTS uploads (
+      id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+      hotel_id UUID REFERENCES hotels(id) ON DELETE CASCADE,
+      filename TEXT NOT NULL,
+      mimetype TEXT NOT NULL,
+      size_bytes INTEGER NOT NULL,
+      data BYTEA NOT NULL,
+      created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    );`,
     `CREATE TABLE IF NOT EXISTS hotel_rooms (id UUID PRIMARY KEY DEFAULT gen_random_uuid(), hotel_id UUID REFERENCES hotels(id) ON DELETE CASCADE, name VARCHAR(255) NOT NULL, description TEXT, size_sqft INTEGER, view VARCHAR(100), capacity INTEGER, base_rate NUMERIC(10,2), images JSONB, attributes JSONB, created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP);`,
     `CREATE TABLE IF NOT EXISTS hotel_venues (id UUID PRIMARY KEY DEFAULT gen_random_uuid(), hotel_id UUID REFERENCES hotels(id) ON DELETE CASCADE, name VARCHAR(255) NOT NULL, description TEXT, sqft INTEGER, ceiling_height_ft DECIMAL(5,2), capacity_reception INTEGER, capacity_banquet INTEGER, capacity_theater INTEGER, outdoor BOOLEAN DEFAULT false, details JSONB, attributes JSONB, images JSONB, created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP);`,
     `ALTER TABLE hotel_venues ADD COLUMN IF NOT EXISTS outdoor BOOLEAN DEFAULT false;`,
