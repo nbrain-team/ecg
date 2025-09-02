@@ -1,6 +1,20 @@
 import { useEffect, useState } from 'react';
 import axios from 'axios';
 import './Dashboard.css';
+import Modal from '../components/Modal';
+
+const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:3001';
+
+// Predefined amenities list
+const AMENITIES_LIST = [
+  'Pool (Indoor)', 'Pool (Outdoor)', 'Fitness Center', 'Spa', 'Beach Access', 
+  'Golf Course', 'Tennis Courts', 'Business Center', 'Concierge', 'Room Service',
+  'Restaurant', 'Bar/Lounge', 'Free WiFi', 'Parking', 'Valet Parking',
+  'Pet Friendly', 'Airport Shuttle', 'Laundry Service', 'Dry Cleaning',
+  'Meeting Rooms', 'Ballroom', 'Wedding Services', 'Kids Club', 'Babysitting',
+  'Wheelchair Accessible', 'Non-Smoking Rooms', 'Air Conditioning', 'Heating',
+  'Safe', 'Mini Bar', 'Coffee Maker', 'Hair Dryer', 'Iron/Board', 'Balcony'
+];
 
 interface Hotel {
   id: string;
@@ -15,7 +29,7 @@ interface Hotel {
 }
 
 function HotelPortal() {
-  const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+
   const [hotel, setHotel] = useState<Hotel | null>(null);
   const [images, setImages] = useState<any[]>([]);
   const [rooms, setRooms] = useState<any[]>([]);
@@ -26,6 +40,12 @@ function HotelPortal() {
   const [activeTab, setActiveTab] = useState<'overview'|'profile'|'contact'|'location'|'images'|'policies'|'financials'|'amenities'|'workflow'|'rooms'|'venues'|'dining'>('overview');
   const [saving, setSaving] = useState(false);
   const [schemaDraft, setSchemaDraft] = useState<any>({});
+  
+  // Modal state
+  const [modalOpen, setModalOpen] = useState(false);
+  const [modalType, setModalType] = useState<'room'|'venue'|'dining'|'amenities'|null>(null);
+  const [modalMode, setModalMode] = useState<'add'|'edit'>('add');
+  const [modalEditId, setModalEditId] = useState<string|null>(null);
 
   // Images form state
   const [imageForm, setImageForm] = useState<{url:string;alt:string;category:string}>({ url: '', alt: '', category: '' });
@@ -181,6 +201,10 @@ function HotelPortal() {
         typical_group_rate_high: r.attributes?.typical_group_rate_usd?.high || r.attributes?.typical_group_rate_high || ''
       }
     });
+    setModalType('room');
+    setModalMode('edit');
+    setModalEditId(r.id);
+    setModalOpen(true);
   };
   const saveEditRoom = async () => {
     try {
@@ -359,13 +383,143 @@ function HotelPortal() {
       </div>
 
       {activeTab==='overview' && (
-      <section className="card">
-        <h2>Overview</h2>
-        <div className="review-grid">
-          <div className="review-item"><strong>Website:</strong> {hotel?.website}</div>
-          <div className="review-item"><strong>Address:</strong> {hotel?.address}, {hotel?.city}, {hotel?.country}</div>
+      <div className="hotel-profile">
+        {/* Hero Section */}
+        {images.length > 0 && (
+          <div className="hotel-hero">
+            <img src={images[0].url} alt={hotel?.name || 'Hotel'} />
+            <div className="hotel-hero-content">
+              <h1>{hotel?.name || 'Grand Velas Los Cabos'}</h1>
+              <div className="hotel-rating">
+                {[...Array(5)].map((_, i) => (
+                  <span key={i} className="star">★</span>
+                ))}
+                <span>{hotel?.rating_level || 'Luxury Resort'}</span>
+              </div>
+              <p>{hotel?.address}, {hotel?.city}, {hotel?.country}</p>
+            </div>
+          </div>
+        )}
+        
+        <div className="hotel-info-grid">
+          <div>
+            {/* About Section */}
+            <div className="hotel-section">
+              <h3>About {hotel?.name}</h3>
+              <p>{schemaDraft?.identity?.description_long || hotel?.description || 'Experience unparalleled luxury at this beachfront resort offering world-class amenities and exceptional service.'}</p>
+            </div>
+            
+            {/* Amenities Section */}
+            <div className="hotel-section">
+              <h3>Amenities & Features</h3>
+              <div className="amenity-grid">
+                {(schemaDraft?.amenities_property || []).map((amenity: string, i: number) => (
+                  <div key={i} className="amenity-item">
+                    <span>✓</span> {amenity}
+                  </div>
+                ))}
+              </div>
+            </div>
+            
+            {/* Rooms Section */}
+            {rooms.length > 0 && (
+              <div className="hotel-section">
+                <h3>Accommodations</h3>
+                <div className="room-showcase">
+                  {rooms.map(room => (
+                    <div key={room.id} className="room-card">
+                      {room.images?.[0] && <img src={room.images[0]} alt={room.name} />}
+                      <div className="room-card-content">
+                        <h4>{room.name}</h4>
+                        <p>{room.description}</p>
+                        <p className="room-info">
+                          {room.size_sqft && `${room.size_sqft} sq ft`}
+                          {room.view && ` • ${room.view} view`}
+                          {room.capacity && ` • Sleeps ${room.capacity}`}
+                        </p>
+                        {room.base_rate && <p><strong>From ${room.base_rate}/night</strong></p>}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+            
+            {/* Venues Section */}
+            {venues.length > 0 && (
+              <div className="hotel-section">
+                <h3>Meeting & Event Spaces</h3>
+                <div className="venue-showcase">
+                  {venues.map(venue => (
+                    <div key={venue.id} className="room-card">
+                      {venue.images?.[0] && <img src={venue.images[0]} alt={venue.name} />}
+                      <div className="room-card-content">
+                        <h4>{venue.name}</h4>
+                        <p>{venue.description}</p>
+                        <p className="room-info">
+                          {venue.sqft && `${venue.sqft} sq ft`}
+                          {venue.capacity_reception && ` • Reception: ${venue.capacity_reception}`}
+                          {venue.capacity_banquet && ` • Banquet: ${venue.capacity_banquet}`}
+                        </p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+            
+            {/* Dining Section */}
+            {dining.length > 0 && (
+              <div className="hotel-section">
+                <h3>Dining Options</h3>
+                <div className="dining-showcase">
+                  {dining.map(outlet => (
+                    <div key={outlet.id} className="room-card">
+                      {outlet.images?.[0] && <img src={outlet.images[0]} alt={outlet.name} />}
+                      <div className="room-card-content">
+                        <h4>{outlet.name}</h4>
+                        <p>{outlet.cuisine}</p>
+                        <p>{outlet.description}</p>
+                        <p className="room-info">{outlet.hours}</p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
+          
+          {/* Sidebar */}
+          <div>
+            {/* Contact Info */}
+            <div className="hotel-section">
+              <h3>Contact Information</h3>
+              <p><strong>Phone:</strong> {schemaDraft?.contact?.primary_contact?.phone || '+52 322 226 8000'}</p>
+              <p><strong>Email:</strong> {schemaDraft?.contact?.primary_contact?.email || 'info@grandvelas.com'}</p>
+              <p><strong>Website:</strong> <a href={hotel?.website || '#'} target="_blank" rel="noopener noreferrer">{hotel?.website}</a></p>
+            </div>
+            
+            {/* Location */}
+            <div className="hotel-section">
+              <h3>Location</h3>
+              <p>{hotel?.address}</p>
+              <p>{hotel?.city}, {hotel?.country}</p>
+              {schemaDraft?.location?.transport?.distance_to_airports_km && (
+                <p><strong>Airport:</strong> {Object.entries(schemaDraft.location.transport.distance_to_airports_km)[0] && `${Object.entries(schemaDraft.location.transport.distance_to_airports_km)[0][0]} - ${Object.entries(schemaDraft.location.transport.distance_to_airports_km)[0][1]}km`}</p>
+              )}
+            </div>
+            
+            {/* Policies */}
+            <div className="hotel-section">
+              <h3>Policies</h3>
+              <p><strong>Check-in:</strong> {schemaDraft?.policies?.check_in_time || '3:00 PM'}</p>
+              <p><strong>Check-out:</strong> {schemaDraft?.policies?.check_out_time || '11:00 AM'}</p>
+              <p><strong>Pets:</strong> {schemaDraft?.policies?.pets_allowed ? 'Allowed' : 'Not Allowed'}</p>
+              <p><strong>Smoking:</strong> {schemaDraft?.policies?.smoking || 'Non-smoking property'}</p>
+            </div>
+          </div>
         </div>
-      </section>
+      </div>
       )}
 
       {activeTab==='profile' && (
@@ -498,6 +652,38 @@ function HotelPortal() {
           </div>
         </section>
       )}
+      
+      {activeTab==='amenities' && (
+        <section className="card">
+          <h2>Amenities & Features</h2>
+          <p style={{marginBottom: '1rem', fontSize: '0.875rem', color: '#666'}}>Select all amenities available at your property</p>
+          <div className="checkbox-list">
+            {AMENITIES_LIST.map(amenity => (
+              <div key={amenity} className="checkbox-item">
+                <input 
+                  type="checkbox" 
+                  id={amenity}
+                  checked={(schemaDraft?.amenities_property || []).includes(amenity)}
+                  onChange={(e) => {
+                    const current = schemaDraft?.amenities_property || [];
+                    if (e.target.checked) {
+                      updateDraft(['amenities_property'], [...current, amenity]);
+                    } else {
+                      updateDraft(['amenities_property'], current.filter((a: string) => a !== amenity));
+                    }
+                  }}
+                />
+                <label htmlFor={amenity}>{amenity}</label>
+              </div>
+            ))}
+          </div>
+          <div className="builder-actions mt-2">
+            <button className="btn btn-primary" onClick={()=>saveSection('amenities_property')} disabled={saving}>
+              {saving?'Saving...':'Save Amenities'}
+            </button>
+          </div>
+        </section>
+      )}
 
       {activeTab==='images' && (
       <section className="card">
@@ -538,25 +724,13 @@ function HotelPortal() {
       {activeTab==='rooms' && (
       <section className="card">
         <h2>Rooms</h2>
-        <div className="form-grid">
-          <div className="form-group"><label className="form-label">Name</label><input className="form-control" value={newRoom.name} onChange={(e)=>setNewRoom({...newRoom, name:e.target.value})} /></div>
-          <div className="form-group"><label className="form-label">Description</label><input className="form-control" value={newRoom.description} onChange={(e)=>setNewRoom({...newRoom, description:e.target.value})} /></div>
-          <div className="form-group"><label className="form-label">Size (sqft)</label><input className="form-control" value={newRoom.size_sqft} onChange={(e)=>setNewRoom({...newRoom, size_sqft:e.target.value})} /></div>
-          <div className="form-group"><label className="form-label">View</label><input className="form-control" value={newRoom.view} onChange={(e)=>setNewRoom({...newRoom, view:e.target.value})} /></div>
-          <div className="form-group"><label className="form-label">Capacity</label><input className="form-control" value={newRoom.capacity} onChange={(e)=>setNewRoom({...newRoom, capacity:e.target.value})} /></div>
-          <div className="form-group"><label className="form-label">Base Rate (USD)</label><input className="form-control" value={newRoom.base_rate} onChange={(e)=>setNewRoom({...newRoom, base_rate:e.target.value})} /></div>
-          <div className="form-group full-width"><label className="form-label">Image URL</label><input className="form-control" value={newRoom.image1} onChange={(e)=>setNewRoom({...newRoom, image1:e.target.value})} /></div>
-          <div className="form-group"><label className="form-label">Bed Configuration</label><input className="form-control" value={newRoom.attributes.bed_configuration} onChange={(e)=>setNewRoom({...newRoom, attributes:{...newRoom.attributes, bed_configuration:e.target.value}})} /></div>
-          <div className="form-group"><label className="form-label">Connectable</label><select className="form-control" value={newRoom.attributes.connectable} onChange={(e)=>setNewRoom({...newRoom, attributes:{...newRoom.attributes, connectable:e.target.value}})}><option value="false">false</option><option value="true">true</option></select></div>
-          <div className="form-group"><label className="form-label">Max Occupancy</label><input className="form-control" value={newRoom.attributes.max_occupancy} onChange={(e)=>setNewRoom({...newRoom, attributes:{...newRoom.attributes, max_occupancy:e.target.value}})} /></div>
-          <div className="form-group"><label className="form-label">View Type</label><input className="form-control" value={newRoom.attributes.view_type} onChange={(e)=>setNewRoom({...newRoom, attributes:{...newRoom.attributes, view_type:e.target.value}})} /></div>
-          <div className="form-group full-width"><label className="form-label">In-Room Amenities (comma)</label><input className="form-control" value={newRoom.attributes.in_room_amenities_csv} onChange={(e)=>setNewRoom({...newRoom, attributes:{...newRoom.attributes, in_room_amenities_csv:e.target.value}})} /></div>
-          <div className="form-group full-width"><label className="form-label">Accessibility Features (comma)</label><input className="form-control" value={newRoom.attributes.accessibility_features_csv} onChange={(e)=>setNewRoom({...newRoom, attributes:{...newRoom.attributes, accessibility_features_csv:e.target.value}})} /></div>
-          <div className="form-group"><label className="form-label">Typical Group Rate Low</label><input className="form-control" value={newRoom.attributes.typical_group_rate_low} onChange={(e)=>setNewRoom({...newRoom, attributes:{...newRoom.attributes, typical_group_rate_low:e.target.value}})} /></div>
-          <div className="form-group"><label className="form-label">Typical Group Rate High</label><input className="form-control" value={newRoom.attributes.typical_group_rate_high} onChange={(e)=>setNewRoom({...newRoom, attributes:{...newRoom.attributes, typical_group_rate_high:e.target.value}})} /></div>
-        </div>
         <div className="builder-actions">
-          <button className="btn btn-primary" onClick={addRoom}>Add Room</button>
+          <button className="btn btn-primary" onClick={() => {
+            setNewRoom({ name: '', description: '', size_sqft: '', view: '', capacity: '', base_rate: '', image1: '', attributes: { bed_configuration: '', connectable: 'false', max_occupancy: '', view_type: '', in_room_amenities_csv: '', accessibility_features_csv: '', typical_group_rate_low: '', typical_group_rate_high: '' } });
+            setModalType('room');
+            setModalMode('add');
+            setModalOpen(true);
+          }}>Add New Room</button>
         </div>
         <div className="selection-grid">
           {rooms.map(r => (
@@ -565,42 +739,15 @@ function HotelPortal() {
                 <img src={r.images[0]} alt={r.name} />
               )}
               <div className="card-content">
-                {editingRoomId===r.id ? (
-                  <>
-                    <div className="form-grid">
-                      <div className="form-group"><label className="form-label">Name</label><input className="form-control" value={editRoomForm.name} onChange={(e)=>setEditRoomForm({...editRoomForm, name:e.target.value})} /></div>
-                      <div className="form-group"><label className="form-label">Description</label><input className="form-control" value={editRoomForm.description} onChange={(e)=>setEditRoomForm({...editRoomForm, description:e.target.value})} /></div>
-                      <div className="form-group"><label className="form-label">Size (sqft)</label><input className="form-control" value={editRoomForm.size_sqft} onChange={(e)=>setEditRoomForm({...editRoomForm, size_sqft:e.target.value})} /></div>
-                      <div className="form-group"><label className="form-label">View</label><input className="form-control" value={editRoomForm.view} onChange={(e)=>setEditRoomForm({...editRoomForm, view:e.target.value})} /></div>
-                      <div className="form-group"><label className="form-label">Capacity</label><input className="form-control" value={editRoomForm.capacity} onChange={(e)=>setEditRoomForm({...editRoomForm, capacity:e.target.value})} /></div>
-                      <div className="form-group"><label className="form-label">Base Rate (USD)</label><input className="form-control" value={editRoomForm.base_rate} onChange={(e)=>setEditRoomForm({...editRoomForm, base_rate:e.target.value})} /></div>
-                      <div className="form-group full-width"><label className="form-label">Image URL</label><input className="form-control" value={editRoomForm.image1} onChange={(e)=>setEditRoomForm({...editRoomForm, image1:e.target.value})} /></div>
-                      <div className="form-group"><label className="form-label">Bed Configuration</label><input className="form-control" value={editRoomForm.attributes.bed_configuration} onChange={(e)=>setEditRoomForm({...editRoomForm, attributes:{...editRoomForm.attributes, bed_configuration:e.target.value}})} /></div>
-                      <div className="form-group"><label className="form-label">Connectable</label><select className="form-control" value={editRoomForm.attributes.connectable} onChange={(e)=>setEditRoomForm({...editRoomForm, attributes:{...editRoomForm.attributes, connectable:e.target.value}})}><option value="false">false</option><option value="true">true</option></select></div>
-                      <div className="form-group"><label className="form-label">Max Occupancy</label><input className="form-control" value={editRoomForm.attributes.max_occupancy} onChange={(e)=>setEditRoomForm({...editRoomForm, attributes:{...editRoomForm.attributes, max_occupancy:e.target.value}})} /></div>
-                      <div className="form-group"><label className="form-label">View Type</label><input className="form-control" value={editRoomForm.attributes.view_type} onChange={(e)=>setEditRoomForm({...editRoomForm, attributes:{...editRoomForm.attributes, view_type:e.target.value}})} /></div>
-                      <div className="form-group full-width"><label className="form-label">In-Room Amenities (comma)</label><input className="form-control" value={editRoomForm.attributes.in_room_amenities_csv} onChange={(e)=>setEditRoomForm({...editRoomForm, attributes:{...editRoomForm.attributes, in_room_amenities_csv:e.target.value}})} /></div>
-                      <div className="form-group full-width"><label className="form-label">Accessibility Features (comma)</label><input className="form-control" value={editRoomForm.attributes.accessibility_features_csv} onChange={(e)=>setEditRoomForm({...editRoomForm, attributes:{...editRoomForm.attributes, accessibility_features_csv:e.target.value}})} /></div>
-                      <div className="form-group"><label className="form-label">Typical Group Rate Low</label><input className="form-control" value={editRoomForm.attributes.typical_group_rate_low} onChange={(e)=>setEditRoomForm({...editRoomForm, attributes:{...editRoomForm.attributes, typical_group_rate_low:e.target.value}})} /></div>
-                      <div className="form-group"><label className="form-label">Typical Group Rate High</label><input className="form-control" value={editRoomForm.attributes.typical_group_rate_high} onChange={(e)=>setEditRoomForm({...editRoomForm, attributes:{...editRoomForm.attributes, typical_group_rate_high:e.target.value}})} /></div>
-                    </div>
-                    <div className="builder-actions">
-                      <button className="btn btn-primary" onClick={saveEditRoom}>Save</button>
-                      <button className="btn btn-outline" onClick={()=>setEditingRoomId(null)}>Cancel</button>
-                    </div>
-                  </>
-                ) : (
-                  <>
-                    <h3>{r.name}</h3>
-                    <p className="description">{r.description}</p>
-                    <p className="room-info">{r.size_sqft ? `${r.size_sqft} sqft` : ''} {r.view ? `• ${r.view} view` : ''}</p>
-                    <p className="capacity">Sleeps {r.capacity}</p>
-                    <div className="builder-actions">
-                      <button className="btn btn-outline" onClick={()=>startEditRoom(r)}>Edit</button>
-                      <button className="btn btn-outline" onClick={()=>removeRoom(r.id)}>Delete</button>
-                    </div>
-                  </>
-                )}
+                <h3>{r.name}</h3>
+                <p className="description">{r.description}</p>
+                <p className="room-info">{r.size_sqft ? `${r.size_sqft} sqft` : ''} {r.view ? `• ${r.view} view` : ''}</p>
+                <p className="capacity">Sleeps {r.capacity}</p>
+                <p className="capacity">${r.base_rate}/night</p>
+                <div className="builder-actions">
+                  <button className="btn btn-outline" onClick={()=>startEditRoom(r)}>Edit</button>
+                  <button className="btn btn-outline" onClick={()=>removeRoom(r.id)}>Delete</button>
+                </div>
               </div>
             </div>
           ))}
@@ -761,7 +908,52 @@ function HotelPortal() {
       </section>
       )}
 
-      {/* Sectioned forms for Profile/Contact/Location/Policies/Financials/Amenities/Workflow will continue to be expanded similarly. */}
+      {/* Modal for editing */}
+      <Modal 
+        isOpen={modalOpen} 
+        onClose={() => {
+          setModalOpen(false);
+          setModalType(null);
+          setModalMode('add');
+          setModalEditId(null);
+          setEditingRoomId(null);
+          setEditingVenueId(null);
+          setEditingDiningId(null);
+        }}
+        title={`${modalMode === 'edit' ? 'Edit' : 'Add'} ${modalType === 'room' ? 'Room' : modalType === 'venue' ? 'Venue' : modalType === 'dining' ? 'Dining Outlet' : ''}`}
+      >
+        {modalType === 'room' && (
+          <div className="form-grid" style={{gap: '1rem'}}>
+            <div className="form-group"><label className="form-label">Name</label><input className="form-control" value={modalMode === 'edit' ? editRoomForm.name : newRoom.name} onChange={(e)=>modalMode === 'edit' ? setEditRoomForm({...editRoomForm, name:e.target.value}) : setNewRoom({...newRoom, name:e.target.value})} /></div>
+            <div className="form-group"><label className="form-label">Description</label><textarea className="form-control" rows={3} value={modalMode === 'edit' ? editRoomForm.description : newRoom.description} onChange={(e)=>modalMode === 'edit' ? setEditRoomForm({...editRoomForm, description:e.target.value}) : setNewRoom({...newRoom, description:e.target.value})} /></div>
+            <div className="form-group"><label className="form-label">Size (sqft)</label><input className="form-control" value={modalMode === 'edit' ? editRoomForm.size_sqft : newRoom.size_sqft} onChange={(e)=>modalMode === 'edit' ? setEditRoomForm({...editRoomForm, size_sqft:e.target.value}) : setNewRoom({...newRoom, size_sqft:e.target.value})} /></div>
+            <div className="form-group"><label className="form-label">View</label><input className="form-control" value={modalMode === 'edit' ? editRoomForm.view : newRoom.view} onChange={(e)=>modalMode === 'edit' ? setEditRoomForm({...editRoomForm, view:e.target.value}) : setNewRoom({...newRoom, view:e.target.value})} /></div>
+            <div className="form-group"><label className="form-label">Capacity</label><input className="form-control" value={modalMode === 'edit' ? editRoomForm.capacity : newRoom.capacity} onChange={(e)=>modalMode === 'edit' ? setEditRoomForm({...editRoomForm, capacity:e.target.value}) : setNewRoom({...newRoom, capacity:e.target.value})} /></div>
+            <div className="form-group"><label className="form-label">Base Rate (USD)</label><input className="form-control" value={modalMode === 'edit' ? editRoomForm.base_rate : newRoom.base_rate} onChange={(e)=>modalMode === 'edit' ? setEditRoomForm({...editRoomForm, base_rate:e.target.value}) : setNewRoom({...newRoom, base_rate:e.target.value})} /></div>
+            <div className="form-group full-width"><label className="form-label">Image URL</label><input className="form-control" value={modalMode === 'edit' ? editRoomForm.image1 : newRoom.image1} onChange={(e)=>modalMode === 'edit' ? setEditRoomForm({...editRoomForm, image1:e.target.value}) : setNewRoom({...newRoom, image1:e.target.value})} /></div>
+            <div className="form-group full-width" style={{borderTop: '1px solid #e5e7eb', paddingTop: '1rem'}}><h4>Additional Details</h4></div>
+            <div className="form-group"><label className="form-label">Bed Configuration</label><input className="form-control" placeholder="e.g., King, Two Queens" value={modalMode === 'edit' ? editRoomForm.attributes.bed_configuration : newRoom.attributes.bed_configuration} onChange={(e)=>modalMode === 'edit' ? setEditRoomForm({...editRoomForm, attributes:{...editRoomForm.attributes, bed_configuration:e.target.value}}) : setNewRoom({...newRoom, attributes:{...newRoom.attributes, bed_configuration:e.target.value}})} /></div>
+            <div className="form-group"><label className="form-label">Connectable</label><select className="form-control" value={modalMode === 'edit' ? editRoomForm.attributes.connectable : newRoom.attributes.connectable} onChange={(e)=>modalMode === 'edit' ? setEditRoomForm({...editRoomForm, attributes:{...editRoomForm.attributes, connectable:e.target.value}}) : setNewRoom({...newRoom, attributes:{...newRoom.attributes, connectable:e.target.value}})}><option value="false">No</option><option value="true">Yes</option></select></div>
+            <div className="form-group"><label className="form-label">Max Occupancy</label><input className="form-control" value={modalMode === 'edit' ? editRoomForm.attributes.max_occupancy : newRoom.attributes.max_occupancy} onChange={(e)=>modalMode === 'edit' ? setEditRoomForm({...editRoomForm, attributes:{...editRoomForm.attributes, max_occupancy:e.target.value}}) : setNewRoom({...newRoom, attributes:{...newRoom.attributes, max_occupancy:e.target.value}})} /></div>
+            <div className="form-group"><label className="form-label">View Type</label><input className="form-control" placeholder="e.g., Ocean, Garden, City" value={modalMode === 'edit' ? editRoomForm.attributes.view_type : newRoom.attributes.view_type} onChange={(e)=>modalMode === 'edit' ? setEditRoomForm({...editRoomForm, attributes:{...editRoomForm.attributes, view_type:e.target.value}}) : setNewRoom({...newRoom, attributes:{...newRoom.attributes, view_type:e.target.value}})} /></div>
+            <div className="form-group full-width"><label className="form-label">In-Room Amenities</label><textarea className="form-control" rows={2} placeholder="Comma-separated list" value={modalMode === 'edit' ? editRoomForm.attributes.in_room_amenities_csv : newRoom.attributes.in_room_amenities_csv} onChange={(e)=>modalMode === 'edit' ? setEditRoomForm({...editRoomForm, attributes:{...editRoomForm.attributes, in_room_amenities_csv:e.target.value}}) : setNewRoom({...newRoom, attributes:{...newRoom.attributes, in_room_amenities_csv:e.target.value}})} /></div>
+            <div className="form-group full-width"><label className="form-label">Accessibility Features</label><textarea className="form-control" rows={2} placeholder="Comma-separated list" value={modalMode === 'edit' ? editRoomForm.attributes.accessibility_features_csv : newRoom.attributes.accessibility_features_csv} onChange={(e)=>modalMode === 'edit' ? setEditRoomForm({...editRoomForm, attributes:{...editRoomForm.attributes, accessibility_features_csv:e.target.value}}) : setNewRoom({...newRoom, attributes:{...newRoom.attributes, accessibility_features_csv:e.target.value}})} /></div>
+            <div className="form-group"><label className="form-label">Group Rate Low (USD)</label><input className="form-control" value={modalMode === 'edit' ? editRoomForm.attributes.typical_group_rate_low : newRoom.attributes.typical_group_rate_low} onChange={(e)=>modalMode === 'edit' ? setEditRoomForm({...editRoomForm, attributes:{...editRoomForm.attributes, typical_group_rate_low:e.target.value}}) : setNewRoom({...newRoom, attributes:{...newRoom.attributes, typical_group_rate_low:e.target.value}})} /></div>
+            <div className="form-group"><label className="form-label">Group Rate High (USD)</label><input className="form-control" value={modalMode === 'edit' ? editRoomForm.attributes.typical_group_rate_high : newRoom.attributes.typical_group_rate_high} onChange={(e)=>modalMode === 'edit' ? setEditRoomForm({...editRoomForm, attributes:{...editRoomForm.attributes, typical_group_rate_high:e.target.value}}) : setNewRoom({...newRoom, attributes:{...newRoom.attributes, typical_group_rate_high:e.target.value}})} /></div>
+            <div className="builder-actions full-width" style={{marginTop: '1.5rem'}}>
+              <button className="btn btn-primary" onClick={async () => {
+                if (modalMode === 'edit') {
+                  await saveEditRoom();
+                } else {
+                  await addRoom();
+                }
+                setModalOpen(false);
+              }}>{modalMode === 'edit' ? 'Save Changes' : 'Add Room'}</button>
+              <button className="btn btn-outline" onClick={() => setModalOpen(false)}>Cancel</button>
+            </div>
+          </div>
+        )}
+      </Modal>
     </div>
   );
 }
