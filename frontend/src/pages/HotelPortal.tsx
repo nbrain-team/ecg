@@ -295,6 +295,10 @@ function HotelPortal() {
         setup_tear_down_fee_usd: v.attributes?.setup_tear_down_fee_usd || ''
       }
     });
+    setModalType('venue');
+    setModalMode('edit');
+    setModalEditId(v.id);
+    setModalOpen(true);
   };
   const saveEditVenue = async () => {
     try {
@@ -348,6 +352,10 @@ function HotelPortal() {
         noise_restrictions_after: d.attributes?.noise_restrictions_after || ''
       }
     }); 
+    setModalType('dining');
+    setModalMode('edit');
+    setModalEditId(d.id);
+    setModalOpen(true);
   };
   const saveEditDining = async () => { try { if(!editingDiningId) return; const payload:any = { name: editDiningForm.name, cuisine: editDiningForm.cuisine, description: editDiningForm.description, hours: editDiningForm.hours, dress_code: editDiningForm.dress_code, images: editDiningForm.image1?[editDiningForm.image1]:[], attributes: editDiningForm.attributes }; await axios.put(`${apiUrl}/api/hotels/dining/${editingDiningId}`, payload, auth); setEditingDiningId(null); fetchAll(); } catch(e:any){ setError(e.response?.data?.message || 'Failed to save outlet'); } };
   const removeDining = async (id:string) => { try { await axios.delete(`${apiUrl}/api/hotels/dining/${id}`, auth); fetchAll(); } catch(e:any){ setError(e.response?.data?.message || 'Delete failed'); } };
@@ -759,32 +767,13 @@ function HotelPortal() {
       {activeTab==='venues' && (
       <section className="card">
         <h2>Venues</h2>
-        <div className="form-grid">
-          <div className="form-group"><label className="form-label">Name</label><input className="form-control" value={newVenue.name} onChange={(e)=>setNewVenue({...newVenue, name:e.target.value})} /></div>
-          <div className="form-group"><label className="form-label">Description</label><input className="form-control" value={newVenue.description} onChange={(e)=>setNewVenue({...newVenue, description:e.target.value})} /></div>
-          <div className="form-group"><label className="form-label">Sq Ft</label><input className="form-control" value={newVenue.sqft} onChange={(e)=>setNewVenue({...newVenue, sqft:e.target.value})} /></div>
-          <div className="form-group"><label className="form-label">Ceiling Height (ft)</label><input className="form-control" value={newVenue.ceiling_height_ft} onChange={(e)=>setNewVenue({...newVenue, ceiling_height_ft:e.target.value})} /></div>
-          <div className="form-group"><label className="form-label">Reception Capacity</label><input className="form-control" value={newVenue.capacity_reception} onChange={(e)=>setNewVenue({...newVenue, capacity_reception:e.target.value})} /></div>
-          <div className="form-group"><label className="form-label">Banquet Capacity</label><input className="form-control" value={newVenue.capacity_banquet} onChange={(e)=>setNewVenue({...newVenue, capacity_banquet:e.target.value})} /></div>
-          <div className="form-group"><label className="form-label">Theater Capacity</label><input className="form-control" value={newVenue.capacity_theater} onChange={(e)=>setNewVenue({...newVenue, capacity_theater:e.target.value})} /></div>
-          <div className="form-group full-width"><label className="form-label">Image URL</label><input className="form-control" value={newVenue.image1} onChange={(e)=>setNewVenue({...newVenue, image1:e.target.value})} /></div>
-          <div className="form-group"><label className="form-label">Length (m)</label><input className="form-control" value={newVenue.attributes.length_m} onChange={(e)=>setNewVenue({...newVenue, attributes:{...newVenue.attributes, length_m:e.target.value}})} /></div>
-          <div className="form-group"><label className="form-label">Width (m)</label><input className="form-control" value={newVenue.attributes.width_m} onChange={(e)=>setNewVenue({...newVenue, attributes:{...newVenue.attributes, width_m:e.target.value}})} /></div>
-          <div className="form-group"><label className="form-label">Height (m)</label><input className="form-control" value={newVenue.attributes.height_m} onChange={(e)=>setNewVenue({...newVenue, attributes:{...newVenue.attributes, height_m:e.target.value}})} /></div>
-          <div className="form-group"><label className="form-label">Floor Type</label><input className="form-control" value={newVenue.attributes.floor_type} onChange={(e)=>setNewVenue({...newVenue, attributes:{...newVenue.attributes, floor_type:e.target.value}})} /></div>
-          <div className="form-group"><label className="form-label">Natural Light</label><select className="form-control" value={newVenue.attributes.natural_light} onChange={(e)=>setNewVenue({...newVenue, attributes:{...newVenue.attributes, natural_light:e.target.value}})}><option value="false">false</option><option value="true">true</option></select></div>
-          <div className="form-group"><label className="form-label">Rigging Points</label><select className="form-control" value={newVenue.attributes.rigging_points} onChange={(e)=>setNewVenue({...newVenue, attributes:{...newVenue.attributes, rigging_points:e.target.value}})}><option value="false">false</option><option value="true">true</option></select></div>
-          <div className="form-group"><label className="form-label">Theater Layout</label><input className="form-control" value={newVenue.attributes.theater} onChange={(e)=>setNewVenue({...newVenue, attributes:{...newVenue.attributes, theater:e.target.value}})} /></div>
-          <div className="form-group"><label className="form-label">Classroom Layout</label><input className="form-control" value={newVenue.attributes.classroom} onChange={(e)=>setNewVenue({...newVenue, attributes:{...newVenue.attributes, classroom:e.target.value}})} /></div>
-          <div className="form-group"><label className="form-label">Banquet Rounds 10</label><input className="form-control" value={newVenue.attributes.banquet_rounds_10} onChange={(e)=>setNewVenue({...newVenue, attributes:{...newVenue.attributes, banquet_rounds_10:e.target.value}})} /></div>
-          <div className="form-group"><label className="form-label">Reception Layout</label><input className="form-control" value={newVenue.attributes.reception} onChange={(e)=>setNewVenue({...newVenue, attributes:{...newVenue.attributes, reception:e.target.value}})} /></div>
-          <div className="form-group"><label className="form-label">U-Shape Layout</label><input className="form-control" value={newVenue.attributes.u_shape} onChange={(e)=>setNewVenue({...newVenue, attributes:{...newVenue.attributes, u_shape:e.target.value}})} /></div>
-          <div className="form-group"><label className="form-label">Boardroom Layout</label><input className="form-control" value={newVenue.attributes.boardroom} onChange={(e)=>setNewVenue({...newVenue, attributes:{...newVenue.attributes, boardroom:e.target.value}})} /></div>
-          <div className="form-group"><label className="form-label">Rental Fee (USD/Day)</label><input className="form-control" value={newVenue.attributes.rental_fee_usd_day} onChange={(e)=>setNewVenue({...newVenue, attributes:{...newVenue.attributes, rental_fee_usd_day:e.target.value}})} /></div>
-          <div className="form-group"><label className="form-label">Setup/Teardown Fee</label><input className="form-control" value={newVenue.attributes.setup_tear_down_fee_usd} onChange={(e)=>setNewVenue({...newVenue, attributes:{...newVenue.attributes, setup_tear_down_fee_usd:e.target.value}})} /></div>
-        </div>
         <div className="builder-actions">
-          <button className="btn btn-primary" onClick={addVenue}>Add Venue</button>
+          <button className="btn btn-primary" onClick={() => {
+            setNewVenue({ name: '', description: '', sqft: '', ceiling_height_ft: '', capacity_reception: '', capacity_banquet: '', capacity_theater: '', image1: '', attributes: { length_m:'', width_m:'', height_m:'', floor_type:'', natural_light:'false', rigging_points:'false', theater:'', classroom:'', banquet_rounds_10:'', reception:'', u_shape:'', boardroom:'', rental_fee_usd_day:'', setup_tear_down_fee_usd:'' } });
+            setModalType('venue');
+            setModalMode('add');
+            setModalOpen(true);
+          }}>Add New Venue</button>
         </div>
         <div className="selection-grid">
           {venues.map(v => (
@@ -793,49 +782,14 @@ function HotelPortal() {
                 <img src={v.images[0]} alt={v.name} />
               )}
               <div className="card-content">
-                {editingVenueId===v.id ? (
-                  <>
-                    <div className="form-grid">
-                      <div className="form-group"><label className="form-label">Name</label><input className="form-control" value={editVenueForm.name} onChange={(e)=>setEditVenueForm({...editVenueForm, name:e.target.value})} /></div>
-                      <div className="form-group"><label className="form-label">Description</label><input className="form-control" value={editVenueForm.description} onChange={(e)=>setEditVenueForm({...editVenueForm, description:e.target.value})} /></div>
-                      <div className="form-group"><label className="form-label">Sq Ft</label><input className="form-control" value={editVenueForm.sqft} onChange={(e)=>setEditVenueForm({...editVenueForm, sqft:e.target.value})} /></div>
-                      <div className="form-group"><label className="form-label">Ceiling Height (ft)</label><input className="form-control" value={editVenueForm.ceiling_height_ft} onChange={(e)=>setEditVenueForm({...editVenueForm, ceiling_height_ft:e.target.value})} /></div>
-                      <div className="form-group"><label className="form-label">Reception Capacity</label><input className="form-control" value={editVenueForm.capacity_reception} onChange={(e)=>setEditVenueForm({...editVenueForm, capacity_reception:e.target.value})} /></div>
-                      <div className="form-group"><label className="form-label">Banquet Capacity</label><input className="form-control" value={editVenueForm.capacity_banquet} onChange={(e)=>setEditVenueForm({...editVenueForm, capacity_banquet:e.target.value})} /></div>
-                      <div className="form-group"><label className="form-label">Theater Capacity</label><input className="form-control" value={editVenueForm.capacity_theater} onChange={(e)=>setEditVenueForm({...editVenueForm, capacity_theater:e.target.value})} /></div>
-                      <div className="form-group full-width"><label className="form-label">Image URL</label><input className="form-control" value={editVenueForm.image1} onChange={(e)=>setEditVenueForm({...editVenueForm, image1:e.target.value})} /></div>
-                      <div className="form-group"><label className="form-label">Length (m)</label><input className="form-control" value={editVenueForm.attributes.length_m} onChange={(e)=>setEditVenueForm({...editVenueForm, attributes:{...editVenueForm.attributes, length_m:e.target.value}})} /></div>
-                      <div className="form-group"><label className="form-label">Width (m)</label><input className="form-control" value={editVenueForm.attributes.width_m} onChange={(e)=>setEditVenueForm({...editVenueForm, attributes:{...editVenueForm.attributes, width_m:e.target.value}})} /></div>
-                      <div className="form-group"><label className="form-label">Height (m)</label><input className="form-control" value={editVenueForm.attributes.height_m} onChange={(e)=>setEditVenueForm({...editVenueForm, attributes:{...editVenueForm.attributes, height_m:e.target.value}})} /></div>
-                      <div className="form-group"><label className="form-label">Floor Type</label><input className="form-control" value={editVenueForm.attributes.floor_type} onChange={(e)=>setEditVenueForm({...editVenueForm, attributes:{...editVenueForm.attributes, floor_type:e.target.value}})} /></div>
-                      <div className="form-group"><label className="form-label">Natural Light</label><select className="form-control" value={editVenueForm.attributes.natural_light} onChange={(e)=>setEditVenueForm({...editVenueForm, attributes:{...editVenueForm.attributes, natural_light:e.target.value}})}><option value="false">false</option><option value="true">true</option></select></div>
-                      <div className="form-group"><label className="form-label">Rigging Points</label><select className="form-control" value={editVenueForm.attributes.rigging_points} onChange={(e)=>setEditVenueForm({...editVenueForm, attributes:{...editVenueForm.attributes, rigging_points:e.target.value}})}><option value="false">false</option><option value="true">true</option></select></div>
-                      <div className="form-group"><label className="form-label">Theater Layout</label><input className="form-control" value={editVenueForm.attributes.theater} onChange={(e)=>setEditVenueForm({...editVenueForm, attributes:{...editVenueForm.attributes, theater:e.target.value}})} /></div>
-                      <div className="form-group"><label className="form-label">Classroom Layout</label><input className="form-control" value={editVenueForm.attributes.classroom} onChange={(e)=>setEditVenueForm({...editVenueForm, attributes:{...editVenueForm.attributes, classroom:e.target.value}})} /></div>
-                      <div className="form-group"><label className="form-label">Banquet Rounds 10</label><input className="form-control" value={editVenueForm.attributes.banquet_rounds_10} onChange={(e)=>setEditVenueForm({...editVenueForm, attributes:{...editVenueForm.attributes, banquet_rounds_10:e.target.value}})} /></div>
-                      <div className="form-group"><label className="form-label">Reception Layout</label><input className="form-control" value={editVenueForm.attributes.reception} onChange={(e)=>setEditVenueForm({...editVenueForm, attributes:{...editVenueForm.attributes, reception:e.target.value}})} /></div>
-                      <div className="form-group"><label className="form-label">U-Shape Layout</label><input className="form-control" value={editVenueForm.attributes.u_shape} onChange={(e)=>setEditVenueForm({...editVenueForm, attributes:{...editVenueForm.attributes, u_shape:e.target.value}})} /></div>
-                      <div className="form-group"><label className="form-label">Boardroom Layout</label><input className="form-control" value={editVenueForm.attributes.boardroom} onChange={(e)=>setEditVenueForm({...editVenueForm, attributes:{...editVenueForm.attributes, boardroom:e.target.value}})} /></div>
-                      <div className="form-group"><label className="form-label">Rental Fee (USD/Day)</label><input className="form-control" value={editVenueForm.attributes.rental_fee_usd_day} onChange={(e)=>setEditVenueForm({...editVenueForm, attributes:{...editVenueForm.attributes, rental_fee_usd_day:e.target.value}})} /></div>
-                      <div className="form-group"><label className="form-label">Setup/Teardown Fee</label><input className="form-control" value={editVenueForm.attributes.setup_tear_down_fee_usd} onChange={(e)=>setEditVenueForm({...editVenueForm, attributes:{...editVenueForm.attributes, setup_tear_down_fee_usd:e.target.value}})} /></div>
-                    </div>
-                    <div className="builder-actions">
-                      <button className="btn btn-primary" onClick={saveEditVenue}>Save</button>
-                      <button className="btn btn-outline" onClick={()=>setEditingVenueId(null)}>Cancel</button>
-                    </div>
-                  </>
-                ) : (
-                  <>
-                    <h3>{v.name}</h3>
-                    <p className="description">{v.description}</p>
-                    <p className="size">{v.sqft} sq ft • {v.ceiling_height_ft} ft ceiling</p>
-                    <p className="capacity">Reception {v.capacity_reception} • Banquet {v.capacity_banquet} • Theater {v.capacity_theater}</p>
-                    <div className="builder-actions">
-                      <button className="btn btn-outline" onClick={()=>startEditVenue(v)}>Edit</button>
-                      <button className="btn btn-outline" onClick={()=>removeVenue(v.id)}>Delete</button>
-                    </div>
-                  </>
-                )}
+                <h3>{v.name}</h3>
+                <p className="description">{v.description}</p>
+                <p className="size">{v.sqft} sq ft • {v.ceiling_height_ft} ft ceiling</p>
+                <p className="capacity">Reception {v.capacity_reception} • Banquet {v.capacity_banquet} • Theater {v.capacity_theater}</p>
+                <div className="builder-actions">
+                  <button className="btn btn-outline" onClick={()=>startEditVenue(v)}>Edit</button>
+                  <button className="btn btn-outline" onClick={()=>removeVenue(v.id)}>Delete</button>
+                </div>
               </div>
             </div>
           ))}
@@ -846,22 +800,13 @@ function HotelPortal() {
       {activeTab==='dining' && (
       <section className="card">
         <h2>Dining</h2>
-        <div className="form-grid">
-          <div className="form-group"><label className="form-label">Name</label><input className="form-control" value={newDiningOutlet.name} onChange={(e)=>setNewDiningOutlet({...newDiningOutlet, name:e.target.value})} /></div>
-          <div className="form-group"><label className="form-label">Cuisine</label><input className="form-control" value={newDiningOutlet.cuisine} onChange={(e)=>setNewDiningOutlet({...newDiningOutlet, cuisine:e.target.value})} /></div>
-          <div className="form-group"><label className="form-label">Hours</label><input className="form-control" value={newDiningOutlet.hours} onChange={(e)=>setNewDiningOutlet({...newDiningOutlet, hours:e.target.value})} /></div>
-          <div className="form-group"><label className="form-label">Dress Code</label><input className="form-control" value={newDiningOutlet.dress_code} onChange={(e)=>setNewDiningOutlet({...newDiningOutlet, dress_code:e.target.value})} /></div>
-          <div className="form-group full-width"><label className="form-label">Image URL</label><input className="form-control" value={newDiningOutlet.image1} onChange={(e)=>setNewDiningOutlet({...newDiningOutlet, image1:e.target.value})} /></div>
-          <div className="form-group"><label className="form-label">Buyout Available</label><select className="form-control" value={newDiningOutlet.attributes.buyout_available} onChange={(e)=>setNewDiningOutlet({...newDiningOutlet, attributes:{...newDiningOutlet.attributes, buyout_available:e.target.value}})}><option value="false">false</option><option value="true">true</option></select></div>
-          <div className="form-group"><label className="form-label">Buyout Min Spend (USD)</label><input className="form-control" value={newDiningOutlet.attributes.buyout_min_spend_usd} onChange={(e)=>setNewDiningOutlet({...newDiningOutlet, attributes:{...newDiningOutlet.attributes, buyout_min_spend_usd:e.target.value}})} /></div>
-          <div className="form-group"><label className="form-label">Seating Capacity</label><input className="form-control" value={newDiningOutlet.attributes.seating_capacity} onChange={(e)=>setNewDiningOutlet({...newDiningOutlet, attributes:{...newDiningOutlet.attributes, seating_capacity:e.target.value}})} /></div>
-          <div className="form-group"><label className="form-label">Standing Capacity</label><input className="form-control" value={newDiningOutlet.attributes.standing_capacity} onChange={(e)=>setNewDiningOutlet({...newDiningOutlet, attributes:{...newDiningOutlet.attributes, standing_capacity:e.target.value}})} /></div>
-          <div className="form-group full-width"><label className="form-label">Private Rooms (comma)</label><input className="form-control" value={newDiningOutlet.attributes.private_rooms_csv} onChange={(e)=>setNewDiningOutlet({...newDiningOutlet, attributes:{...newDiningOutlet.attributes, private_rooms_csv:e.target.value}})} /></div>
-          <div className="form-group"><label className="form-label">Outdoor</label><select className="form-control" value={newDiningOutlet.attributes.outdoor} onChange={(e)=>setNewDiningOutlet({...newDiningOutlet, attributes:{...newDiningOutlet.attributes, outdoor:e.target.value}})}><option value="false">false</option><option value="true">true</option></select></div>
-          <div className="form-group"><label className="form-label">Noise Restrictions After</label><input className="form-control" value={newDiningOutlet.attributes.noise_restrictions_after} onChange={(e)=>setNewDiningOutlet({...newDiningOutlet, attributes:{...newDiningOutlet.attributes, noise_restrictions_after:e.target.value}})} /></div>
-        </div>
         <div className="builder-actions">
-          <button className="btn btn-primary" onClick={addDining}>Add Dining Outlet</button>
+          <button className="btn btn-primary" onClick={() => {
+            setNewDiningOutlet({ name: '', cuisine: '', description: '', hours: '', dress_code: '', image1: '', attributes: { buyout_available:'false', buyout_min_spend_usd:'', seating_capacity:'', standing_capacity:'', private_rooms_csv:'', outdoor:'false', noise_restrictions_after:'' } });
+            setModalType('dining');
+            setModalMode('add');
+            setModalOpen(true);
+          }}>Add New Dining Outlet</button>
         </div>
         <div className="selection-grid">
           {dining.map(d => (
@@ -870,38 +815,13 @@ function HotelPortal() {
                 <img src={d.images[0]} alt={d.name} />
               )}
               <div className="card-content">
-                {editingDiningId===d.id ? (
-                  <>
-                    <div className="form-grid">
-                      <div className="form-group"><label className="form-label">Name</label><input className="form-control" value={editDiningForm.name} onChange={(e)=>setEditDiningForm({...editDiningForm, name:e.target.value})} /></div>
-                      <div className="form-group"><label className="form-label">Cuisine</label><input className="form-control" value={editDiningForm.cuisine} onChange={(e)=>setEditDiningForm({...editDiningForm, cuisine:e.target.value})} /></div>
-                      <div className="form-group"><label className="form-label">Hours</label><input className="form-control" value={editDiningForm.hours} onChange={(e)=>setEditDiningForm({...editDiningForm, hours:e.target.value})} /></div>
-                      <div className="form-group"><label className="form-label">Dress Code</label><input className="form-control" value={editDiningForm.dress_code} onChange={(e)=>setEditDiningForm({...editDiningForm, dress_code:e.target.value})} /></div>
-                      <div className="form-group full-width"><label className="form-label">Image URL</label><input className="form-control" value={editDiningForm.image1} onChange={(e)=>setEditDiningForm({...editDiningForm, image1:e.target.value})} /></div>
-                      <div className="form-group"><label className="form-label">Buyout Available</label><select className="form-control" value={editDiningForm.attributes.buyout_available} onChange={(e)=>setEditDiningForm({...editDiningForm, attributes:{...editDiningForm.attributes, buyout_available:e.target.value}})}><option value="false">false</option><option value="true">true</option></select></div>
-                      <div className="form-group"><label className="form-label">Buyout Min Spend (USD)</label><input className="form-control" value={editDiningForm.attributes.buyout_min_spend_usd} onChange={(e)=>setEditDiningForm({...editDiningForm, attributes:{...editDiningForm.attributes, buyout_min_spend_usd:e.target.value}})} /></div>
-                      <div className="form-group"><label className="form-label">Seating Capacity</label><input className="form-control" value={editDiningForm.attributes.seating_capacity} onChange={(e)=>setEditDiningForm({...editDiningForm, attributes:{...editDiningForm.attributes, seating_capacity:e.target.value}})} /></div>
-                      <div className="form-group"><label className="form-label">Standing Capacity</label><input className="form-control" value={editDiningForm.attributes.standing_capacity} onChange={(e)=>setEditDiningForm({...editDiningForm, attributes:{...editDiningForm.attributes, standing_capacity:e.target.value}})} /></div>
-                      <div className="form-group full-width"><label className="form-label">Private Rooms (comma)</label><input className="form-control" value={editDiningForm.attributes.private_rooms_csv} onChange={(e)=>setEditDiningForm({...editDiningForm, attributes:{...editDiningForm.attributes, private_rooms_csv:e.target.value}})} /></div>
-                      <div className="form-group"><label className="form-label">Outdoor</label><select className="form-control" value={editDiningForm.attributes.outdoor} onChange={(e)=>setEditDiningForm({...editDiningForm, attributes:{...editDiningForm.attributes, outdoor:e.target.value}})}><option value="false">false</option><option value="true">true</option></select></div>
-                      <div className="form-group"><label className="form-label">Noise Restrictions After</label><input className="form-control" value={editDiningForm.attributes.noise_restrictions_after} onChange={(e)=>setEditDiningForm({...editDiningForm, attributes:{...editDiningForm.attributes, noise_restrictions_after:e.target.value}})} /></div>
-                    </div>
-                    <div className="builder-actions">
-                      <button className="btn btn-primary" onClick={saveEditDining}>Save</button>
-                      <button className="btn btn-outline" onClick={()=>setEditingDiningId(null)}>Cancel</button>
-                    </div>
-                  </>
-                ) : (
-                  <>
-                    <h3>{d.name}</h3>
-                    <p className="description">{d.description}</p>
-                    <p className="room-info">{d.cuisine} • {d.hours} • {d.dress_code}</p>
-                    <div className="builder-actions">
-                      <button className="btn btn-outline" onClick={()=>startEditDining(d)}>Edit</button>
-                      <button className="btn btn-outline" onClick={()=>removeDining(d.id)}>Delete</button>
-                    </div>
-                  </>
-                )}
+                <h3>{d.name}</h3>
+                <p className="description">{d.description}</p>
+                <p className="room-info">{d.cuisine} • {d.hours} • {d.dress_code}</p>
+                <div className="builder-actions">
+                  <button className="btn btn-outline" onClick={()=>startEditDining(d)}>Edit</button>
+                  <button className="btn btn-outline" onClick={()=>removeDining(d.id)}>Delete</button>
+                </div>
               </div>
             </div>
           ))}
@@ -950,6 +870,52 @@ function HotelPortal() {
                 }
                 setModalOpen(false);
               }}>{modalMode === 'edit' ? 'Save Changes' : 'Add Room'}</button>
+              <button className="btn btn-outline" onClick={() => setModalOpen(false)}>Cancel</button>
+            </div>
+          </div>
+        )}
+        
+        {modalType === 'venue' && (
+          <div className="form-grid" style={{gap: '1rem'}}>
+            <div className="form-group"><label className="form-label">Name</label><input className="form-control" value={modalMode === 'edit' ? editVenueForm.name : newVenue.name} onChange={(e)=>modalMode === 'edit' ? setEditVenueForm({...editVenueForm, name:e.target.value}) : setNewVenue({...newVenue, name:e.target.value})} /></div>
+            <div className="form-group"><label className="form-label">Description</label><textarea className="form-control" rows={3} value={modalMode === 'edit' ? editVenueForm.description : newVenue.description} onChange={(e)=>modalMode === 'edit' ? setEditVenueForm({...editVenueForm, description:e.target.value}) : setNewVenue({...newVenue, description:e.target.value})} /></div>
+            <div className="form-group"><label className="form-label">Square Feet</label><input className="form-control" value={modalMode === 'edit' ? editVenueForm.sqft : newVenue.sqft} onChange={(e)=>modalMode === 'edit' ? setEditVenueForm({...editVenueForm, sqft:e.target.value}) : setNewVenue({...newVenue, sqft:e.target.value})} /></div>
+            <div className="form-group"><label className="form-label">Ceiling Height (ft)</label><input className="form-control" value={modalMode === 'edit' ? editVenueForm.ceiling_height_ft : newVenue.ceiling_height_ft} onChange={(e)=>modalMode === 'edit' ? setEditVenueForm({...editVenueForm, ceiling_height_ft:e.target.value}) : setNewVenue({...newVenue, ceiling_height_ft:e.target.value})} /></div>
+            <div className="form-group"><label className="form-label">Reception Capacity</label><input className="form-control" value={modalMode === 'edit' ? editVenueForm.capacity_reception : newVenue.capacity_reception} onChange={(e)=>modalMode === 'edit' ? setEditVenueForm({...editVenueForm, capacity_reception:e.target.value}) : setNewVenue({...newVenue, capacity_reception:e.target.value})} /></div>
+            <div className="form-group"><label className="form-label">Banquet Capacity</label><input className="form-control" value={modalMode === 'edit' ? editVenueForm.capacity_banquet : newVenue.capacity_banquet} onChange={(e)=>modalMode === 'edit' ? setEditVenueForm({...editVenueForm, capacity_banquet:e.target.value}) : setNewVenue({...newVenue, capacity_banquet:e.target.value})} /></div>
+            <div className="form-group"><label className="form-label">Theater Capacity</label><input className="form-control" value={modalMode === 'edit' ? editVenueForm.capacity_theater : newVenue.capacity_theater} onChange={(e)=>modalMode === 'edit' ? setEditVenueForm({...editVenueForm, capacity_theater:e.target.value}) : setNewVenue({...newVenue, capacity_theater:e.target.value})} /></div>
+            <div className="form-group full-width"><label className="form-label">Image URL</label><input className="form-control" value={modalMode === 'edit' ? editVenueForm.image1 : newVenue.image1} onChange={(e)=>modalMode === 'edit' ? setEditVenueForm({...editVenueForm, image1:e.target.value}) : setNewVenue({...newVenue, image1:e.target.value})} /></div>
+            <div className="builder-actions full-width" style={{marginTop: '1.5rem'}}>
+              <button className="btn btn-primary" onClick={async () => {
+                if (modalMode === 'edit') {
+                  await saveEditVenue();
+                } else {
+                  await addVenue();
+                }
+                setModalOpen(false);
+              }}>{modalMode === 'edit' ? 'Save Changes' : 'Add Venue'}</button>
+              <button className="btn btn-outline" onClick={() => setModalOpen(false)}>Cancel</button>
+            </div>
+          </div>
+        )}
+        
+        {modalType === 'dining' && (
+          <div className="form-grid" style={{gap: '1rem'}}>
+            <div className="form-group"><label className="form-label">Name</label><input className="form-control" value={modalMode === 'edit' ? editDiningForm.name : newDiningOutlet.name} onChange={(e)=>modalMode === 'edit' ? setEditDiningForm({...editDiningForm, name:e.target.value}) : setNewDiningOutlet({...newDiningOutlet, name:e.target.value})} /></div>
+            <div className="form-group"><label className="form-label">Cuisine</label><input className="form-control" value={modalMode === 'edit' ? editDiningForm.cuisine : newDiningOutlet.cuisine} onChange={(e)=>modalMode === 'edit' ? setEditDiningForm({...editDiningForm, cuisine:e.target.value}) : setNewDiningOutlet({...newDiningOutlet, cuisine:e.target.value})} /></div>
+            <div className="form-group full-width"><label className="form-label">Description</label><textarea className="form-control" rows={3} value={modalMode === 'edit' ? editDiningForm.description : newDiningOutlet.description} onChange={(e)=>modalMode === 'edit' ? setEditDiningForm({...editDiningForm, description:e.target.value}) : setNewDiningOutlet({...newDiningOutlet, description:e.target.value})} /></div>
+            <div className="form-group"><label className="form-label">Hours</label><input className="form-control" value={modalMode === 'edit' ? editDiningForm.hours : newDiningOutlet.hours} onChange={(e)=>modalMode === 'edit' ? setEditDiningForm({...editDiningForm, hours:e.target.value}) : setNewDiningOutlet({...newDiningOutlet, hours:e.target.value})} /></div>
+            <div className="form-group"><label className="form-label">Dress Code</label><input className="form-control" value={modalMode === 'edit' ? editDiningForm.dress_code : newDiningOutlet.dress_code} onChange={(e)=>modalMode === 'edit' ? setEditDiningForm({...editDiningForm, dress_code:e.target.value}) : setNewDiningOutlet({...newDiningOutlet, dress_code:e.target.value})} /></div>
+            <div className="form-group full-width"><label className="form-label">Image URL</label><input className="form-control" value={modalMode === 'edit' ? editDiningForm.image1 : newDiningOutlet.image1} onChange={(e)=>modalMode === 'edit' ? setEditDiningForm({...editDiningForm, image1:e.target.value}) : setNewDiningOutlet({...newDiningOutlet, image1:e.target.value})} /></div>
+            <div className="builder-actions full-width" style={{marginTop: '1.5rem'}}>
+              <button className="btn btn-primary" onClick={async () => {
+                if (modalMode === 'edit') {
+                  await saveEditDining();
+                } else {
+                  await addDining();
+                }
+                setModalOpen(false);
+              }}>{modalMode === 'edit' ? 'Save Changes' : 'Add Dining Outlet'}</button>
               <button className="btn btn-outline" onClick={() => setModalOpen(false)}>Cancel</button>
             </div>
           </div>
