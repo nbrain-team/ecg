@@ -446,23 +446,34 @@ function HotelPortal() {
                 <img src={r.images[0]} alt={r.name} />
               )}
               <div className="card-content">
-                <h3>{r.name}</h3>
-                <p className="description">{r.description}</p>
-                <p className="room-info">{r.size_sqft ? `${r.size_sqft} sqft` : ''} {r.view ? `• ${r.view} view` : ''}</p>
-                <p className="capacity">Sleeps {r.capacity}</p>
-                <div className="builder-actions">
-                  {editingRoomId===r.id ? (
-                    <>
+                {editingRoomId===r.id ? (
+                  <>
+                    <div className="form-grid">
+                      <div className="form-group"><label className="form-label">Name</label><input className="form-control" value={editRoomForm.name} onChange={(e)=>setEditRoomForm({...editRoomForm, name:e.target.value})} /></div>
+                      <div className="form-group"><label className="form-label">Description</label><input className="form-control" value={editRoomForm.description} onChange={(e)=>setEditRoomForm({...editRoomForm, description:e.target.value})} /></div>
+                      <div className="form-group"><label className="form-label">Size (sqft)</label><input className="form-control" value={editRoomForm.size_sqft} onChange={(e)=>setEditRoomForm({...editRoomForm, size_sqft:e.target.value})} /></div>
+                      <div className="form-group"><label className="form-label">View</label><input className="form-control" value={editRoomForm.view} onChange={(e)=>setEditRoomForm({...editRoomForm, view:e.target.value})} /></div>
+                      <div className="form-group"><label className="form-label">Capacity</label><input className="form-control" value={editRoomForm.capacity} onChange={(e)=>setEditRoomForm({...editRoomForm, capacity:e.target.value})} /></div>
+                      <div className="form-group"><label className="form-label">Base Rate (USD)</label><input className="form-control" value={editRoomForm.base_rate} onChange={(e)=>setEditRoomForm({...editRoomForm, base_rate:e.target.value})} /></div>
+                      <div className="form-group full-width"><label className="form-label">Image URL</label><input className="form-control" value={editRoomForm.image1} onChange={(e)=>setEditRoomForm({...editRoomForm, image1:e.target.value})} /></div>
+                    </div>
+                    <div className="builder-actions">
                       <button className="btn btn-primary" onClick={saveEditRoom}>Save</button>
                       <button className="btn btn-outline" onClick={()=>setEditingRoomId(null)}>Cancel</button>
-                    </>
-                  ) : (
-                    <>
+                    </div>
+                  </>
+                ) : (
+                  <>
+                    <h3>{r.name}</h3>
+                    <p className="description">{r.description}</p>
+                    <p className="room-info">{r.size_sqft ? `${r.size_sqft} sqft` : ''} {r.view ? `• ${r.view} view` : ''}</p>
+                    <p className="capacity">Sleeps {r.capacity}</p>
+                    <div className="builder-actions">
                       <button className="btn btn-outline" onClick={()=>startEditRoom(r)}>Edit</button>
                       <button className="btn btn-outline" onClick={()=>removeRoom(r.id)}>Delete</button>
-                    </>
-                  )}
-                </div>
+                    </div>
+                  </>
+                )}
               </div>
             </div>
           ))}
