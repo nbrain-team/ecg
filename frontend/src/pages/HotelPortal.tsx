@@ -516,7 +516,7 @@ function HotelPortal() {
             <input className="form-control" value={imageForm.category} onChange={(e)=>setImageForm({...imageForm, category:e.target.value})} />
           </div>
         </div>
-        <div className="builder-actions" style={{ marginBottom: '1rem' }}>
+        <div className="builder-actions">
           <button className="btn btn-primary" onClick={addImage}>Add Image</button>
         </div>
         <div className="selection-grid">
@@ -555,7 +555,7 @@ function HotelPortal() {
           <div className="form-group"><label className="form-label">Typical Group Rate Low</label><input className="form-control" value={newRoom.attributes.typical_group_rate_low} onChange={(e)=>setNewRoom({...newRoom, attributes:{...newRoom.attributes, typical_group_rate_low:e.target.value}})} /></div>
           <div className="form-group"><label className="form-label">Typical Group Rate High</label><input className="form-control" value={newRoom.attributes.typical_group_rate_high} onChange={(e)=>setNewRoom({...newRoom, attributes:{...newRoom.attributes, typical_group_rate_high:e.target.value}})} /></div>
         </div>
-        <div className="builder-actions" style={{ marginBottom: '1rem' }}>
+        <div className="builder-actions">
           <button className="btn btn-primary" onClick={addRoom}>Add Room</button>
         </div>
         <div className="selection-grid">
@@ -635,7 +635,7 @@ function HotelPortal() {
           <div className="form-group"><label className="form-label">Rental Fee (USD/Day)</label><input className="form-control" value={newVenue.attributes.rental_fee_usd_day} onChange={(e)=>setNewVenue({...newVenue, attributes:{...newVenue.attributes, rental_fee_usd_day:e.target.value}})} /></div>
           <div className="form-group"><label className="form-label">Setup/Teardown Fee</label><input className="form-control" value={newVenue.attributes.setup_tear_down_fee_usd} onChange={(e)=>setNewVenue({...newVenue, attributes:{...newVenue.attributes, setup_tear_down_fee_usd:e.target.value}})} /></div>
         </div>
-        <div className="builder-actions" style={{ marginBottom: '1rem' }}>
+        <div className="builder-actions">
           <button className="btn btn-primary" onClick={addVenue}>Add Venue</button>
         </div>
         <div className="selection-grid">
@@ -712,7 +712,7 @@ function HotelPortal() {
           <div className="form-group"><label className="form-label">Outdoor</label><select className="form-control" value={newDiningOutlet.attributes.outdoor} onChange={(e)=>setNewDiningOutlet({...newDiningOutlet, attributes:{...newDiningOutlet.attributes, outdoor:e.target.value}})}><option value="false">false</option><option value="true">true</option></select></div>
           <div className="form-group"><label className="form-label">Noise Restrictions After</label><input className="form-control" value={newDiningOutlet.attributes.noise_restrictions_after} onChange={(e)=>setNewDiningOutlet({...newDiningOutlet, attributes:{...newDiningOutlet.attributes, noise_restrictions_after:e.target.value}})} /></div>
         </div>
-        <div className="builder-actions" style={{ marginBottom: '1rem' }}>
+        <div className="builder-actions">
           <button className="btn btn-primary" onClick={addDining}>Add Dining Outlet</button>
         </div>
         <div className="selection-grid">
