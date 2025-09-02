@@ -63,6 +63,9 @@ function HotelPortal() {
   const [newDiningOutlet, setNewDiningOutlet] = useState<any>({ name: '', cuisine: '', description: '', hours: '', dress_code: '', image1: '', attributes: { buyout_available: 'false', buyout_min_spend_usd: '', seating_capacity: '', standing_capacity: '', private_rooms_csv: '', outdoor: 'false', noise_restrictions_after: '' } });
   const [editingDiningId, setEditingDiningId] = useState<string | null>(null);
   const [editDiningForm, setEditDiningForm] = useState<any>({ name: '', cuisine: '', description: '', hours: '', dress_code: '', image1: '', attributes: { buyout_available: 'false', buyout_min_spend_usd: '', seating_capacity: '', standing_capacity: '', private_rooms_csv: '', outdoor: 'false', noise_restrictions_after: '' } });
+  
+  // Image gallery state for modal forms
+  const [currentImageUrl, setCurrentImageUrl] = useState('');
 
   useEffect(() => {
     // Convert old amenities_property object format to array format
@@ -188,7 +191,7 @@ function HotelPortal() {
         view: newRoom.view,
         capacity: Number(newRoom.capacity||0),
         base_rate: Number(newRoom.base_rate||0),
-        images: newRoom.image1 ? [newRoom.image1] : [],
+        images: newRoom.images?.length > 0 ? newRoom.images : (newRoom.image1 ? [newRoom.image1] : []),
         attributes: {
           bed_configuration: newRoom.attributes?.bed_configuration || '',
           connectable: newRoom.attributes?.connectable === 'true',
@@ -217,6 +220,7 @@ function HotelPortal() {
       capacity: r.capacity||'', 
       base_rate: r.base_rate||'', 
       image1: Array.isArray(r.images)&&r.images[0]?r.images[0]:'',
+      images: Array.isArray(r.images) ? r.images : [],
       attributes: {
         bed_configuration: r.attributes?.bed_configuration || '',
         connectable: String(r.attributes?.connectable || 'false'),
@@ -243,7 +247,7 @@ function HotelPortal() {
         view: editRoomForm.view,
         capacity: editRoomForm.capacity === '' ? null : Number(editRoomForm.capacity),
         base_rate: editRoomForm.base_rate === '' ? null : Number(editRoomForm.base_rate),
-        images: editRoomForm.image1 ? [editRoomForm.image1] : [],
+        images: editRoomForm.images?.length > 0 ? editRoomForm.images : (editRoomForm.image1 ? [editRoomForm.image1] : []),
         attributes: {
           bed_configuration: editRoomForm.attributes?.bed_configuration || '',
           connectable: editRoomForm.attributes?.connectable === 'true',
@@ -270,7 +274,7 @@ function HotelPortal() {
       const payload:any = {
         name: newVenue.name, description: newVenue.description, sqft: Number(newVenue.sqft||0), ceiling_height_ft: Number(newVenue.ceiling_height_ft||0),
         capacity_reception: Number(newVenue.capacity_reception||0), capacity_banquet: Number(newVenue.capacity_banquet||0), capacity_theater: Number(newVenue.capacity_theater||0),
-        images: newVenue.image1 ? [newVenue.image1] : [],
+        images: newVenue.images?.length > 0 ? newVenue.images : (newVenue.image1 ? [newVenue.image1] : []),
         attributes: {
           length_m: newVenue.attributes?.length_m || '',
           width_m: newVenue.attributes?.width_m || '',
@@ -289,7 +293,7 @@ function HotelPortal() {
         }
       };
       await axios.post(`${apiUrl}/api/hotels/venues`, payload, auth);
-      setNewVenue({ name: '', description: '', sqft: '', ceiling_height_ft: '', capacity_reception: '', capacity_banquet: '', capacity_theater: '', image1: '', attributes: { length_m:'', width_m:'', height_m:'', floor_type:'', natural_light:'false', rigging_points:'false', theater:'', classroom:'', banquet_rounds_10:'', reception:'', u_shape:'', boardroom:'', rental_fee_usd_day:'', setup_tear_down_fee_usd:'' } });
+      setNewVenue({ name: '', description: '', sqft: '', ceiling_height_ft: '', capacity_reception: '', capacity_banquet: '', capacity_theater: '', image1: '', images: [], attributes: { length_m:'', width_m:'', height_m:'', floor_type:'', natural_light:'false', rigging_points:'false', theater:'', classroom:'', banquet_rounds_10:'', reception:'', u_shape:'', boardroom:'', rental_fee_usd_day:'', setup_tear_down_fee_usd:'' } });
       fetchAll();
     } catch (e:any) { setError(e.response?.data?.message || 'Failed to add venue'); }
   };
@@ -304,6 +308,7 @@ function HotelPortal() {
       capacity_banquet: v.capacity_banquet||'', 
       capacity_theater: v.capacity_theater||'', 
       image1: Array.isArray(v.images)&&v.images[0]?v.images[0]:'',
+      images: Array.isArray(v.images) ? v.images : [],
       attributes: {
         length_m: v.attributes?.length_m || '',
         width_m: v.attributes?.width_m || '',
@@ -332,7 +337,7 @@ function HotelPortal() {
       const payload:any = {
         name: editVenueForm.name, description: editVenueForm.description, sqft: editVenueForm.sqft===''?null:Number(editVenueForm.sqft), ceiling_height_ft: editVenueForm.ceiling_height_ft===''?null:Number(editVenueForm.ceiling_height_ft),
         capacity_reception: editVenueForm.capacity_reception===''?null:Number(editVenueForm.capacity_reception), capacity_banquet: editVenueForm.capacity_banquet===''?null:Number(editVenueForm.capacity_banquet), capacity_theater: editVenueForm.capacity_theater===''?null:Number(editVenueForm.capacity_theater),
-        images: editVenueForm.image1 ? [editVenueForm.image1] : [],
+        images: editVenueForm.images?.length > 0 ? editVenueForm.images : (editVenueForm.image1 ? [editVenueForm.image1] : []),
         attributes: editVenueForm.attributes
       };
       await axios.put(`${apiUrl}/api/hotels/venues/${editingVenueId}`, payload, auth);
@@ -345,7 +350,7 @@ function HotelPortal() {
   // Dining CRUD
   const addDining = async () => {
     try {
-      const payload:any = { name: newDiningOutlet.name, cuisine: newDiningOutlet.cuisine, description: newDiningOutlet.description, hours: newDiningOutlet.hours, dress_code: newDiningOutlet.dress_code, images: newDiningOutlet.image1?[newDiningOutlet.image1]:[], attributes: {
+      const payload:any = { name: newDiningOutlet.name, cuisine: newDiningOutlet.cuisine, description: newDiningOutlet.description, hours: newDiningOutlet.hours, dress_code: newDiningOutlet.dress_code, images: newDiningOutlet.images?.length > 0 ? newDiningOutlet.images : (newDiningOutlet.image1 ? [newDiningOutlet.image1] : []), attributes: {
         buyout_available: newDiningOutlet.attributes?.buyout_available === 'true',
         buyout_min_spend_usd: newDiningOutlet.attributes?.buyout_min_spend_usd || '',
         seating_capacity: newDiningOutlet.attributes?.seating_capacity || '',
@@ -368,6 +373,7 @@ function HotelPortal() {
       hours: d.hours||'', 
       dress_code: d.dress_code||'', 
       image1: Array.isArray(d.images)&&d.images[0]?d.images[0]:'',
+      images: Array.isArray(d.images) ? d.images : [],
       attributes: {
         buyout_available: d.attributes?.buyout_available || 'false',
         buyout_min_spend_usd: d.attributes?.buyout_min_spend_usd || '',
@@ -383,7 +389,7 @@ function HotelPortal() {
     setModalEditId(d.id);
     setModalOpen(true);
   };
-  const saveEditDining = async () => { try { if(!editingDiningId) return; const payload:any = { name: editDiningForm.name, cuisine: editDiningForm.cuisine, description: editDiningForm.description, hours: editDiningForm.hours, dress_code: editDiningForm.dress_code, images: editDiningForm.image1?[editDiningForm.image1]:[], attributes: editDiningForm.attributes }; await axios.put(`${apiUrl}/api/hotels/dining/${editingDiningId}`, payload, auth); setEditingDiningId(null); fetchAll(); } catch(e:any){ setError(e.response?.data?.message || 'Failed to save outlet'); } };
+  const saveEditDining = async () => { try { if(!editingDiningId) return; const payload:any = { name: editDiningForm.name, cuisine: editDiningForm.cuisine, description: editDiningForm.description, hours: editDiningForm.hours, dress_code: editDiningForm.dress_code, images: editDiningForm.images?.length > 0 ? editDiningForm.images : (editDiningForm.image1 ? [editDiningForm.image1] : []), attributes: editDiningForm.attributes }; await axios.put(`${apiUrl}/api/hotels/dining/${editingDiningId}`, payload, auth); setEditingDiningId(null); fetchAll(); } catch(e:any){ setError(e.response?.data?.message || 'Failed to save outlet'); } };
   const removeDining = async (id:string) => { try { await axios.delete(`${apiUrl}/api/hotels/dining/${id}`, auth); fetchAll(); } catch(e:any){ setError(e.response?.data?.message || 'Delete failed'); } };
 
   if (!hotelToken) {
@@ -777,7 +783,7 @@ function HotelPortal() {
         <h2>Rooms</h2>
         <div className="builder-actions">
           <button className="btn btn-primary" onClick={() => {
-            setNewRoom({ name: '', description: '', size_sqft: '', view: '', capacity: '', base_rate: '', image1: '', attributes: { bed_configuration: '', connectable: 'false', max_occupancy: '', view_type: '', in_room_amenities_csv: '', accessibility_features_csv: '', typical_group_rate_low: '', typical_group_rate_high: '' } });
+            setNewRoom({ name: '', description: '', size_sqft: '', view: '', capacity: '', base_rate: '', image1: '', images: [], attributes: { bed_configuration: '', connectable: 'false', max_occupancy: '', view_type: '', in_room_amenities_csv: '', accessibility_features_csv: '', typical_group_rate_low: '', typical_group_rate_high: '' } });
             setModalType('room');
             setModalMode('add');
             setModalOpen(true);
@@ -811,7 +817,7 @@ function HotelPortal() {
         <h2>Venues</h2>
         <div className="builder-actions">
           <button className="btn btn-primary" onClick={() => {
-            setNewVenue({ name: '', description: '', sqft: '', ceiling_height_ft: '', capacity_reception: '', capacity_banquet: '', capacity_theater: '', image1: '', attributes: { length_m:'', width_m:'', height_m:'', floor_type:'', natural_light:'false', rigging_points:'false', theater:'', classroom:'', banquet_rounds_10:'', reception:'', u_shape:'', boardroom:'', rental_fee_usd_day:'', setup_tear_down_fee_usd:'' } });
+            setNewVenue({ name: '', description: '', sqft: '', ceiling_height_ft: '', capacity_reception: '', capacity_banquet: '', capacity_theater: '', image1: '', images: [], attributes: { length_m:'', width_m:'', height_m:'', floor_type:'', natural_light:'false', rigging_points:'false', theater:'', classroom:'', banquet_rounds_10:'', reception:'', u_shape:'', boardroom:'', rental_fee_usd_day:'', setup_tear_down_fee_usd:'' } });
             setModalType('venue');
             setModalMode('add');
             setModalOpen(true);
@@ -860,6 +866,9 @@ function HotelPortal() {
                 <h3>{d.name}</h3>
                 <p className="description">{d.description}</p>
                 <p className="room-info">{d.cuisine} • {d.hours} • {d.dress_code}</p>
+                {(d.attributes?.seating_capacity || d.attributes?.standing_capacity) && (
+                  <p className="capacity">Capacity: {d.attributes.seating_capacity ? `${d.attributes.seating_capacity} seated` : ''}{d.attributes.seating_capacity && d.attributes.standing_capacity ? ', ' : ''}{d.attributes.standing_capacity ? `${d.attributes.standing_capacity} standing` : ''}</p>
+                )}
                 <div className="builder-actions">
                   <button className="btn btn-outline" onClick={()=>startEditDining(d)}>Edit</button>
                   <button className="btn btn-outline" onClick={()=>removeDining(d.id)}>Delete</button>
@@ -894,7 +903,68 @@ function HotelPortal() {
             <div className="form-group"><label className="form-label">View</label><input className="form-control" value={modalMode === 'edit' ? editRoomForm.view : newRoom.view} onChange={(e)=>modalMode === 'edit' ? setEditRoomForm({...editRoomForm, view:e.target.value}) : setNewRoom({...newRoom, view:e.target.value})} /></div>
             <div className="form-group"><label className="form-label">Capacity</label><input className="form-control" value={modalMode === 'edit' ? editRoomForm.capacity : newRoom.capacity} onChange={(e)=>modalMode === 'edit' ? setEditRoomForm({...editRoomForm, capacity:e.target.value}) : setNewRoom({...newRoom, capacity:e.target.value})} /></div>
             <div className="form-group"><label className="form-label">Base Rate (USD)</label><input className="form-control" value={modalMode === 'edit' ? editRoomForm.base_rate : newRoom.base_rate} onChange={(e)=>modalMode === 'edit' ? setEditRoomForm({...editRoomForm, base_rate:e.target.value}) : setNewRoom({...newRoom, base_rate:e.target.value})} /></div>
-            <div className="form-group full-width"><label className="form-label">Image URL</label><input className="form-control" value={modalMode === 'edit' ? editRoomForm.image1 : newRoom.image1} onChange={(e)=>modalMode === 'edit' ? setEditRoomForm({...editRoomForm, image1:e.target.value}) : setNewRoom({...newRoom, image1:e.target.value})} /></div>
+            <div className="form-group full-width" style={{borderTop: '1px solid #e5e7eb', paddingTop: '1rem'}}>
+              <h4>Image Gallery</h4>
+              <div style={{display: 'flex', gap: '0.5rem', marginBottom: '1rem'}}>
+                <input 
+                  className="form-control" 
+                  placeholder="Enter image URL"
+                  value={currentImageUrl}
+                  onChange={(e) => setCurrentImageUrl(e.target.value)}
+                />
+                <button 
+                  type="button"
+                  className="btn btn-outline"
+                  onClick={() => {
+                    if (currentImageUrl) {
+                      const form = modalMode === 'edit' ? editRoomForm : newRoom;
+                      const currentImages = form.images || [];
+                      if (form.image1 && !currentImages.includes(form.image1)) {
+                        currentImages.unshift(form.image1);
+                      }
+                      if (!currentImages.includes(currentImageUrl)) {
+                        if (modalMode === 'edit') {
+                          setEditRoomForm({...editRoomForm, images: [...currentImages, currentImageUrl]});
+                        } else {
+                          setNewRoom({...newRoom, images: [...currentImages, currentImageUrl]});
+                        }
+                      }
+                      setCurrentImageUrl('');
+                    }
+                  }}
+                >
+                  Add Image
+                </button>
+              </div>
+              <div style={{display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(150px, 1fr))', gap: '0.5rem'}}>
+                {((modalMode === 'edit' ? editRoomForm.images : newRoom.images) || []).map((img, idx) => (
+                  <div key={idx} style={{position: 'relative', paddingBottom: '75%', background: '#f5f5f5', borderRadius: '4px', overflow: 'hidden'}}>
+                    <img 
+                      src={img} 
+                      alt={`Room ${idx + 1}`} 
+                      style={{position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', objectFit: 'cover'}}
+                      onError={(e) => {e.currentTarget.src = 'https://placehold.co/400x300?text=Invalid+Image'}}
+                    />
+                    <button
+                      type="button"
+                      className="btn btn-sm"
+                      style={{position: 'absolute', top: '4px', right: '4px', background: 'rgba(255,255,255,0.9)', padding: '2px 8px'}}
+                      onClick={() => {
+                        const form = modalMode === 'edit' ? editRoomForm : newRoom;
+                        const newImages = form.images.filter((_, i) => i !== idx);
+                        if (modalMode === 'edit') {
+                          setEditRoomForm({...editRoomForm, images: newImages});
+                        } else {
+                          setNewRoom({...newRoom, images: newImages});
+                        }
+                      }}
+                    >
+                      ×
+                    </button>
+                  </div>
+                ))}
+              </div>
+            </div>
             <div className="form-group full-width" style={{borderTop: '1px solid #e5e7eb', paddingTop: '1rem'}}><h4>Additional Details</h4></div>
             <div className="form-group"><label className="form-label">Bed Configuration</label><input className="form-control" placeholder="e.g., King, Two Queens" value={modalMode === 'edit' ? editRoomForm.attributes.bed_configuration : newRoom.attributes.bed_configuration} onChange={(e)=>modalMode === 'edit' ? setEditRoomForm({...editRoomForm, attributes:{...editRoomForm.attributes, bed_configuration:e.target.value}}) : setNewRoom({...newRoom, attributes:{...newRoom.attributes, bed_configuration:e.target.value}})} /></div>
             <div className="form-group"><label className="form-label">Connectable</label><select className="form-control" value={modalMode === 'edit' ? editRoomForm.attributes.connectable : newRoom.attributes.connectable} onChange={(e)=>modalMode === 'edit' ? setEditRoomForm({...editRoomForm, attributes:{...editRoomForm.attributes, connectable:e.target.value}}) : setNewRoom({...newRoom, attributes:{...newRoom.attributes, connectable:e.target.value}})}><option value="false">No</option><option value="true">Yes</option></select></div>
@@ -927,7 +997,68 @@ function HotelPortal() {
             <div className="form-group"><label className="form-label">Reception Capacity</label><input className="form-control" value={modalMode === 'edit' ? editVenueForm.capacity_reception : newVenue.capacity_reception} onChange={(e)=>modalMode === 'edit' ? setEditVenueForm({...editVenueForm, capacity_reception:e.target.value}) : setNewVenue({...newVenue, capacity_reception:e.target.value})} /></div>
             <div className="form-group"><label className="form-label">Banquet Capacity</label><input className="form-control" value={modalMode === 'edit' ? editVenueForm.capacity_banquet : newVenue.capacity_banquet} onChange={(e)=>modalMode === 'edit' ? setEditVenueForm({...editVenueForm, capacity_banquet:e.target.value}) : setNewVenue({...newVenue, capacity_banquet:e.target.value})} /></div>
             <div className="form-group"><label className="form-label">Theater Capacity</label><input className="form-control" value={modalMode === 'edit' ? editVenueForm.capacity_theater : newVenue.capacity_theater} onChange={(e)=>modalMode === 'edit' ? setEditVenueForm({...editVenueForm, capacity_theater:e.target.value}) : setNewVenue({...newVenue, capacity_theater:e.target.value})} /></div>
-            <div className="form-group full-width"><label className="form-label">Image URL</label><input className="form-control" value={modalMode === 'edit' ? editVenueForm.image1 : newVenue.image1} onChange={(e)=>modalMode === 'edit' ? setEditVenueForm({...editVenueForm, image1:e.target.value}) : setNewVenue({...newVenue, image1:e.target.value})} /></div>
+            <div className="form-group full-width" style={{borderTop: '1px solid #e5e7eb', paddingTop: '1rem'}}>
+              <h4>Image Gallery</h4>
+              <div style={{display: 'flex', gap: '0.5rem', marginBottom: '1rem'}}>
+                <input 
+                  className="form-control" 
+                  placeholder="Enter image URL"
+                  value={currentImageUrl}
+                  onChange={(e) => setCurrentImageUrl(e.target.value)}
+                />
+                <button 
+                  type="button"
+                  className="btn btn-outline"
+                  onClick={() => {
+                    if (currentImageUrl) {
+                      const form = modalMode === 'edit' ? editVenueForm : newVenue;
+                      const currentImages = form.images || [];
+                      if (form.image1 && !currentImages.includes(form.image1)) {
+                        currentImages.unshift(form.image1);
+                      }
+                      if (!currentImages.includes(currentImageUrl)) {
+                        if (modalMode === 'edit') {
+                          setEditVenueForm({...editVenueForm, images: [...currentImages, currentImageUrl]});
+                        } else {
+                          setNewVenue({...newVenue, images: [...currentImages, currentImageUrl]});
+                        }
+                      }
+                      setCurrentImageUrl('');
+                    }
+                  }}
+                >
+                  Add Image
+                </button>
+              </div>
+              <div style={{display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(150px, 1fr))', gap: '0.5rem'}}>
+                {((modalMode === 'edit' ? editVenueForm.images : newVenue.images) || []).map((img, idx) => (
+                  <div key={idx} style={{position: 'relative', paddingBottom: '75%', background: '#f5f5f5', borderRadius: '4px', overflow: 'hidden'}}>
+                    <img 
+                      src={img} 
+                      alt={`Venue ${idx + 1}`} 
+                      style={{position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', objectFit: 'cover'}}
+                      onError={(e) => {e.currentTarget.src = 'https://placehold.co/400x300?text=Invalid+Image'}}
+                    />
+                    <button
+                      type="button"
+                      className="btn btn-sm"
+                      style={{position: 'absolute', top: '4px', right: '4px', background: 'rgba(255,255,255,0.9)', padding: '2px 8px'}}
+                      onClick={() => {
+                        const form = modalMode === 'edit' ? editVenueForm : newVenue;
+                        const newImages = form.images.filter((_, i) => i !== idx);
+                        if (modalMode === 'edit') {
+                          setEditVenueForm({...editVenueForm, images: newImages});
+                        } else {
+                          setNewVenue({...newVenue, images: newImages});
+                        }
+                      }}
+                    >
+                      ×
+                    </button>
+                  </div>
+                ))}
+              </div>
+            </div>
             <div className="builder-actions full-width" style={{marginTop: '1.5rem'}}>
               <button className="btn btn-primary" onClick={async () => {
                 if (modalMode === 'edit') {
@@ -949,7 +1080,70 @@ function HotelPortal() {
             <div className="form-group full-width"><label className="form-label">Description</label><textarea className="form-control" rows={3} value={modalMode === 'edit' ? editDiningForm.description : newDiningOutlet.description} onChange={(e)=>modalMode === 'edit' ? setEditDiningForm({...editDiningForm, description:e.target.value}) : setNewDiningOutlet({...newDiningOutlet, description:e.target.value})} /></div>
             <div className="form-group"><label className="form-label">Hours</label><input className="form-control" value={modalMode === 'edit' ? editDiningForm.hours : newDiningOutlet.hours} onChange={(e)=>modalMode === 'edit' ? setEditDiningForm({...editDiningForm, hours:e.target.value}) : setNewDiningOutlet({...newDiningOutlet, hours:e.target.value})} /></div>
             <div className="form-group"><label className="form-label">Dress Code</label><input className="form-control" value={modalMode === 'edit' ? editDiningForm.dress_code : newDiningOutlet.dress_code} onChange={(e)=>modalMode === 'edit' ? setEditDiningForm({...editDiningForm, dress_code:e.target.value}) : setNewDiningOutlet({...newDiningOutlet, dress_code:e.target.value})} /></div>
-            <div className="form-group full-width"><label className="form-label">Image URL</label><input className="form-control" value={modalMode === 'edit' ? editDiningForm.image1 : newDiningOutlet.image1} onChange={(e)=>modalMode === 'edit' ? setEditDiningForm({...editDiningForm, image1:e.target.value}) : setNewDiningOutlet({...newDiningOutlet, image1:e.target.value})} /></div>
+            <div className="form-group"><label className="form-label">Seating Capacity</label><input className="form-control" type="number" placeholder="Number of seated guests" value={modalMode === 'edit' ? editDiningForm.attributes?.seating_capacity : newDiningOutlet.attributes?.seating_capacity} onChange={(e)=>modalMode === 'edit' ? setEditDiningForm({...editDiningForm, attributes:{...editDiningForm.attributes, seating_capacity:e.target.value}}) : setNewDiningOutlet({...newDiningOutlet, attributes:{...newDiningOutlet.attributes, seating_capacity:e.target.value}})} /></div>
+            <div className="form-group"><label className="form-label">Standing Capacity</label><input className="form-control" type="number" placeholder="Number of standing guests" value={modalMode === 'edit' ? editDiningForm.attributes?.standing_capacity : newDiningOutlet.attributes?.standing_capacity} onChange={(e)=>modalMode === 'edit' ? setEditDiningForm({...editDiningForm, attributes:{...editDiningForm.attributes, standing_capacity:e.target.value}}) : setNewDiningOutlet({...newDiningOutlet, attributes:{...newDiningOutlet.attributes, standing_capacity:e.target.value}})} /></div>
+            <div className="form-group full-width" style={{borderTop: '1px solid #e5e7eb', paddingTop: '1rem'}}>
+              <h4>Image Gallery</h4>
+              <div style={{display: 'flex', gap: '0.5rem', marginBottom: '1rem'}}>
+                <input 
+                  className="form-control" 
+                  placeholder="Enter image URL"
+                  value={currentImageUrl}
+                  onChange={(e) => setCurrentImageUrl(e.target.value)}
+                />
+                <button 
+                  type="button"
+                  className="btn btn-outline"
+                  onClick={() => {
+                    if (currentImageUrl) {
+                      const form = modalMode === 'edit' ? editDiningForm : newDiningOutlet;
+                      const currentImages = form.images || [];
+                      if (form.image1 && !currentImages.includes(form.image1)) {
+                        currentImages.unshift(form.image1);
+                      }
+                      if (!currentImages.includes(currentImageUrl)) {
+                        if (modalMode === 'edit') {
+                          setEditDiningForm({...editDiningForm, images: [...currentImages, currentImageUrl]});
+                        } else {
+                          setNewDiningOutlet({...newDiningOutlet, images: [...currentImages, currentImageUrl]});
+                        }
+                      }
+                      setCurrentImageUrl('');
+                    }
+                  }}
+                >
+                  Add Image
+                </button>
+              </div>
+              <div style={{display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(150px, 1fr))', gap: '0.5rem'}}>
+                {((modalMode === 'edit' ? editDiningForm.images : newDiningOutlet.images) || []).map((img, idx) => (
+                  <div key={idx} style={{position: 'relative', paddingBottom: '75%', background: '#f5f5f5', borderRadius: '4px', overflow: 'hidden'}}>
+                    <img 
+                      src={img} 
+                      alt={`Dining ${idx + 1}`} 
+                      style={{position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', objectFit: 'cover'}}
+                      onError={(e) => {e.currentTarget.src = 'https://placehold.co/400x300?text=Invalid+Image'}}
+                    />
+                    <button
+                      type="button"
+                      className="btn btn-sm"
+                      style={{position: 'absolute', top: '4px', right: '4px', background: 'rgba(255,255,255,0.9)', padding: '2px 8px'}}
+                      onClick={() => {
+                        const form = modalMode === 'edit' ? editDiningForm : newDiningOutlet;
+                        const newImages = form.images.filter((_, i) => i !== idx);
+                        if (modalMode === 'edit') {
+                          setEditDiningForm({...editDiningForm, images: newImages});
+                        } else {
+                          setNewDiningOutlet({...newDiningOutlet, images: newImages});
+                        }
+                      }}
+                    >
+                      ×
+                    </button>
+                  </div>
+                ))}
+              </div>
+            </div>
             <div className="builder-actions full-width" style={{marginTop: '1.5rem'}}>
               <button className="btn btn-primary" onClick={async () => {
                 if (modalMode === 'edit') {
