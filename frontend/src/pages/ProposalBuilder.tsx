@@ -113,81 +113,8 @@ function ProposalBuilder() {
   // Form data with draft loading
   const [formData, setFormData] = useState<FormData>(() => {
     const savedDraft = localStorage.getItem(loadDraftKey);
-    if (savedDraft) {
-      try {
-        const parsed = JSON.parse(savedDraft);
-        const draftData = parsed.formData || {};
-        
-        // Ensure all nested objects have defaults
-        const defaultData = {
-          clientName: '',
-          clientCompany: '',
-          clientEmail: '',
-          clientPhone: '',
-          eventName: '',
-          eventPurpose: '',
-          startDate: '',
-          endDate: '',
-          attendeeCount: 50,
-          roomsNeeded: 25,
-    ratingStandard: 'forbes',
-    hotelRating: '',
-    roomPreferences: {
-      kingRooms: 0,
-      doubleRooms: 0,
-      suitesNotes: ''
-    },
-    destinationId: '',
-    resortId: '',
-    roomTypeIds: [],
-    eventSpaceIds: [],
-    diningIds: [],
-    flightRouteIds: [],
-    spaceSetups: {
-      banquet: false,
-      theater: false,
-      halfCrescent: false,
-      reception: false
-    },
-    stageSize: '',
-    programInclusions: {
-      airportTransfers: false,
-      welcomeReception: false,
-      businessMeeting: false,
-      awardDinner: false,
-      activityOptions: false,
-      offSiteVenues: false,
-      offSiteRestaurants: false,
-      dineArounds: false,
-      finalNightDinner: false,
-      teamBuilding: false,
-      danceBand: false,
-      decorIdeas: false,
-      csrOptions: false,
-      giftingIdeas: false
-    },
-    primaryColor: '#1e40af',
-    secondaryColor: '#06b6d4',
-    theme: 'modern',
-    logoUrl: ''
-  };
-        
-        // Now merge with the draft data
-        return {
-          ...defaultData,
-          ...draftData,
-          roomPreferences: { ...defaultData.roomPreferences, ...(draftData.roomPreferences || {}) },
-          spaceSetups: { ...defaultData.spaceSetups, ...(draftData.spaceSetups || {}) },
-          programInclusions: { ...defaultData.programInclusions, ...(draftData.programInclusions || {}) },
-          inclusions: { ...defaultData.inclusions, ...(draftData.inclusions || {}) }
-        };
-      } catch (e) {
-        console.error('Error loading draft:', e);
-      }
-    }
-    
-    // Return default values if no draft
-    return {
+
+    const defaultData: FormData = {
       clientName: '',
       clientCompany: '',
       clientEmail: '',
@@ -203,8 +130,7 @@ function ProposalBuilder() {
       roomPreferences: {
         kingRooms: 0,
         doubleRooms: 0,
-        suiteRooms: 0,
-        accessibleRooms: 0
+        suitesNotes: ''
       },
       destinationId: '',
       resortId: '',
@@ -212,7 +138,6 @@ function ProposalBuilder() {
       eventSpaceIds: [],
       diningIds: [],
       flightRouteIds: [],
-      setupPreferences: [],
       spaceSetups: {
         banquet: false,
         theater: false,
@@ -224,20 +149,12 @@ function ProposalBuilder() {
         airportTransfers: false,
         welcomeReception: false,
         businessMeeting: false,
-        finalNightDinner: false,
-        teamBuilding: false,
-        offSiteVenues: false,
         awardDinner: false,
-        csrOptions: false,
-        danceBand: false,
-        decorIdeas: false,
-        giftingIdeas: false
-      },
-      inclusions: {
-        welcome: false,
-        farewell: false,
-        cocktailParty: false,
-        galaDinner: false,
+        activityOptions: false,
+        offSiteVenues: false,
+        offSiteRestaurants: false,
+        dineArounds: false,
+        finalNightDinner: false,
         teamBuilding: false,
         danceBand: false,
         decorIdeas: false,
@@ -249,12 +166,32 @@ function ProposalBuilder() {
       theme: 'modern',
       logoUrl: ''
     };
+
+    if (savedDraft) {
+      try {
+        const parsed = JSON.parse(savedDraft);
+        const draftData = (parsed && parsed.formData) ? parsed.formData : {};
+        return {
+          ...defaultData,
+          ...draftData,
+          roomPreferences: {
+            ...defaultData.roomPreferences,
+            ...(draftData.roomPreferences || {})
+          },
+          spaceSetups: {
+            ...defaultData.spaceSetups,
+            ...(draftData.spaceSetups || {})
+          },
+          programInclusions: {
+            ...defaultData.programInclusions,
+            ...(draftData.programInclusions || {})
+          }
+        };
       } catch (e) {
         console.error('Error loading draft:', e);
       }
     }
-    
-    // Return default values if no draft  
+
     return defaultData;
   });
 
