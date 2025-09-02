@@ -937,7 +937,7 @@ function HotelPortal() {
                 </button>
               </div>
               <div style={{display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(150px, 1fr))', gap: '0.5rem'}}>
-                {((modalMode === 'edit' ? editRoomForm.images : newRoom.images) || []).map((img, idx) => (
+                {((modalMode === 'edit' ? editRoomForm.images : newRoom.images) || []).map((img: string, idx: number) => (
                   <div key={idx} style={{position: 'relative', paddingBottom: '75%', background: '#f5f5f5', borderRadius: '4px', overflow: 'hidden'}}>
                     <img 
                       src={img} 
@@ -951,7 +951,7 @@ function HotelPortal() {
                       style={{position: 'absolute', top: '4px', right: '4px', background: 'rgba(255,255,255,0.9)', padding: '2px 8px'}}
                       onClick={() => {
                         const form = modalMode === 'edit' ? editRoomForm : newRoom;
-                        const newImages = form.images.filter((_, i) => i !== idx);
+                        const newImages = form.images.filter((_: unknown, i: number) => i !== idx);
                         if (modalMode === 'edit') {
                           setEditRoomForm({...editRoomForm, images: newImages});
                         } else {
@@ -1031,7 +1031,7 @@ function HotelPortal() {
                 </button>
               </div>
               <div style={{display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(150px, 1fr))', gap: '0.5rem'}}>
-                {((modalMode === 'edit' ? editVenueForm.images : newVenue.images) || []).map((img, idx) => (
+                {((modalMode === 'edit' ? editVenueForm.images : newVenue.images) || []).map((img: string, idx: number) => (
                   <div key={idx} style={{position: 'relative', paddingBottom: '75%', background: '#f5f5f5', borderRadius: '4px', overflow: 'hidden'}}>
                     <img 
                       src={img} 
@@ -1045,7 +1045,7 @@ function HotelPortal() {
                       style={{position: 'absolute', top: '4px', right: '4px', background: 'rgba(255,255,255,0.9)', padding: '2px 8px'}}
                       onClick={() => {
                         const form = modalMode === 'edit' ? editVenueForm : newVenue;
-                        const newImages = form.images.filter((_, i) => i !== idx);
+                        const newImages = form.images.filter((_: unknown, i: number) => i !== idx);
                         if (modalMode === 'edit') {
                           setEditVenueForm({...editVenueForm, images: newImages});
                         } else {
@@ -1116,7 +1116,7 @@ function HotelPortal() {
                 </button>
               </div>
               <div style={{display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(150px, 1fr))', gap: '0.5rem'}}>
-                {((modalMode === 'edit' ? editDiningForm.images : newDiningOutlet.images) || []).map((img, idx) => (
+                {((modalMode === 'edit' ? editDiningForm.images : newDiningOutlet.images) || []).map((img: string, idx: number) => (
                   <div key={idx} style={{position: 'relative', paddingBottom: '75%', background: '#f5f5f5', borderRadius: '4px', overflow: 'hidden'}}>
                     <img 
                       src={img} 
@@ -1130,7 +1130,7 @@ function HotelPortal() {
                       style={{position: 'absolute', top: '4px', right: '4px', background: 'rgba(255,255,255,0.9)', padding: '2px 8px'}}
                       onClick={() => {
                         const form = modalMode === 'edit' ? editDiningForm : newDiningOutlet;
-                        const newImages = form.images.filter((_, i) => i !== idx);
+                        const newImages = form.images.filter((_: unknown, i: number) => i !== idx);
                         if (modalMode === 'edit') {
                           setEditDiningForm({...editDiningForm, images: newImages});
                         } else {
