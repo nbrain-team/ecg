@@ -1,10 +1,15 @@
 import { Router } from 'express';
+import multer from 'multer';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import pool from '../config/database';
 import { requireAuth, AuthenticatedRequest } from '../middleware/auth';
 
 const router = Router();
+const upload = multer({
+  storage: multer.memoryStorage(),
+  limits: { fileSize: 10 * 1024 * 1024 }, // 10MB
+});
 
 // Get all hotels (for chatbot)
 router.get('/all', requireAuth(['admin', 'viewer']), async (req, res) => {
@@ -278,6 +283,47 @@ router.post('/images', requireAuth(['hotel', 'admin']), async (req: Authenticate
     [hotelId, url, alt, category]
   );
   res.status(201).json(rows[0]);
+});
+
+// Direct binary upload, returns a CDN-style URL under API for immediate use
+router.post('/images/upload', requireAuth(['hotel', 'admin']), upload.single('file'), async (req: AuthenticatedRequest, res) => {
+  try {
+    const hotelId = req.user?.role === 'admin' ? (req.body.hotelId as string) : req.user?.hotelId;
+    if (!hotelId) return res.status(400).json({ message: 'Missing hotelId' });
+    if (!req.file) return res.status(400).json({ message: 'No file uploaded' });
+    const { originalname, mimetype, size, buffer } = req.file;
+    const insert = await pool.query(
+      `INSERT INTO uploads (hotel_id, filename, mimetype, size_bytes, data)
+       VALUES ($1,$2,$3,$4,$5) RETURNING id`,
+      [hotelId, originalname, mimetype, size, buffer]
+    );
+    const id = insert.rows[0].id;
+    // Store image reference into hotel_images for consistency
+    const publicUrl = `/api/hotels/images/file/${id}`;
+    const img = await pool.query(
+      `INSERT INTO hotel_images (hotel_id, url, alt, category)
+       VALUES ($1,$2,$3,$4) RETURNING *`,
+      [hotelId, publicUrl, req.body.alt || null, req.body.category || null]
+    );
+    res.status(201).json(img.rows[0]);
+  } catch (e) {
+    console.error('Upload failed', e);
+    res.status(500).json({ message: 'Upload failed' });
+  }
+});
+
+// Serve uploaded binary
+router.get('/images/file/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { rows } = await pool.query('SELECT mimetype, data FROM uploads WHERE id=$1', [id]);
+    const row = rows[0];
+    if (!row) return res.status(404).send('Not found');
+    res.setHeader('Content-Type', row.mimetype);
+    res.send(row.data);
+  } catch (e) {
+    res.status(500).send('Server error');
+  }
 });
 
 // Rooms

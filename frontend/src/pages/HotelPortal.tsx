@@ -758,6 +758,33 @@ function HotelPortal() {
             <label className="form-label">Category</label>
             <input className="form-control" value={imageForm.category} onChange={(e)=>setImageForm({...imageForm, category:e.target.value})} />
           </div>
+          <div className="form-group">
+            <label className="form-label">Upload Image</label>
+            <input
+              className="form-control"
+              type="file"
+              accept="image/*"
+              onChange={async (e) => {
+                const file = e.target.files?.[0];
+                if (!file) return;
+                try {
+                  const form = new FormData();
+                  form.append('file', file);
+                  form.append('alt', imageForm.alt || '');
+                  form.append('category', imageForm.category || 'gallery');
+                  const hotelToken = localStorage.getItem('hotelToken');
+                  const headers = { Authorization: `Bearer ${hotelToken}` };
+                  const resp = await axios.post(`${apiUrl}/api/hotels/images/upload`, form, {
+                    headers,
+                  });
+                  // Refresh list
+                  fetchAll();
+                } catch (err:any) {
+                  setError(err.response?.data?.message || 'Upload failed');
+                }
+              }}
+            />
+          </div>
         </div>
         <div className="builder-actions">
           <button className="btn btn-primary" onClick={addImage}>Add Image</button>
@@ -935,6 +962,23 @@ function HotelPortal() {
                 >
                   Add Image
                 </button>
+                <label className="btn btn-outline" htmlFor="room-image-upload">Upload Image</label>
+                <input id="room-image-upload" type="file" accept="image/*" style={{display:'none'}} onChange={async (e)=>{
+                  const file = e.target.files?.[0];
+                  if (!file) return;
+                  try {
+                    const formData = new FormData();
+                    formData.append('file', file);
+                    const hotelToken = localStorage.getItem('hotelToken');
+                    const headers = { Authorization: `Bearer ${hotelToken}` };
+                    const resp = await axios.post(`${apiUrl}/api/hotels/images/upload`, formData, { headers });
+                    const url = resp.data?.url || resp.data?.url; // server returns record with url
+                    const form = modalMode === 'edit' ? editRoomForm : newRoom;
+                    const currentImages = form.images || [];
+                    const next = [...currentImages, resp.data.url];
+                    if (modalMode === 'edit') setEditRoomForm({...editRoomForm, images: next}); else setNewRoom({...newRoom, images: next});
+                  } catch(err:any){ setError(err.response?.data?.message || 'Upload failed'); }
+                }} />
               </div>
               <div style={{display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(150px, 1fr))', gap: '0.5rem'}}>
                 {((modalMode === 'edit' ? editRoomForm.images : newRoom.images) || []).map((img: string, idx: number) => (
@@ -1029,6 +1073,22 @@ function HotelPortal() {
                 >
                   Add Image
                 </button>
+                <label className="btn btn-outline" htmlFor="venue-image-upload">Upload Image</label>
+                <input id="venue-image-upload" type="file" accept="image/*" style={{display:'none'}} onChange={async (e)=>{
+                  const file = e.target.files?.[0];
+                  if (!file) return;
+                  try {
+                    const formData = new FormData();
+                    formData.append('file', file);
+                    const hotelToken = localStorage.getItem('hotelToken');
+                    const headers = { Authorization: `Bearer ${hotelToken}` };
+                    const resp = await axios.post(`${apiUrl}/api/hotels/images/upload`, formData, { headers });
+                    const form = modalMode === 'edit' ? editVenueForm : newVenue;
+                    const currentImages = form.images || [];
+                    const next = [...currentImages, resp.data.url];
+                    if (modalMode === 'edit') setEditVenueForm({...editVenueForm, images: next}); else setNewVenue({...newVenue, images: next});
+                  } catch(err:any){ setError(err.response?.data?.message || 'Upload failed'); }
+                }} />
               </div>
               <div style={{display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(150px, 1fr))', gap: '0.5rem'}}>
                 {((modalMode === 'edit' ? editVenueForm.images : newVenue.images) || []).map((img: string, idx: number) => (
@@ -1114,6 +1174,22 @@ function HotelPortal() {
                 >
                   Add Image
                 </button>
+                <label className="btn btn-outline" htmlFor="dining-image-upload">Upload Image</label>
+                <input id="dining-image-upload" type="file" accept="image/*" style={{display:'none'}} onChange={async (e)=>{
+                  const file = e.target.files?.[0];
+                  if (!file) return;
+                  try {
+                    const formData = new FormData();
+                    formData.append('file', file);
+                    const hotelToken = localStorage.getItem('hotelToken');
+                    const headers = { Authorization: `Bearer ${hotelToken}` };
+                    const resp = await axios.post(`${apiUrl}/api/hotels/images/upload`, formData, { headers });
+                    const form = modalMode === 'edit' ? editDiningForm : newDiningOutlet;
+                    const currentImages = form.images || [];
+                    const next = [...currentImages, resp.data.url];
+                    if (modalMode === 'edit') setEditDiningForm({...editDiningForm, images: next}); else setNewDiningOutlet({...newDiningOutlet, images: next});
+                  } catch(err:any){ setError(err.response?.data?.message || 'Upload failed'); }
+                }} />
               </div>
               <div style={{display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(150px, 1fr))', gap: '0.5rem'}}>
                 {((modalMode === 'edit' ? editDiningForm.images : newDiningOutlet.images) || []).map((img: string, idx: number) => (

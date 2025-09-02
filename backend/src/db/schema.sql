@@ -36,6 +36,17 @@ CREATE TABLE IF NOT EXISTS hotel_images (
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
+-- Binary file storage for uploads (optional URL mirror)
+CREATE TABLE IF NOT EXISTS uploads (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  hotel_id UUID REFERENCES hotels(id) ON DELETE CASCADE,
+  filename TEXT NOT NULL,
+  mimetype TEXT NOT NULL,
+  size_bytes INTEGER NOT NULL,
+  data BYTEA NOT NULL,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
 CREATE TABLE IF NOT EXISTS hotel_rooms (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   hotel_id UUID REFERENCES hotels(id) ON DELETE CASCADE,
