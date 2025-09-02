@@ -6,6 +6,65 @@ import { requireAuth, AuthenticatedRequest } from '../middleware/auth';
 
 const router = Router();
 
+// Get all hotels (for chatbot)
+router.get('/all', requireAuth(['admin', 'viewer']), async (req, res) => {
+  try {
+    const { rows } = await pool.query('SELECT * FROM hotels ORDER BY name');
+    res.json(rows);
+  } catch (error) {
+    console.error('Error fetching all hotels:', error);
+    res.status(500).json({ message: 'Failed to fetch hotels' });
+  }
+});
+
+// Get all rooms across all hotels (for chatbot)
+router.get('/rooms/all', requireAuth(['admin', 'viewer']), async (req, res) => {
+  try {
+    const { rows } = await pool.query(`
+      SELECT r.*, h.name as hotel_name 
+      FROM hotel_rooms r 
+      JOIN hotels h ON r.hotel_id = h.id 
+      ORDER BY h.name, r.name
+    `);
+    res.json(rows);
+  } catch (error) {
+    console.error('Error fetching all rooms:', error);
+    res.status(500).json({ message: 'Failed to fetch rooms' });
+  }
+});
+
+// Get all venues across all hotels (for chatbot)
+router.get('/venues/all', requireAuth(['admin', 'viewer']), async (req, res) => {
+  try {
+    const { rows } = await pool.query(`
+      SELECT v.*, h.name as hotel_name 
+      FROM hotel_venues v 
+      JOIN hotels h ON v.hotel_id = h.id 
+      ORDER BY h.name, v.name
+    `);
+    res.json(rows);
+  } catch (error) {
+    console.error('Error fetching all venues:', error);
+    res.status(500).json({ message: 'Failed to fetch venues' });
+  }
+});
+
+// Get all dining options across all hotels (for chatbot)
+router.get('/dining/all', requireAuth(['admin', 'viewer']), async (req, res) => {
+  try {
+    const { rows } = await pool.query(`
+      SELECT d.*, h.name as hotel_name 
+      FROM hotel_dining d 
+      JOIN hotels h ON d.hotel_id = h.id 
+      ORDER BY h.name, d.name
+    `);
+    res.json(rows);
+  } catch (error) {
+    console.error('Error fetching all dining:', error);
+    res.status(500).json({ message: 'Failed to fetch dining' });
+  }
+});
+
 function getGVDefaults() {
   return {
     schema_header: {

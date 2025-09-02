@@ -116,7 +116,10 @@ function ProposalBuilder() {
     if (savedDraft) {
       try {
         const parsed = JSON.parse(savedDraft);
-        return parsed.formData || {
+        const draftData = parsed.formData || {};
+        
+        // Ensure all nested objects have defaults
+        const defaultData = {
           clientName: '',
           clientCompany: '',
           clientEmail: '',
@@ -167,6 +170,16 @@ function ProposalBuilder() {
     secondaryColor: '#06b6d4',
     theme: 'modern',
     logoUrl: ''
+  };
+        
+        // Now merge with the draft data
+        return {
+          ...defaultData,
+          ...draftData,
+          roomPreferences: { ...defaultData.roomPreferences, ...(draftData.roomPreferences || {}) },
+          spaceSetups: { ...defaultData.spaceSetups, ...(draftData.spaceSetups || {}) },
+          programInclusions: { ...defaultData.programInclusions, ...(draftData.programInclusions || {}) },
+          inclusions: { ...defaultData.inclusions, ...(draftData.inclusions || {}) }
         };
       } catch (e) {
         console.error('Error loading draft:', e);
@@ -200,6 +213,26 @@ function ProposalBuilder() {
       diningIds: [],
       flightRouteIds: [],
       setupPreferences: [],
+      spaceSetups: {
+        banquet: false,
+        theater: false,
+        halfCrescent: false,
+        reception: false
+      },
+      stageSize: '',
+      programInclusions: {
+        airportTransfers: false,
+        welcomeReception: false,
+        businessMeeting: false,
+        finalNightDinner: false,
+        teamBuilding: false,
+        offSiteVenues: false,
+        awardDinner: false,
+        csrOptions: false,
+        danceBand: false,
+        decorIdeas: false,
+        giftingIdeas: false
+      },
       inclusions: {
         welcome: false,
         farewell: false,
@@ -216,6 +249,13 @@ function ProposalBuilder() {
       theme: 'modern',
       logoUrl: ''
     };
+      } catch (e) {
+        console.error('Error loading draft:', e);
+      }
+    }
+    
+    // Return default values if no draft  
+    return defaultData;
   });
 
   const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:5000';

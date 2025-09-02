@@ -450,8 +450,7 @@ function ChatbotProposal() {
     setSelectedOptions(defaultSelections);
     
     addBotMessage("Which of these would you like included in your program? (Check all that apply)", {
-      inputType: 'multiselect',
-      options: PROGRAM_OPTIONS
+      inputType: 'multiselect'
     });
   };
 
