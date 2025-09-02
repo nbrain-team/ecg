@@ -142,16 +142,45 @@ function HotelPortal() {
         capacity: Number(newRoom.capacity||0),
         base_rate: Number(newRoom.base_rate||0),
         images: newRoom.image1 ? [newRoom.image1] : [],
-        attributes: newRoom.attributes || null
+        attributes: {
+          bed_configuration: newRoom.attributes?.bed_configuration || '',
+          connectable: newRoom.attributes?.connectable === 'true',
+          max_occupancy: newRoom.attributes?.max_occupancy || '',
+          view_type: newRoom.attributes?.view_type || '',
+          in_room_amenities: newRoom.attributes?.in_room_amenities_csv ? newRoom.attributes.in_room_amenities_csv.split(',').map((s:string) => s.trim()).filter(Boolean) : [],
+          accessibility_features: newRoom.attributes?.accessibility_features_csv ? newRoom.attributes.accessibility_features_csv.split(',').map((s:string) => s.trim()).filter(Boolean) : [],
+          typical_group_rate_usd: {
+            low: newRoom.attributes?.typical_group_rate_low ? Number(newRoom.attributes.typical_group_rate_low) : null,
+            high: newRoom.attributes?.typical_group_rate_high ? Number(newRoom.attributes.typical_group_rate_high) : null
+          }
+        }
       };
       await axios.post(`${apiUrl}/api/hotels/rooms`, payload, auth);
-      setNewRoom({ name: '', description: '', size_sqft: '', view: '', capacity: '', base_rate: '', image1: '' });
+      setNewRoom({ name: '', description: '', size_sqft: '', view: '', capacity: '', base_rate: '', image1: '', attributes: { bed_configuration: '', connectable: 'false', max_occupancy: '', view_type: '', in_room_amenities_csv: '', accessibility_features_csv: '', typical_group_rate_low: '', typical_group_rate_high: '' } });
       fetchAll();
     } catch (e:any) { setError(e.response?.data?.message || 'Failed to add room'); }
   };
   const startEditRoom = (r:any) => {
     setEditingRoomId(r.id);
-    setEditRoomForm({ name: r.name||'', description: r.description||'', size_sqft: r.size_sqft||'', view: r.view||'', capacity: r.capacity||'', base_rate: r.base_rate||'', image1: Array.isArray(r.images)&&r.images[0]?r.images[0]:'' });
+    setEditRoomForm({ 
+      name: r.name||'', 
+      description: r.description||'', 
+      size_sqft: r.size_sqft||'', 
+      view: r.view||'', 
+      capacity: r.capacity||'', 
+      base_rate: r.base_rate||'', 
+      image1: Array.isArray(r.images)&&r.images[0]?r.images[0]:'',
+      attributes: {
+        bed_configuration: r.attributes?.bed_configuration || '',
+        connectable: String(r.attributes?.connectable || 'false'),
+        max_occupancy: r.attributes?.max_occupancy || '',
+        view_type: r.attributes?.view_type || '',
+        in_room_amenities_csv: Array.isArray(r.attributes?.in_room_amenities) ? r.attributes.in_room_amenities.join(', ') : (r.attributes?.in_room_amenities_csv || ''),
+        accessibility_features_csv: Array.isArray(r.attributes?.accessibility_features) ? r.attributes.accessibility_features.join(', ') : (r.attributes?.accessibility_features_csv || ''),
+        typical_group_rate_low: r.attributes?.typical_group_rate_usd?.low || r.attributes?.typical_group_rate_low || '',
+        typical_group_rate_high: r.attributes?.typical_group_rate_usd?.high || r.attributes?.typical_group_rate_high || ''
+      }
+    });
   };
   const saveEditRoom = async () => {
     try {
@@ -164,7 +193,18 @@ function HotelPortal() {
         capacity: editRoomForm.capacity === '' ? null : Number(editRoomForm.capacity),
         base_rate: editRoomForm.base_rate === '' ? null : Number(editRoomForm.base_rate),
         images: editRoomForm.image1 ? [editRoomForm.image1] : [],
-        attributes: editRoomForm.attributes || null
+        attributes: {
+          bed_configuration: editRoomForm.attributes?.bed_configuration || '',
+          connectable: editRoomForm.attributes?.connectable === 'true',
+          max_occupancy: editRoomForm.attributes?.max_occupancy || '',
+          view_type: editRoomForm.attributes?.view_type || '',
+          in_room_amenities: editRoomForm.attributes?.in_room_amenities_csv ? editRoomForm.attributes.in_room_amenities_csv.split(',').map((s:string) => s.trim()).filter(Boolean) : [],
+          accessibility_features: editRoomForm.attributes?.accessibility_features_csv ? editRoomForm.attributes.accessibility_features_csv.split(',').map((s:string) => s.trim()).filter(Boolean) : [],
+          typical_group_rate_usd: {
+            low: editRoomForm.attributes?.typical_group_rate_low ? Number(editRoomForm.attributes.typical_group_rate_low) : null,
+            high: editRoomForm.attributes?.typical_group_rate_high ? Number(editRoomForm.attributes.typical_group_rate_high) : null
+          }
+        }
       };
       await axios.put(`${apiUrl}/api/hotels/rooms/${editingRoomId}`, payload, auth);
       setEditingRoomId(null);
@@ -204,7 +244,32 @@ function HotelPortal() {
   };
   const startEditVenue = (v:any) => {
     setEditingVenueId(v.id);
-    setEditVenueForm({ name: v.name||'', description: v.description||'', sqft: v.sqft||'', ceiling_height_ft: v.ceiling_height_ft||'', capacity_reception: v.capacity_reception||'', capacity_banquet: v.capacity_banquet||'', capacity_theater: v.capacity_theater||'', image1: Array.isArray(v.images)&&v.images[0]?v.images[0]:'' });
+    setEditVenueForm({ 
+      name: v.name||'', 
+      description: v.description||'', 
+      sqft: v.sqft||'', 
+      ceiling_height_ft: v.ceiling_height_ft||'', 
+      capacity_reception: v.capacity_reception||'', 
+      capacity_banquet: v.capacity_banquet||'', 
+      capacity_theater: v.capacity_theater||'', 
+      image1: Array.isArray(v.images)&&v.images[0]?v.images[0]:'',
+      attributes: {
+        length_m: v.attributes?.length_m || '',
+        width_m: v.attributes?.width_m || '',
+        height_m: v.attributes?.height_m || '',
+        floor_type: v.attributes?.floor_type || '',
+        natural_light: v.attributes?.natural_light || 'false',
+        rigging_points: v.attributes?.rigging_points || 'false',
+        theater: v.attributes?.theater || '',
+        classroom: v.attributes?.classroom || '',
+        banquet_rounds_10: v.attributes?.banquet_rounds_10 || '',
+        reception: v.attributes?.reception || '',
+        u_shape: v.attributes?.u_shape || '',
+        boardroom: v.attributes?.boardroom || '',
+        rental_fee_usd_day: v.attributes?.rental_fee_usd_day || '',
+        setup_tear_down_fee_usd: v.attributes?.setup_tear_down_fee_usd || ''
+      }
+    });
   };
   const saveEditVenue = async () => {
     try {
@@ -239,7 +304,26 @@ function HotelPortal() {
       fetchAll();
     } catch (e:any) { setError(e.response?.data?.message || 'Failed to add outlet'); }
   };
-  const startEditDining = (d:any) => { setEditingDiningId(d.id); setEditDiningForm({ name: d.name||'', cuisine: d.cuisine||'', description: d.description||'', hours: d.hours||'', dress_code: d.dress_code||'', image1: Array.isArray(d.images)&&d.images[0]?d.images[0]:'' }); };
+  const startEditDining = (d:any) => { 
+    setEditingDiningId(d.id); 
+    setEditDiningForm({ 
+      name: d.name||'', 
+      cuisine: d.cuisine||'', 
+      description: d.description||'', 
+      hours: d.hours||'', 
+      dress_code: d.dress_code||'', 
+      image1: Array.isArray(d.images)&&d.images[0]?d.images[0]:'',
+      attributes: {
+        buyout_available: d.attributes?.buyout_available || 'false',
+        buyout_min_spend_usd: d.attributes?.buyout_min_spend_usd || '',
+        seating_capacity: d.attributes?.seating_capacity || '',
+        standing_capacity: d.attributes?.standing_capacity || '',
+        private_rooms_csv: d.attributes?.private_rooms_csv || '',
+        outdoor: d.attributes?.outdoor || 'false',
+        noise_restrictions_after: d.attributes?.noise_restrictions_after || ''
+      }
+    }); 
+  };
   const saveEditDining = async () => { try { if(!editingDiningId) return; const payload:any = { name: editDiningForm.name, cuisine: editDiningForm.cuisine, description: editDiningForm.description, hours: editDiningForm.hours, dress_code: editDiningForm.dress_code, images: editDiningForm.image1?[editDiningForm.image1]:[], attributes: editDiningForm.attributes }; await axios.put(`${apiUrl}/api/hotels/dining/${editingDiningId}`, payload, auth); setEditingDiningId(null); fetchAll(); } catch(e:any){ setError(e.response?.data?.message || 'Failed to save outlet'); } };
   const removeDining = async (id:string) => { try { await axios.delete(`${apiUrl}/api/hotels/dining/${id}`, auth); fetchAll(); } catch(e:any){ setError(e.response?.data?.message || 'Delete failed'); } };
 
@@ -536,6 +620,20 @@ function HotelPortal() {
           <div className="form-group"><label className="form-label">Banquet Capacity</label><input className="form-control" value={newVenue.capacity_banquet} onChange={(e)=>setNewVenue({...newVenue, capacity_banquet:e.target.value})} /></div>
           <div className="form-group"><label className="form-label">Theater Capacity</label><input className="form-control" value={newVenue.capacity_theater} onChange={(e)=>setNewVenue({...newVenue, capacity_theater:e.target.value})} /></div>
           <div className="form-group full-width"><label className="form-label">Image URL</label><input className="form-control" value={newVenue.image1} onChange={(e)=>setNewVenue({...newVenue, image1:e.target.value})} /></div>
+          <div className="form-group"><label className="form-label">Length (m)</label><input className="form-control" value={newVenue.attributes.length_m} onChange={(e)=>setNewVenue({...newVenue, attributes:{...newVenue.attributes, length_m:e.target.value}})} /></div>
+          <div className="form-group"><label className="form-label">Width (m)</label><input className="form-control" value={newVenue.attributes.width_m} onChange={(e)=>setNewVenue({...newVenue, attributes:{...newVenue.attributes, width_m:e.target.value}})} /></div>
+          <div className="form-group"><label className="form-label">Height (m)</label><input className="form-control" value={newVenue.attributes.height_m} onChange={(e)=>setNewVenue({...newVenue, attributes:{...newVenue.attributes, height_m:e.target.value}})} /></div>
+          <div className="form-group"><label className="form-label">Floor Type</label><input className="form-control" value={newVenue.attributes.floor_type} onChange={(e)=>setNewVenue({...newVenue, attributes:{...newVenue.attributes, floor_type:e.target.value}})} /></div>
+          <div className="form-group"><label className="form-label">Natural Light</label><select className="form-control" value={newVenue.attributes.natural_light} onChange={(e)=>setNewVenue({...newVenue, attributes:{...newVenue.attributes, natural_light:e.target.value}})}><option value="false">false</option><option value="true">true</option></select></div>
+          <div className="form-group"><label className="form-label">Rigging Points</label><select className="form-control" value={newVenue.attributes.rigging_points} onChange={(e)=>setNewVenue({...newVenue, attributes:{...newVenue.attributes, rigging_points:e.target.value}})}><option value="false">false</option><option value="true">true</option></select></div>
+          <div className="form-group"><label className="form-label">Theater Layout</label><input className="form-control" value={newVenue.attributes.theater} onChange={(e)=>setNewVenue({...newVenue, attributes:{...newVenue.attributes, theater:e.target.value}})} /></div>
+          <div className="form-group"><label className="form-label">Classroom Layout</label><input className="form-control" value={newVenue.attributes.classroom} onChange={(e)=>setNewVenue({...newVenue, attributes:{...newVenue.attributes, classroom:e.target.value}})} /></div>
+          <div className="form-group"><label className="form-label">Banquet Rounds 10</label><input className="form-control" value={newVenue.attributes.banquet_rounds_10} onChange={(e)=>setNewVenue({...newVenue, attributes:{...newVenue.attributes, banquet_rounds_10:e.target.value}})} /></div>
+          <div className="form-group"><label className="form-label">Reception Layout</label><input className="form-control" value={newVenue.attributes.reception} onChange={(e)=>setNewVenue({...newVenue, attributes:{...newVenue.attributes, reception:e.target.value}})} /></div>
+          <div className="form-group"><label className="form-label">U-Shape Layout</label><input className="form-control" value={newVenue.attributes.u_shape} onChange={(e)=>setNewVenue({...newVenue, attributes:{...newVenue.attributes, u_shape:e.target.value}})} /></div>
+          <div className="form-group"><label className="form-label">Boardroom Layout</label><input className="form-control" value={newVenue.attributes.boardroom} onChange={(e)=>setNewVenue({...newVenue, attributes:{...newVenue.attributes, boardroom:e.target.value}})} /></div>
+          <div className="form-group"><label className="form-label">Rental Fee (USD/Day)</label><input className="form-control" value={newVenue.attributes.rental_fee_usd_day} onChange={(e)=>setNewVenue({...newVenue, attributes:{...newVenue.attributes, rental_fee_usd_day:e.target.value}})} /></div>
+          <div className="form-group"><label className="form-label">Setup/Teardown Fee</label><input className="form-control" value={newVenue.attributes.setup_tear_down_fee_usd} onChange={(e)=>setNewVenue({...newVenue, attributes:{...newVenue.attributes, setup_tear_down_fee_usd:e.target.value}})} /></div>
         </div>
         <div className="builder-actions" style={{ marginBottom: '1rem' }}>
           <button className="btn btn-primary" onClick={addVenue}>Add Venue</button>
@@ -558,6 +656,20 @@ function HotelPortal() {
                       <div className="form-group"><label className="form-label">Banquet Capacity</label><input className="form-control" value={editVenueForm.capacity_banquet} onChange={(e)=>setEditVenueForm({...editVenueForm, capacity_banquet:e.target.value})} /></div>
                       <div className="form-group"><label className="form-label">Theater Capacity</label><input className="form-control" value={editVenueForm.capacity_theater} onChange={(e)=>setEditVenueForm({...editVenueForm, capacity_theater:e.target.value})} /></div>
                       <div className="form-group full-width"><label className="form-label">Image URL</label><input className="form-control" value={editVenueForm.image1} onChange={(e)=>setEditVenueForm({...editVenueForm, image1:e.target.value})} /></div>
+                      <div className="form-group"><label className="form-label">Length (m)</label><input className="form-control" value={editVenueForm.attributes.length_m} onChange={(e)=>setEditVenueForm({...editVenueForm, attributes:{...editVenueForm.attributes, length_m:e.target.value}})} /></div>
+                      <div className="form-group"><label className="form-label">Width (m)</label><input className="form-control" value={editVenueForm.attributes.width_m} onChange={(e)=>setEditVenueForm({...editVenueForm, attributes:{...editVenueForm.attributes, width_m:e.target.value}})} /></div>
+                      <div className="form-group"><label className="form-label">Height (m)</label><input className="form-control" value={editVenueForm.attributes.height_m} onChange={(e)=>setEditVenueForm({...editVenueForm, attributes:{...editVenueForm.attributes, height_m:e.target.value}})} /></div>
+                      <div className="form-group"><label className="form-label">Floor Type</label><input className="form-control" value={editVenueForm.attributes.floor_type} onChange={(e)=>setEditVenueForm({...editVenueForm, attributes:{...editVenueForm.attributes, floor_type:e.target.value}})} /></div>
+                      <div className="form-group"><label className="form-label">Natural Light</label><select className="form-control" value={editVenueForm.attributes.natural_light} onChange={(e)=>setEditVenueForm({...editVenueForm, attributes:{...editVenueForm.attributes, natural_light:e.target.value}})}><option value="false">false</option><option value="true">true</option></select></div>
+                      <div className="form-group"><label className="form-label">Rigging Points</label><select className="form-control" value={editVenueForm.attributes.rigging_points} onChange={(e)=>setEditVenueForm({...editVenueForm, attributes:{...editVenueForm.attributes, rigging_points:e.target.value}})}><option value="false">false</option><option value="true">true</option></select></div>
+                      <div className="form-group"><label className="form-label">Theater Layout</label><input className="form-control" value={editVenueForm.attributes.theater} onChange={(e)=>setEditVenueForm({...editVenueForm, attributes:{...editVenueForm.attributes, theater:e.target.value}})} /></div>
+                      <div className="form-group"><label className="form-label">Classroom Layout</label><input className="form-control" value={editVenueForm.attributes.classroom} onChange={(e)=>setEditVenueForm({...editVenueForm, attributes:{...editVenueForm.attributes, classroom:e.target.value}})} /></div>
+                      <div className="form-group"><label className="form-label">Banquet Rounds 10</label><input className="form-control" value={editVenueForm.attributes.banquet_rounds_10} onChange={(e)=>setEditVenueForm({...editVenueForm, attributes:{...editVenueForm.attributes, banquet_rounds_10:e.target.value}})} /></div>
+                      <div className="form-group"><label className="form-label">Reception Layout</label><input className="form-control" value={editVenueForm.attributes.reception} onChange={(e)=>setEditVenueForm({...editVenueForm, attributes:{...editVenueForm.attributes, reception:e.target.value}})} /></div>
+                      <div className="form-group"><label className="form-label">U-Shape Layout</label><input className="form-control" value={editVenueForm.attributes.u_shape} onChange={(e)=>setEditVenueForm({...editVenueForm, attributes:{...editVenueForm.attributes, u_shape:e.target.value}})} /></div>
+                      <div className="form-group"><label className="form-label">Boardroom Layout</label><input className="form-control" value={editVenueForm.attributes.boardroom} onChange={(e)=>setEditVenueForm({...editVenueForm, attributes:{...editVenueForm.attributes, boardroom:e.target.value}})} /></div>
+                      <div className="form-group"><label className="form-label">Rental Fee (USD/Day)</label><input className="form-control" value={editVenueForm.attributes.rental_fee_usd_day} onChange={(e)=>setEditVenueForm({...editVenueForm, attributes:{...editVenueForm.attributes, rental_fee_usd_day:e.target.value}})} /></div>
+                      <div className="form-group"><label className="form-label">Setup/Teardown Fee</label><input className="form-control" value={editVenueForm.attributes.setup_tear_down_fee_usd} onChange={(e)=>setEditVenueForm({...editVenueForm, attributes:{...editVenueForm.attributes, setup_tear_down_fee_usd:e.target.value}})} /></div>
                     </div>
                     <div className="builder-actions">
                       <button className="btn btn-primary" onClick={saveEditVenue}>Save</button>
@@ -592,6 +704,13 @@ function HotelPortal() {
           <div className="form-group"><label className="form-label">Hours</label><input className="form-control" value={newDiningOutlet.hours} onChange={(e)=>setNewDiningOutlet({...newDiningOutlet, hours:e.target.value})} /></div>
           <div className="form-group"><label className="form-label">Dress Code</label><input className="form-control" value={newDiningOutlet.dress_code} onChange={(e)=>setNewDiningOutlet({...newDiningOutlet, dress_code:e.target.value})} /></div>
           <div className="form-group full-width"><label className="form-label">Image URL</label><input className="form-control" value={newDiningOutlet.image1} onChange={(e)=>setNewDiningOutlet({...newDiningOutlet, image1:e.target.value})} /></div>
+          <div className="form-group"><label className="form-label">Buyout Available</label><select className="form-control" value={newDiningOutlet.attributes.buyout_available} onChange={(e)=>setNewDiningOutlet({...newDiningOutlet, attributes:{...newDiningOutlet.attributes, buyout_available:e.target.value}})}><option value="false">false</option><option value="true">true</option></select></div>
+          <div className="form-group"><label className="form-label">Buyout Min Spend (USD)</label><input className="form-control" value={newDiningOutlet.attributes.buyout_min_spend_usd} onChange={(e)=>setNewDiningOutlet({...newDiningOutlet, attributes:{...newDiningOutlet.attributes, buyout_min_spend_usd:e.target.value}})} /></div>
+          <div className="form-group"><label className="form-label">Seating Capacity</label><input className="form-control" value={newDiningOutlet.attributes.seating_capacity} onChange={(e)=>setNewDiningOutlet({...newDiningOutlet, attributes:{...newDiningOutlet.attributes, seating_capacity:e.target.value}})} /></div>
+          <div className="form-group"><label className="form-label">Standing Capacity</label><input className="form-control" value={newDiningOutlet.attributes.standing_capacity} onChange={(e)=>setNewDiningOutlet({...newDiningOutlet, attributes:{...newDiningOutlet.attributes, standing_capacity:e.target.value}})} /></div>
+          <div className="form-group full-width"><label className="form-label">Private Rooms (comma)</label><input className="form-control" value={newDiningOutlet.attributes.private_rooms_csv} onChange={(e)=>setNewDiningOutlet({...newDiningOutlet, attributes:{...newDiningOutlet.attributes, private_rooms_csv:e.target.value}})} /></div>
+          <div className="form-group"><label className="form-label">Outdoor</label><select className="form-control" value={newDiningOutlet.attributes.outdoor} onChange={(e)=>setNewDiningOutlet({...newDiningOutlet, attributes:{...newDiningOutlet.attributes, outdoor:e.target.value}})}><option value="false">false</option><option value="true">true</option></select></div>
+          <div className="form-group"><label className="form-label">Noise Restrictions After</label><input className="form-control" value={newDiningOutlet.attributes.noise_restrictions_after} onChange={(e)=>setNewDiningOutlet({...newDiningOutlet, attributes:{...newDiningOutlet.attributes, noise_restrictions_after:e.target.value}})} /></div>
         </div>
         <div className="builder-actions" style={{ marginBottom: '1rem' }}>
           <button className="btn btn-primary" onClick={addDining}>Add Dining Outlet</button>
@@ -611,6 +730,13 @@ function HotelPortal() {
                       <div className="form-group"><label className="form-label">Hours</label><input className="form-control" value={editDiningForm.hours} onChange={(e)=>setEditDiningForm({...editDiningForm, hours:e.target.value})} /></div>
                       <div className="form-group"><label className="form-label">Dress Code</label><input className="form-control" value={editDiningForm.dress_code} onChange={(e)=>setEditDiningForm({...editDiningForm, dress_code:e.target.value})} /></div>
                       <div className="form-group full-width"><label className="form-label">Image URL</label><input className="form-control" value={editDiningForm.image1} onChange={(e)=>setEditDiningForm({...editDiningForm, image1:e.target.value})} /></div>
+                      <div className="form-group"><label className="form-label">Buyout Available</label><select className="form-control" value={editDiningForm.attributes.buyout_available} onChange={(e)=>setEditDiningForm({...editDiningForm, attributes:{...editDiningForm.attributes, buyout_available:e.target.value}})}><option value="false">false</option><option value="true">true</option></select></div>
+                      <div className="form-group"><label className="form-label">Buyout Min Spend (USD)</label><input className="form-control" value={editDiningForm.attributes.buyout_min_spend_usd} onChange={(e)=>setEditDiningForm({...editDiningForm, attributes:{...editDiningForm.attributes, buyout_min_spend_usd:e.target.value}})} /></div>
+                      <div className="form-group"><label className="form-label">Seating Capacity</label><input className="form-control" value={editDiningForm.attributes.seating_capacity} onChange={(e)=>setEditDiningForm({...editDiningForm, attributes:{...editDiningForm.attributes, seating_capacity:e.target.value}})} /></div>
+                      <div className="form-group"><label className="form-label">Standing Capacity</label><input className="form-control" value={editDiningForm.attributes.standing_capacity} onChange={(e)=>setEditDiningForm({...editDiningForm, attributes:{...editDiningForm.attributes, standing_capacity:e.target.value}})} /></div>
+                      <div className="form-group full-width"><label className="form-label">Private Rooms (comma)</label><input className="form-control" value={editDiningForm.attributes.private_rooms_csv} onChange={(e)=>setEditDiningForm({...editDiningForm, attributes:{...editDiningForm.attributes, private_rooms_csv:e.target.value}})} /></div>
+                      <div className="form-group"><label className="form-label">Outdoor</label><select className="form-control" value={editDiningForm.attributes.outdoor} onChange={(e)=>setEditDiningForm({...editDiningForm, attributes:{...editDiningForm.attributes, outdoor:e.target.value}})}><option value="false">false</option><option value="true">true</option></select></div>
+                      <div className="form-group"><label className="form-label">Noise Restrictions After</label><input className="form-control" value={editDiningForm.attributes.noise_restrictions_after} onChange={(e)=>setEditDiningForm({...editDiningForm, attributes:{...editDiningForm.attributes, noise_restrictions_after:e.target.value}})} /></div>
                     </div>
                     <div className="builder-actions">
                       <button className="btn btn-primary" onClick={saveEditDining}>Save</button>
