@@ -232,7 +232,7 @@ function ProposalBuilder() {
 
   // Image error handler
   const handleImageError = (e: React.SyntheticEvent<HTMLImageElement>) => {
-    e.currentTarget.src = 'https://via.placeholder.com/400x250?text=Image+Not+Available';
+    e.currentTarget.src = 'https://placehold.co/400x250?text=Image+Not+Available';
   };
 
   useEffect(() => {
