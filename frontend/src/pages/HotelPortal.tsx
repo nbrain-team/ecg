@@ -124,13 +124,15 @@ function HotelPortal() {
         axios.get(`${apiUrl}/api/hotels/venues`, auth),
         axios.get(`${apiUrl}/api/hotels/dining`, auth)
       ]);
+      console.log('API responses:', { h: h.data, sc: sc.data, im: im.data, rm: rm.data, vn: vn.data, dn: dn.data });
       setHotel(h.data);
       setSchema(sc.data || {});
-      setImages(im.data);
-      setRooms(rm.data);
-      setVenues(vn.data);
-      setDining(dn.data);
+      setImages(Array.isArray(im.data) ? im.data : []);
+      setRooms(Array.isArray(rm.data) ? rm.data : []);
+      setVenues(Array.isArray(vn.data) ? vn.data : []);
+      setDining(Array.isArray(dn.data) ? dn.data : []);
     } catch (err: any) {
+      console.error('fetchAll error:', err);
       setError(err.response?.data?.message || 'Failed to load');
     }
   };
@@ -435,7 +437,7 @@ function HotelPortal() {
               <div className="hotel-section">
                 <h3>Accommodations</h3>
                 <div className="room-showcase">
-                  {rooms.map(room => (
+                  {(rooms || []).map(room => (
                     <div key={room.id} className="room-card">
                       {room.images?.[0] && <img src={room.images[0]} alt={room.name} />}
                       <div className="room-card-content">
@@ -459,7 +461,7 @@ function HotelPortal() {
               <div className="hotel-section">
                 <h3>Meeting & Event Spaces</h3>
                 <div className="venue-showcase">
-                  {venues.map(venue => (
+                  {(venues || []).map(venue => (
                     <div key={venue.id} className="room-card">
                       {venue.images?.[0] && <img src={venue.images[0]} alt={venue.name} />}
                       <div className="room-card-content">
@@ -482,7 +484,7 @@ function HotelPortal() {
               <div className="hotel-section">
                 <h3>Dining Options</h3>
                 <div className="dining-showcase">
-                  {dining.map(outlet => (
+                  {(dining || []).map(outlet => (
                     <div key={outlet.id} className="room-card">
                       {outlet.images?.[0] && <img src={outlet.images[0]} alt={outlet.name} />}
                       <div className="room-card-content">
@@ -667,7 +669,7 @@ function HotelPortal() {
           <h2>Amenities & Features</h2>
           <p style={{marginBottom: '1rem', fontSize: '0.875rem', color: '#666'}}>Select all amenities available at your property</p>
           <div className="checkbox-list">
-            {AMENITIES_LIST.map(amenity => (
+            {(AMENITIES_LIST || []).map(amenity => (
               <div key={amenity} className="checkbox-item">
                 <input 
                   type="checkbox" 
@@ -715,7 +717,7 @@ function HotelPortal() {
           <button className="btn btn-primary" onClick={addImage}>Add Image</button>
         </div>
         <div className="selection-grid">
-          {images.map(i => (
+          {(images || []).map(i => (
             <div key={i.id} className="selection-card">
               <img src={i.url} alt={i.alt || ''} />
               <div className="card-content">
@@ -742,7 +744,7 @@ function HotelPortal() {
           }}>Add New Room</button>
         </div>
         <div className="selection-grid">
-          {rooms.map(r => (
+          {(rooms || []).map(r => (
             <div key={r.id} className={`selection-card`}>
               {Array.isArray(r.images) && r.images[0] && (
                 <img src={r.images[0]} alt={r.name} />
@@ -776,7 +778,7 @@ function HotelPortal() {
           }}>Add New Venue</button>
         </div>
         <div className="selection-grid">
-          {venues.map(v => (
+          {(venues || []).map(v => (
             <div key={v.id} className="selection-card">
               {Array.isArray(v.images) && v.images[0] && (
                 <img src={v.images[0]} alt={v.name} />
@@ -809,7 +811,7 @@ function HotelPortal() {
           }}>Add New Dining Outlet</button>
         </div>
         <div className="selection-grid">
-          {dining.map(d => (
+          {(dining || []).map(d => (
             <div key={d.id} className="selection-card">
               {Array.isArray(d.images) && d.images[0] && (
                 <img src={d.images[0]} alt={d.name} />
