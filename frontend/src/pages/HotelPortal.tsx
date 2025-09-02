@@ -30,17 +30,17 @@ function HotelPortal() {
   // Images form state
   const [imageForm, setImageForm] = useState<{url:string;alt:string;category:string}>({ url: '', alt: '', category: '' });
   // Rooms forms state
-  const [newRoom, setNewRoom] = useState<any>({ name: '', description: '', size_sqft: '', view: '', capacity: '', base_rate: '', image1: '' });
+  const [newRoom, setNewRoom] = useState<any>({ name: '', description: '', size_sqft: '', view: '', capacity: '', base_rate: '', image1: '', attributes: { bed_configuration: '', connectable: 'false', max_occupancy: '', view_type: '', in_room_amenities_csv: '', accessibility_features_csv: '', typical_group_rate_low: '', typical_group_rate_high: '' } });
   const [editingRoomId, setEditingRoomId] = useState<string | null>(null);
-  const [editRoomForm, setEditRoomForm] = useState<any>({ name: '', description: '', size_sqft: '', view: '', capacity: '', base_rate: '', image1: '' });
+  const [editRoomForm, setEditRoomForm] = useState<any>({ name: '', description: '', size_sqft: '', view: '', capacity: '', base_rate: '', image1: '', attributes: { bed_configuration: '', connectable: 'false', max_occupancy: '', view_type: '', in_room_amenities_csv: '', accessibility_features_csv: '', typical_group_rate_low: '', typical_group_rate_high: '' } });
   // Venues forms
-  const [newVenue, setNewVenue] = useState<any>({ name: '', description: '', sqft: '', ceiling_height_ft: '', capacity_reception: '', capacity_banquet: '', capacity_theater: '', image1: '' });
+  const [newVenue, setNewVenue] = useState<any>({ name: '', description: '', sqft: '', ceiling_height_ft: '', capacity_reception: '', capacity_banquet: '', capacity_theater: '', image1: '', attributes: { length_m: '', width_m: '', height_m: '', floor_type: '', natural_light: 'false', rigging_points: 'false', theater: '', classroom: '', banquet_rounds_10: '', reception: '', u_shape: '', boardroom: '', rental_fee_usd_day: '', setup_tear_down_fee_usd: '' } });
   const [editingVenueId, setEditingVenueId] = useState<string | null>(null);
-  const [editVenueForm, setEditVenueForm] = useState<any>({ name: '', description: '', sqft: '', ceiling_height_ft: '', capacity_reception: '', capacity_banquet: '', capacity_theater: '', image1: '' });
+  const [editVenueForm, setEditVenueForm] = useState<any>({ name: '', description: '', sqft: '', ceiling_height_ft: '', capacity_reception: '', capacity_banquet: '', capacity_theater: '', image1: '', attributes: { length_m: '', width_m: '', height_m: '', floor_type: '', natural_light: 'false', rigging_points: 'false', theater: '', classroom: '', banquet_rounds_10: '', reception: '', u_shape: '', boardroom: '', rental_fee_usd_day: '', setup_tear_down_fee_usd: '' } });
   // Dining forms
-  const [newDiningOutlet, setNewDiningOutlet] = useState<any>({ name: '', cuisine: '', description: '', hours: '', dress_code: '', image1: '' });
+  const [newDiningOutlet, setNewDiningOutlet] = useState<any>({ name: '', cuisine: '', description: '', hours: '', dress_code: '', image1: '', attributes: { buyout_available: 'false', buyout_min_spend_usd: '', seating_capacity: '', standing_capacity: '', private_rooms_csv: '', outdoor: 'false', noise_restrictions_after: '' } });
   const [editingDiningId, setEditingDiningId] = useState<string | null>(null);
-  const [editDiningForm, setEditDiningForm] = useState<any>({ name: '', cuisine: '', description: '', hours: '', dress_code: '', image1: '' });
+  const [editDiningForm, setEditDiningForm] = useState<any>({ name: '', cuisine: '', description: '', hours: '', dress_code: '', image1: '', attributes: { buyout_available: 'false', buyout_min_spend_usd: '', seating_capacity: '', standing_capacity: '', private_rooms_csv: '', outdoor: 'false', noise_restrictions_after: '' } });
 
   useEffect(() => {
     setSchemaDraft(schema);
@@ -179,10 +179,26 @@ function HotelPortal() {
       const payload:any = {
         name: newVenue.name, description: newVenue.description, sqft: Number(newVenue.sqft||0), ceiling_height_ft: Number(newVenue.ceiling_height_ft||0),
         capacity_reception: Number(newVenue.capacity_reception||0), capacity_banquet: Number(newVenue.capacity_banquet||0), capacity_theater: Number(newVenue.capacity_theater||0),
-        images: newVenue.image1 ? [newVenue.image1] : []
+        images: newVenue.image1 ? [newVenue.image1] : [],
+        attributes: {
+          length_m: newVenue.attributes?.length_m || '',
+          width_m: newVenue.attributes?.width_m || '',
+          height_m: newVenue.attributes?.height_m || '',
+          floor_type: newVenue.attributes?.floor_type || '',
+          natural_light: newVenue.attributes?.natural_light === 'true',
+          rigging_points: newVenue.attributes?.rigging_points === 'true',
+          theater: newVenue.attributes?.theater || '',
+          classroom: newVenue.attributes?.classroom || '',
+          banquet_rounds_10: newVenue.attributes?.banquet_rounds_10 || '',
+          reception: newVenue.attributes?.reception || '',
+          u_shape: newVenue.attributes?.u_shape || '',
+          boardroom: newVenue.attributes?.boardroom || '',
+          rental_fee_usd_day: newVenue.attributes?.rental_fee_usd_day || '',
+          setup_tear_down_fee_usd: newVenue.attributes?.setup_tear_down_fee_usd || ''
+        }
       };
       await axios.post(`${apiUrl}/api/hotels/venues`, payload, auth);
-      setNewVenue({ name: '', description: '', sqft: '', ceiling_height_ft: '', capacity_reception: '', capacity_banquet: '', capacity_theater: '', image1: '' });
+      setNewVenue({ name: '', description: '', sqft: '', ceiling_height_ft: '', capacity_reception: '', capacity_banquet: '', capacity_theater: '', image1: '', attributes: { length_m:'', width_m:'', height_m:'', floor_type:'', natural_light:'false', rigging_points:'false', theater:'', classroom:'', banquet_rounds_10:'', reception:'', u_shape:'', boardroom:'', rental_fee_usd_day:'', setup_tear_down_fee_usd:'' } });
       fetchAll();
     } catch (e:any) { setError(e.response?.data?.message || 'Failed to add venue'); }
   };
@@ -196,7 +212,8 @@ function HotelPortal() {
       const payload:any = {
         name: editVenueForm.name, description: editVenueForm.description, sqft: editVenueForm.sqft===''?null:Number(editVenueForm.sqft), ceiling_height_ft: editVenueForm.ceiling_height_ft===''?null:Number(editVenueForm.ceiling_height_ft),
         capacity_reception: editVenueForm.capacity_reception===''?null:Number(editVenueForm.capacity_reception), capacity_banquet: editVenueForm.capacity_banquet===''?null:Number(editVenueForm.capacity_banquet), capacity_theater: editVenueForm.capacity_theater===''?null:Number(editVenueForm.capacity_theater),
-        images: editVenueForm.image1 ? [editVenueForm.image1] : []
+        images: editVenueForm.image1 ? [editVenueForm.image1] : [],
+        attributes: editVenueForm.attributes
       };
       await axios.put(`${apiUrl}/api/hotels/venues/${editingVenueId}`, payload, auth);
       setEditingVenueId(null);
@@ -208,14 +225,22 @@ function HotelPortal() {
   // Dining CRUD
   const addDining = async () => {
     try {
-      const payload:any = { name: newDiningOutlet.name, cuisine: newDiningOutlet.cuisine, description: newDiningOutlet.description, hours: newDiningOutlet.hours, dress_code: newDiningOutlet.dress_code, images: newDiningOutlet.image1?[newDiningOutlet.image1]:[] };
+      const payload:any = { name: newDiningOutlet.name, cuisine: newDiningOutlet.cuisine, description: newDiningOutlet.description, hours: newDiningOutlet.hours, dress_code: newDiningOutlet.dress_code, images: newDiningOutlet.image1?[newDiningOutlet.image1]:[], attributes: {
+        buyout_available: newDiningOutlet.attributes?.buyout_available === 'true',
+        buyout_min_spend_usd: newDiningOutlet.attributes?.buyout_min_spend_usd || '',
+        seating_capacity: newDiningOutlet.attributes?.seating_capacity || '',
+        standing_capacity: newDiningOutlet.attributes?.standing_capacity || '',
+        private_rooms_csv: newDiningOutlet.attributes?.private_rooms_csv || '',
+        outdoor: newDiningOutlet.attributes?.outdoor === 'true',
+        noise_restrictions_after: newDiningOutlet.attributes?.noise_restrictions_after || ''
+      } };
       await axios.post(`${apiUrl}/api/hotels/dining`, payload, auth);
-      setNewDiningOutlet({ name: '', cuisine: '', description: '', hours: '', dress_code: '', image1: '' });
+      setNewDiningOutlet({ name: '', cuisine: '', description: '', hours: '', dress_code: '', image1: '', attributes: { buyout_available:'false', buyout_min_spend_usd:'', seating_capacity:'', standing_capacity:'', private_rooms_csv:'', outdoor:'false', noise_restrictions_after:'' } });
       fetchAll();
     } catch (e:any) { setError(e.response?.data?.message || 'Failed to add outlet'); }
   };
   const startEditDining = (d:any) => { setEditingDiningId(d.id); setEditDiningForm({ name: d.name||'', cuisine: d.cuisine||'', description: d.description||'', hours: d.hours||'', dress_code: d.dress_code||'', image1: Array.isArray(d.images)&&d.images[0]?d.images[0]:'' }); };
-  const saveEditDining = async () => { try { if(!editingDiningId) return; const payload:any = { name: editDiningForm.name, cuisine: editDiningForm.cuisine, description: editDiningForm.description, hours: editDiningForm.hours, dress_code: editDiningForm.dress_code, images: editDiningForm.image1?[editDiningForm.image1]:[] }; await axios.put(`${apiUrl}/api/hotels/dining/${editingDiningId}`, payload, auth); setEditingDiningId(null); fetchAll(); } catch(e:any){ setError(e.response?.data?.message || 'Failed to save outlet'); } };
+  const saveEditDining = async () => { try { if(!editingDiningId) return; const payload:any = { name: editDiningForm.name, cuisine: editDiningForm.cuisine, description: editDiningForm.description, hours: editDiningForm.hours, dress_code: editDiningForm.dress_code, images: editDiningForm.image1?[editDiningForm.image1]:[], attributes: editDiningForm.attributes }; await axios.put(`${apiUrl}/api/hotels/dining/${editingDiningId}`, payload, auth); setEditingDiningId(null); fetchAll(); } catch(e:any){ setError(e.response?.data?.message || 'Failed to save outlet'); } };
   const removeDining = async (id:string) => { try { await axios.delete(`${apiUrl}/api/hotels/dining/${id}`, auth); fetchAll(); } catch(e:any){ setError(e.response?.data?.message || 'Delete failed'); } };
 
   if (!token) {
@@ -437,6 +462,14 @@ function HotelPortal() {
           <div className="form-group"><label className="form-label">Capacity</label><input className="form-control" value={newRoom.capacity} onChange={(e)=>setNewRoom({...newRoom, capacity:e.target.value})} /></div>
           <div className="form-group"><label className="form-label">Base Rate (USD)</label><input className="form-control" value={newRoom.base_rate} onChange={(e)=>setNewRoom({...newRoom, base_rate:e.target.value})} /></div>
           <div className="form-group full-width"><label className="form-label">Image URL</label><input className="form-control" value={newRoom.image1} onChange={(e)=>setNewRoom({...newRoom, image1:e.target.value})} /></div>
+          <div className="form-group"><label className="form-label">Bed Configuration</label><input className="form-control" value={newRoom.attributes.bed_configuration} onChange={(e)=>setNewRoom({...newRoom, attributes:{...newRoom.attributes, bed_configuration:e.target.value}})} /></div>
+          <div className="form-group"><label className="form-label">Connectable</label><select className="form-control" value={newRoom.attributes.connectable} onChange={(e)=>setNewRoom({...newRoom, attributes:{...newRoom.attributes, connectable:e.target.value}})}><option value="false">false</option><option value="true">true</option></select></div>
+          <div className="form-group"><label className="form-label">Max Occupancy</label><input className="form-control" value={newRoom.attributes.max_occupancy} onChange={(e)=>setNewRoom({...newRoom, attributes:{...newRoom.attributes, max_occupancy:e.target.value}})} /></div>
+          <div className="form-group"><label className="form-label">View Type</label><input className="form-control" value={newRoom.attributes.view_type} onChange={(e)=>setNewRoom({...newRoom, attributes:{...newRoom.attributes, view_type:e.target.value}})} /></div>
+          <div className="form-group full-width"><label className="form-label">In-Room Amenities (comma)</label><input className="form-control" value={newRoom.attributes.in_room_amenities_csv} onChange={(e)=>setNewRoom({...newRoom, attributes:{...newRoom.attributes, in_room_amenities_csv:e.target.value}})} /></div>
+          <div className="form-group full-width"><label className="form-label">Accessibility Features (comma)</label><input className="form-control" value={newRoom.attributes.accessibility_features_csv} onChange={(e)=>setNewRoom({...newRoom, attributes:{...newRoom.attributes, accessibility_features_csv:e.target.value}})} /></div>
+          <div className="form-group"><label className="form-label">Typical Group Rate Low</label><input className="form-control" value={newRoom.attributes.typical_group_rate_low} onChange={(e)=>setNewRoom({...newRoom, attributes:{...newRoom.attributes, typical_group_rate_low:e.target.value}})} /></div>
+          <div className="form-group"><label className="form-label">Typical Group Rate High</label><input className="form-control" value={newRoom.attributes.typical_group_rate_high} onChange={(e)=>setNewRoom({...newRoom, attributes:{...newRoom.attributes, typical_group_rate_high:e.target.value}})} /></div>
         </div>
         <div className="builder-actions" style={{ marginBottom: '1rem' }}>
           <button className="btn btn-primary" onClick={addRoom}>Add Room</button>
@@ -458,6 +491,14 @@ function HotelPortal() {
                       <div className="form-group"><label className="form-label">Capacity</label><input className="form-control" value={editRoomForm.capacity} onChange={(e)=>setEditRoomForm({...editRoomForm, capacity:e.target.value})} /></div>
                       <div className="form-group"><label className="form-label">Base Rate (USD)</label><input className="form-control" value={editRoomForm.base_rate} onChange={(e)=>setEditRoomForm({...editRoomForm, base_rate:e.target.value})} /></div>
                       <div className="form-group full-width"><label className="form-label">Image URL</label><input className="form-control" value={editRoomForm.image1} onChange={(e)=>setEditRoomForm({...editRoomForm, image1:e.target.value})} /></div>
+                      <div className="form-group"><label className="form-label">Bed Configuration</label><input className="form-control" value={editRoomForm.attributes.bed_configuration} onChange={(e)=>setEditRoomForm({...editRoomForm, attributes:{...editRoomForm.attributes, bed_configuration:e.target.value}})} /></div>
+                      <div className="form-group"><label className="form-label">Connectable</label><select className="form-control" value={editRoomForm.attributes.connectable} onChange={(e)=>setEditRoomForm({...editRoomForm, attributes:{...editRoomForm.attributes, connectable:e.target.value}})}><option value="false">false</option><option value="true">true</option></select></div>
+                      <div className="form-group"><label className="form-label">Max Occupancy</label><input className="form-control" value={editRoomForm.attributes.max_occupancy} onChange={(e)=>setEditRoomForm({...editRoomForm, attributes:{...editRoomForm.attributes, max_occupancy:e.target.value}})} /></div>
+                      <div className="form-group"><label className="form-label">View Type</label><input className="form-control" value={editRoomForm.attributes.view_type} onChange={(e)=>setEditRoomForm({...editRoomForm, attributes:{...editRoomForm.attributes, view_type:e.target.value}})} /></div>
+                      <div className="form-group full-width"><label className="form-label">In-Room Amenities (comma)</label><input className="form-control" value={editRoomForm.attributes.in_room_amenities_csv} onChange={(e)=>setEditRoomForm({...editRoomForm, attributes:{...editRoomForm.attributes, in_room_amenities_csv:e.target.value}})} /></div>
+                      <div className="form-group full-width"><label className="form-label">Accessibility Features (comma)</label><input className="form-control" value={editRoomForm.attributes.accessibility_features_csv} onChange={(e)=>setEditRoomForm({...editRoomForm, attributes:{...editRoomForm.attributes, accessibility_features_csv:e.target.value}})} /></div>
+                      <div className="form-group"><label className="form-label">Typical Group Rate Low</label><input className="form-control" value={editRoomForm.attributes.typical_group_rate_low} onChange={(e)=>setEditRoomForm({...editRoomForm, attributes:{...editRoomForm.attributes, typical_group_rate_low:e.target.value}})} /></div>
+                      <div className="form-group"><label className="form-label">Typical Group Rate High</label><input className="form-control" value={editRoomForm.attributes.typical_group_rate_high} onChange={(e)=>setEditRoomForm({...editRoomForm, attributes:{...editRoomForm.attributes, typical_group_rate_high:e.target.value}})} /></div>
                     </div>
                     <div className="builder-actions">
                       <button className="btn btn-primary" onClick={saveEditRoom}>Save</button>
