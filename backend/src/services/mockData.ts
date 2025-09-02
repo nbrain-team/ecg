@@ -29,7 +29,7 @@ export const destinations: Destination[] = [
       rainyMonths: ['August', 'September'],
       bestMonths: ['November', 'December', 'January', 'February', 'March', 'April']
     },
-    imageUrl: 'https://images.unsplash.com/photo-1558212628-ad3c3ff77558?auto=format&fit=crop&w=1200&q=80',
+    imageUrl: 'https://images.unsplash.com/photo-1583421012120-602a37c49fb2?auto=format&fit=crop&w=1200&q=80',
     flightInfo: {
       majorAirports: ['SJD - Los Cabos International'],
       avgFlightTime: '2.5 hours from major US cities'
@@ -92,6 +92,29 @@ export const destinations: Destination[] = [
 // Mock Resorts
 export const resorts: Resort[] = [
   // Los Cabos Resorts
+  {
+    id: 'resort-gv',
+    destinationId: 'dest-1',
+    name: 'Grand Velas Los Cabos',
+    description: 'Ultra-luxury all-inclusive resort offering unparalleled service and amenities',
+    amenities: ['World-Class Spa', 'Multiple Pools', 'Beach Club', 'Fitness Center', 'Kids Club', 'Water Sports', 'Golf Nearby'],
+    rating: 5,
+    images: [
+      'https://www.grandvelas.com/resourcefiles/mainimages/grand-velas-los-cabos-gallery-facilities-beach.jpg',
+      'https://www.grandvelas.com/resourcefiles/mainimages/grand-velas-los-cabos-gallery-lobby.jpg',
+      'https://www.grandvelas.com/resourcefiles/mainimages/grand-velas-los-cabos-gallery-pool.jpg'
+    ],
+    features: [
+      'All-Inclusive Luxury',
+      'Adults-Only & Family Sections',
+      '307 Suites',
+      '8 Restaurants & Bars',
+      'SE Spa',
+      '3 Infinity Pools',
+      'Convention Center'
+    ],
+    priceRange: '$$$$'
+  },
   {
     id: 'resort-1',
     destinationId: 'dest-1',

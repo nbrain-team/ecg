@@ -5,6 +5,7 @@ import proposalRoutes from './routes/proposals';
 import destinationRoutes from './routes/destinations';
 import authRoutes from './routes/auth';
 import hotelRoutes from './routes/hotels';
+import hotelIntegrationRoutes from './routes/hotelIntegration';
 import { applySchema } from './db/migrate';
 import { bootstrapGrandVelasIfMissing } from './db/bootstrap';
 
@@ -35,6 +36,7 @@ app.use('/api/auth', authRoutes);
 app.use('/api/proposals', proposalRoutes);
 app.use('/api/destinations', destinationRoutes);
 app.use('/api/hotels', hotelRoutes);
+app.use('/api/hotel-integration', hotelIntegrationRoutes);
 
 // Error handling middleware
 app.use((err: any, req: express.Request, res: express.Response, next: express.NextFunction) => {

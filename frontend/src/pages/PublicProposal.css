@@ -741,3 +741,139 @@
     width: 100%;
   }
 } 
+/* Enhanced Gallery Styles */
+.resort-gallery-enhanced {
+  margin: 2rem -2rem;
+}
+
+.gallery-hero {
+  position: relative;
+  height: 500px;
+  overflow: hidden;
+  margin-bottom: 1rem;
+}
+
+.gallery-hero img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.gallery-overlay {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: linear-gradient(to top, rgba(0,0,0,0.8), transparent);
+  color: white;
+  padding: 3rem 2rem 2rem;
+}
+
+.gallery-overlay h3 {
+  font-size: 2.5rem;
+  margin: 0 0 0.5rem 0;
+  font-weight: 300;
+}
+
+.gallery-overlay p {
+  font-size: 1.25rem;
+  margin: 0;
+  opacity: 0.9;
+}
+
+.gallery-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 0.5rem;
+  padding: 0 2rem;
+}
+
+.gallery-item {
+  position: relative;
+  overflow: hidden;
+  padding-top: 75%;
+}
+
+.gallery-item img {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.3s ease;
+}
+
+.gallery-item:hover img {
+  transform: scale(1.05);
+}
+
+/* Enhanced room cards */
+.room-card {
+  overflow: hidden;
+  transition: transform 0.3s ease;
+}
+
+.room-card:hover {
+  transform: translateY(-5px);
+}
+
+.room-card img {
+  transition: transform 0.3s ease;
+}
+
+.room-card:hover img {
+  transform: scale(1.05);
+}
+
+/* Enhanced dining cards */
+.dining-card {
+  position: relative;
+  overflow: hidden;
+}
+
+.dining-card img {
+  transition: transform 0.3s ease;
+}
+
+.dining-card:hover img {
+  transform: scale(1.05);
+}
+
+/* Enhanced space cards */
+.space-card {
+  position: relative;
+  overflow: hidden;
+}
+
+.space-card img {
+  transition: transform 0.3s ease;
+}
+
+.space-card:hover img {
+  transform: scale(1.05);
+}
+
+@media (max-width: 1024px) {
+  .gallery-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 768px) {
+  .resort-gallery-enhanced {
+    margin: 2rem -1rem;
+  }
+  
+  .gallery-hero {
+    height: 300px;
+  }
+  
+  .gallery-overlay h3 {
+    font-size: 1.75rem;
+  }
+  
+  .gallery-overlay p {
+    font-size: 1rem;
+  }
+}

@@ -184,8 +184,27 @@ function ProposalBuilder() {
 
   const fetchResortsForDestination = async (destinationId: string) => {
     try {
-      const response = await axios.get(`${apiUrl}/api/destinations/${destinationId}/resorts`);
-      setResorts(response.data);
+      const token = localStorage.getItem('token');
+      const headers = { Authorization: `Bearer ${token}` };
+      
+      // Fetch both mock resorts and hotel profile resorts
+      const [mockResortsRes, hotelResortsRes] = await Promise.all([
+        axios.get(`${apiUrl}/api/destinations/${destinationId}/resorts`),
+        axios.get(`${apiUrl}/api/hotel-integration/resorts`, { headers }).catch(() => ({ data: [] }))
+      ]);
+      
+      // Combine both sources, with hotel resorts first
+      const combinedResorts = [...(hotelResortsRes.data || []), ...(mockResortsRes.data || [])];
+      
+      // Remove duplicates by name
+      const uniqueResorts = combinedResorts.reduce((acc: any[], resort) => {
+        if (!acc.find(r => r.name === resort.name)) {
+          acc.push(resort);
+        }
+        return acc;
+      }, []);
+      
+      setResorts(uniqueResorts);
     } catch (err) {
       console.error('Error fetching resorts:', err);
     }
@@ -202,15 +221,32 @@ function ProposalBuilder() {
 
   const fetchResortDetails = async (resortId: string) => {
     try {
-      const [roomsRes, spacesRes, diningRes] = await Promise.all([
-        axios.get(`${apiUrl}/api/destinations/resorts/${resortId}/rooms`),
-        axios.get(`${apiUrl}/api/destinations/resorts/${resortId}/spaces`),
-        axios.get(`${apiUrl}/api/destinations/resorts/${resortId}/dining`)
-      ]);
+      const token = localStorage.getItem('token');
+      const headers = { Authorization: `Bearer ${token}` };
       
-      setRoomTypes(roomsRes.data);
-      setEventSpaces(spacesRes.data);
-      setDiningOptions(diningRes.data);
+      // Check if this is a hotel-based resort
+      if (resortId.startsWith('hotel-')) {
+        const [roomsRes, spacesRes, diningRes] = await Promise.all([
+          axios.get(`${apiUrl}/api/hotel-integration/resorts/${resortId}/rooms`, { headers }),
+          axios.get(`${apiUrl}/api/hotel-integration/resorts/${resortId}/spaces`, { headers }),
+          axios.get(`${apiUrl}/api/hotel-integration/resorts/${resortId}/dining`, { headers })
+        ]);
+        
+        setRoomTypes(roomsRes.data);
+        setEventSpaces(spacesRes.data);
+        setDiningOptions(diningRes.data);
+      } else {
+        // Use regular mock data endpoints
+        const [roomsRes, spacesRes, diningRes] = await Promise.all([
+          axios.get(`${apiUrl}/api/destinations/resorts/${resortId}/rooms`),
+          axios.get(`${apiUrl}/api/destinations/resorts/${resortId}/spaces`),
+          axios.get(`${apiUrl}/api/destinations/resorts/${resortId}/dining`)
+        ]);
+        
+        setRoomTypes(roomsRes.data);
+        setEventSpaces(spacesRes.data);
+        setDiningOptions(diningRes.data);
+      }
     } catch (err) {
       console.error('Error fetching resort details:', err);
     }
@@ -821,26 +857,93 @@ function ProposalBuilder() {
       case 8:
         return (
           <div className="step-content">
-            <h2>Flight Routes</h2>
-            <div className="selection-list">
-              {flightRoutes.map(flight => (
-                <div
-                  key={flight.id}
-                  className={`flight-item ${formData.flightRouteIds.includes(flight.id) ? 'selected' : ''}`}
-                  onClick={() => toggleArrayItem('flightRouteIds', flight.id)}
-                >
-                  <div className="flight-info">
-                    <h4>{flight.originCity} → {destinations.find(d => d.id === formData.destinationId)?.name}</h4>
-                    <p>{flight.airline} • {flight.duration} • {flight.frequency}</p>
-                  </div>
-                  <div className="flight-badge">
-                    {flight.directFlight ? 'Direct' : 'Connecting'}
-                  </div>
-                  {formData.flightRouteIds.includes(flight.id) && (
-                    <Check size={20} className="check-icon" />
-                  )}
+            <h2>Travel Planning</h2>
+            <div className="flight-planner">
+              <h3>Add Flight Origins</h3>
+              <p>Where will your attendees be flying from?</p>
+              
+              <div className="flight-inputs">
+                <div className="form-group">
+                  <label>Origin City</label>
+                  <input
+                    type="text"
+                    placeholder="e.g., New York, Los Angeles, Chicago"
+                    className="form-control"
+                    id="flight-origin-input"
+                  />
                 </div>
-              ))}
+                <div className="form-group">
+                  <label>Number of Travelers</label>
+                  <input
+                    type="number"
+                    placeholder="How many from this location?"
+                    className="form-control"
+                    id="flight-travelers-input"
+                    min="1"
+                  />
+                </div>
+                <button
+                  className="btn btn-outline"
+                  onClick={() => {
+                    const originInput = document.getElementById('flight-origin-input') as HTMLInputElement;
+                    const travelersInput = document.getElementById('flight-travelers-input') as HTMLInputElement;
+                    const origin = originInput?.value || '';
+                    const travelers = parseInt(travelersInput?.value || '1');
+                    
+                    if (origin) {
+                      const newRoute = {
+                        id: `custom-${Date.now()}`,
+                        originCity: origin,
+                        travelers: travelers,
+                        destinationId: formData.destinationId,
+                        airline: 'Various',
+                        duration: 'TBD',
+                        directFlight: false,
+                        frequency: 'Multiple daily'
+                      };
+                      
+                      setFlightRoutes(prev => [...prev, newRoute]);
+                      setFormData(prev => ({
+                        ...prev,
+                        flightRouteIds: [...prev.flightRouteIds, newRoute.id]
+                      }));
+                      
+                      if (originInput) originInput.value = '';
+                      if (travelersInput) travelersInput.value = '';
+                    }
+                  }}
+                >
+                  Add Origin
+                </button>
+              </div>
+              
+              <div className="selected-flights">
+                <h3>Flight Origins Added</h3>
+                {flightRoutes.filter(f => formData.flightRouteIds.includes(f.id)).length === 0 ? (
+                  <p className="empty-state">No flight origins added yet</p>
+                ) : (
+                  <div className="flight-list">
+                    {flightRoutes.filter(f => formData.flightRouteIds.includes(f.id)).map(flight => (
+                      <div key={flight.id} className="flight-item selected">
+                        <div className="flight-info">
+                          <h4>{flight.originCity} → {destinations.find(d => d.id === formData.destinationId)?.name}</h4>
+                          <p>{flight.travelers ? `${flight.travelers} travelers` : 'Group size TBD'}</p>
+                        </div>
+                        <button
+                          className="btn-icon"
+                          onClick={() => toggleArrayItem('flightRouteIds', flight.id)}
+                        >
+                          ×
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+              
+              <div className="flight-note">
+                <p><small>We'll research the best flight options and include detailed flight information in your proposal.</small></p>
+              </div>
             </div>
           </div>
         );

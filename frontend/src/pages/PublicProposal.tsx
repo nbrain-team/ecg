@@ -193,11 +193,27 @@ function PublicProposal() {
           
           <p className="resort-description">{proposal.generatedContent?.resortHighlight || proposal.resort.description}</p>
           
-          <div className="resort-gallery">
-            {proposal.resort.images?.map((image: string, index: number) => (
-              <img key={index} src={image} alt={`${proposal.resort.name} ${index + 1}`} />
-            ))}
-          </div>
+          {/* Enhanced gallery with full-width hero image */}
+          {proposal.resort.images?.length > 0 && (
+            <div className="resort-gallery-enhanced">
+              <div className="gallery-hero">
+                <img src={proposal.resort.images[0]} alt={proposal.resort.name} />
+                <div className="gallery-overlay">
+                  <h3>Welcome to Paradise</h3>
+                  <p>Experience luxury redefined at {proposal.resort.name}</p>
+                </div>
+              </div>
+              {proposal.resort.images.length > 1 && (
+                <div className="gallery-grid">
+                  {proposal.resort.images.slice(1, 5).map((image: string, index: number) => (
+                    <div key={index} className="gallery-item">
+                      <img src={image} alt={`${proposal.resort.name} ${index + 2}`} />
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
           
           <div className="resort-features">
             <h3>Resort Features & Amenities</h3>
@@ -206,6 +222,12 @@ function PublicProposal() {
                 <div key={index} className="feature-item">
                   <Building size={16} />
                   <span>{feature}</span>
+                </div>
+              ))}
+              {proposal.resort.amenities?.map((amenity: string, index: number) => (
+                <div key={`amenity-${index}`} className="feature-item">
+                  <Building size={16} />
+                  <span>{amenity}</span>
                 </div>
               ))}
             </div>

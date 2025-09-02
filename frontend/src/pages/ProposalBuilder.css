@@ -643,3 +643,62 @@
     padding: 1rem;
   }
 } 
+/* Flight Planner Styles */
+.flight-planner {
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+.flight-planner h3 {
+  margin: 1.5rem 0 0.5rem 0;
+  color: var(--text-primary);
+}
+
+.flight-inputs {
+  background: var(--background);
+  padding: 1.5rem;
+  border-radius: var(--border-radius);
+  margin-bottom: 2rem;
+}
+
+.flight-inputs .form-group {
+  margin-bottom: 1rem;
+}
+
+.selected-flights {
+  margin-top: 2rem;
+}
+
+.flight-list {
+  margin-top: 1rem;
+}
+
+.flight-item .btn-icon {
+  background: none;
+  border: none;
+  font-size: 1.5rem;
+  color: var(--text-secondary);
+  cursor: pointer;
+  padding: 0 0.5rem;
+}
+
+.flight-item .btn-icon:hover {
+  color: var(--danger-color, #dc3545);
+}
+
+.flight-note {
+  margin-top: 2rem;
+  padding: 1rem;
+  background: var(--info-light, #e3f2fd);
+  border-radius: var(--border-radius);
+  text-align: center;
+}
+
+.empty-state {
+  text-align: center;
+  color: var(--text-secondary);
+  padding: 2rem;
+  background: var(--background);
+  border-radius: var(--border-radius);
+  margin-top: 1rem;
+}
