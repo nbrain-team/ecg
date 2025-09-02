@@ -29,7 +29,9 @@ interface Hotel {
 }
 
 function HotelPortal() {
-
+  const hotelToken = localStorage.getItem('hotelToken');
+  const auth = { headers: { Authorization: `Bearer ${hotelToken}` } };
+  
   const [hotel, setHotel] = useState<Hotel | null>(null);
   const [images, setImages] = useState<any[]>([]);
   const [rooms, setRooms] = useState<any[]>([]);
@@ -93,8 +95,7 @@ function HotelPortal() {
     }
   };
 
-  const token = localStorage.getItem('hotelToken');
-  const auth = { headers: { Authorization: `Bearer ${token}` } };
+
 
   // Helper to update deeply nested schemaDraft paths safely
   const updateDraft = (path: (string | number)[], value: any) => {
@@ -351,10 +352,10 @@ function HotelPortal() {
   const saveEditDining = async () => { try { if(!editingDiningId) return; const payload:any = { name: editDiningForm.name, cuisine: editDiningForm.cuisine, description: editDiningForm.description, hours: editDiningForm.hours, dress_code: editDiningForm.dress_code, images: editDiningForm.image1?[editDiningForm.image1]:[], attributes: editDiningForm.attributes }; await axios.put(`${apiUrl}/api/hotels/dining/${editingDiningId}`, payload, auth); setEditingDiningId(null); fetchAll(); } catch(e:any){ setError(e.response?.data?.message || 'Failed to save outlet'); } };
   const removeDining = async (id:string) => { try { await axios.delete(`${apiUrl}/api/hotels/dining/${id}`, auth); fetchAll(); } catch(e:any){ setError(e.response?.data?.message || 'Delete failed'); } };
 
-  if (!token) {
+  if (!hotelToken) {
     return (
       <div className="container">
-        <div className="alert alert-error">Not authenticated</div>
+        <div className="alert alert-error">Not authenticated. Please login as a hotel manager.</div>
       </div>
     );
   }
