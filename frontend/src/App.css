@@ -140,6 +140,27 @@ a:hover {
   width: 100%;
 }
 
+/* Small button variant for compact UIs (e.g., Hotel Portal tabs) */
+.btn-sm {
+  padding: 0.5rem 0.9rem;
+  font-size: 0.9rem;
+  border-radius: 6px;
+}
+
+/* Compact horizontal tab bar used on Hotel Portal */
+.tabbar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+.tabbar .btn {
+  padding: 0.5rem 0.9rem;
+  font-size: 0.9rem;
+  border-radius: 6px;
+}
+
 /* Forms */
 .form-group {
   margin-bottom: 1.5rem;

@@ -232,19 +232,19 @@ function HotelPortal() {
       </div>
       {error && <div className="alert alert-error">{error}</div>}
 
-      <div className="builder-actions" style={{ marginBottom: '1rem' }}>
-        <button className={`btn ${activeTab==='overview'?'btn-primary':'btn-outline'}`} onClick={()=>setActiveTab('overview')}>Overview</button>
-        <button className={`btn ${activeTab==='profile'?'btn-primary':'btn-outline'}`} onClick={()=>setActiveTab('profile')}>Profile</button>
-        <button className={`btn ${activeTab==='contact'?'btn-primary':'btn-outline'}`} onClick={()=>setActiveTab('contact')}>Contact</button>
-        <button className={`btn ${activeTab==='location'?'btn-primary':'btn-outline'}`} onClick={()=>setActiveTab('location')}>Location</button>
-        <button className={`btn ${activeTab==='images'?'btn-primary':'btn-outline'}`} onClick={()=>setActiveTab('images')}>Images & Media</button>
-        <button className={`btn ${activeTab==='policies'?'btn-primary':'btn-outline'}`} onClick={()=>setActiveTab('policies')}>Policies</button>
-        <button className={`btn ${activeTab==='financials'?'btn-primary':'btn-outline'}`} onClick={()=>setActiveTab('financials')}>Financials</button>
-        <button className={`btn ${activeTab==='amenities'?'btn-primary':'btn-outline'}`} onClick={()=>setActiveTab('amenities')}>Amenities</button>
-        <button className={`btn ${activeTab==='workflow'?'btn-primary':'btn-outline'}`} onClick={()=>setActiveTab('workflow')}>Workflow</button>
-        <button className={`btn ${activeTab==='rooms'?'btn-primary':'btn-outline'}`} onClick={()=>setActiveTab('rooms')}>Rooms</button>
-        <button className={`btn ${activeTab==='venues'?'btn-primary':'btn-outline'}`} onClick={()=>setActiveTab('venues')}>Venues</button>
-        <button className={`btn ${activeTab==='dining'?'btn-primary':'btn-outline'}`} onClick={()=>setActiveTab('dining')}>Dining</button>
+      <div className="tabbar">
+        <button className={`btn btn-sm ${activeTab==='overview'?'btn-primary':'btn-outline'}`} onClick={()=>setActiveTab('overview')}>Overview</button>
+        <button className={`btn btn-sm ${activeTab==='profile'?'btn-primary':'btn-outline'}`} onClick={()=>setActiveTab('profile')}>Profile</button>
+        <button className={`btn btn-sm ${activeTab==='contact'?'btn-primary':'btn-outline'}`} onClick={()=>setActiveTab('contact')}>Contact</button>
+        <button className={`btn btn-sm ${activeTab==='location'?'btn-primary':'btn-outline'}`} onClick={()=>setActiveTab('location')}>Location</button>
+        <button className={`btn btn-sm ${activeTab==='images'?'btn-primary':'btn-outline'}`} onClick={()=>setActiveTab('images')}>Images & Media</button>
+        <button className={`btn btn-sm ${activeTab==='policies'?'btn-primary':'btn-outline'}`} onClick={()=>setActiveTab('policies')}>Policies</button>
+        <button className={`btn btn-sm ${activeTab==='financials'?'btn-primary':'btn-outline'}`} onClick={()=>setActiveTab('financials')}>Financials</button>
+        <button className={`btn btn-sm ${activeTab==='amenities'?'btn-primary':'btn-outline'}`} onClick={()=>setActiveTab('amenities')}>Amenities</button>
+        <button className={`btn btn-sm ${activeTab==='workflow'?'btn-primary':'btn-outline'}`} onClick={()=>setActiveTab('workflow')}>Workflow</button>
+        <button className={`btn btn-sm ${activeTab==='rooms'?'btn-primary':'btn-outline'}`} onClick={()=>setActiveTab('rooms')}>Rooms</button>
+        <button className={`btn btn-sm ${activeTab==='venues'?'btn-primary':'btn-outline'}`} onClick={()=>setActiveTab('venues')}>Venues</button>
+        <button className={`btn btn-sm ${activeTab==='dining'?'btn-primary':'btn-outline'}`} onClick={()=>setActiveTab('dining')}>Dining</button>
       </div>
 
       {activeTab==='overview' && (
