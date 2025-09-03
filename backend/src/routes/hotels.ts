@@ -493,20 +493,35 @@ router.post('/import/loscabos', requireAuth(['admin']), async (req: Authenticate
       return `https://loscabos.grandvelas.com${src.startsWith('/') ? '' : '/'}${src}`;
     };
 
-    // Scrape suites (rooms)
+    // Scrape suites (rooms) by traversing detail pages under /suites/
     const $s = await fetchHtml(suitesUrl);
+    const detailLinks = Array.from(new Set(
+      $s('a[href*="/suites/"]').map((_, a) => $s(a).attr('href') || '').get()
+    ))
+      .map(h => h.startsWith('http') ? h : `https://loscabos.grandvelas.com${h.startsWith('/') ? '' : '/'}${h}`)
+      .filter(u => /\/suites\//i.test(u));
+
     const rooms: { name: string; description: string; images: string[] }[] = [];
-    $s('section, article, .suite, .room').each((_, el) => {
-      const name = $s(el).find('h2, h3, .title').first().text().trim();
-      const desc = $s(el).find('p').first().text().trim();
-      const imgs = new Set<string>();
-      $s(el).find('img').each((__, img) => {
-        const raw = $s(img).attr('data-src') || $s(img).attr('src') || '';
-        const full = normalizeImage(raw);
-        if (full) imgs.add(full);
-      });
-      if (name && imgs.size) rooms.push({ name, description: desc, images: Array.from(imgs) });
-    });
+    for (const link of detailLinks) {
+      try {
+        const $p = await fetchHtml(link);
+        let name = $p('h1').first().text().trim();
+        if (!name) name = $p('meta[property="og:title"]').attr('content') || '';
+        if (!/suite|ambassador|governor|presidential|wellness|grand class/i.test(name)) continue;
+        let description = $p('meta[name="description"]').attr('content') || '';
+        if (!description) description = $p('p').first().text().trim();
+        const imgSet = new Set<string>();
+        const metaOg = $p('meta[property="og:image"]').attr('content') || '';
+        if (metaOg) imgSet.add(normalizeImage(metaOg)!);
+        $p('img').each((__, img) => {
+          const raw = $p(img).attr('data-src') || $p(img).attr('src') || '';
+          const full = normalizeImage(raw || undefined);
+          if (full && !/^data:/i.test(full)) imgSet.add(full);
+        });
+        const images = Array.from(imgSet).slice(0, 8);
+        if (name && images.length) rooms.push({ name, description, images });
+      } catch {}
+    }
 
     // Scrape dining
     const $d = await fetchHtml(diningUrl);
@@ -532,8 +547,10 @@ router.post('/import/loscabos', requireAuth(['admin']), async (req: Authenticate
       return savedUrl;
     };
 
-    // Rooms -> hotel_rooms
+    // Rooms -> hotel_rooms (skip existing by name)
     for (const r of rooms.slice(0, 40)) { // cap to avoid overload
+      const exists = await pool.query('SELECT 1 FROM hotel_rooms WHERE hotel_id=$1 AND name=$2 LIMIT 1', [hotelId, r.name]);
+      if (exists.rowCount) continue;
       const savedImages: string[] = [];
       for (const u of r.images.slice(0, 6)) {
         try { savedImages.push(await toBuffer(u)); } catch {}
