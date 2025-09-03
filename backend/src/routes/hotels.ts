@@ -1,5 +1,7 @@
 import { Router } from 'express';
 import multer from 'multer';
+import axios from 'axios';
+import * as cheerio from 'cheerio';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import pool from '../config/database';
@@ -458,5 +460,107 @@ router.delete('/images/:id', requireAuth(['hotel', 'admin']), async (req: Authen
 });
 
 export default router;
+
+// Importers (Los Cabos suites & dining)
+router.post('/import/loscabos', requireAuth(['admin']), async (req: AuthenticatedRequest, res) => {
+  try {
+    const hotelId = req.body.hotelId as string;
+    if (!hotelId) return res.status(400).json({ message: 'Missing hotelId' });
+
+    const suitesUrl = 'https://loscabos.grandvelas.com/suites';
+    const diningUrl = 'https://loscabos.grandvelas.com/dining';
+
+    const fetchHtml = async (url: string) => {
+      const r = await axios.get(url, { headers: { 'User-Agent': 'Mozilla/5.0 ECG-Importer' } });
+      return cheerio.load(r.data);
+    };
+
+    const uploadBuffer = async (filename: string, mimetype: string, data: Buffer) => {
+      const insert = await pool.query(
+        `INSERT INTO uploads (hotel_id, filename, mimetype, size_bytes, data) VALUES ($1,$2,$3,$4,$5) RETURNING id`,
+        [hotelId, filename, mimetype, data.length, data]
+      );
+      const id = insert.rows[0].id;
+      const url = `/api/hotels/images/file/${id}`;
+      await pool.query(`INSERT INTO hotel_images (hotel_id, url, alt, category) VALUES ($1,$2,$3,$4)`, [hotelId, url, filename, 'import']);
+      return url;
+    };
+
+    const normalizeImage = (src?: string) => {
+      if (!src) return null;
+      if (src.startsWith('//')) return `https:${src}`;
+      if (src.startsWith('http')) return src;
+      return `https://loscabos.grandvelas.com${src.startsWith('/') ? '' : '/'}${src}`;
+    };
+
+    // Scrape suites (rooms)
+    const $s = await fetchHtml(suitesUrl);
+    const rooms: { name: string; description: string; images: string[] }[] = [];
+    $s('section, article, .suite, .room').each((_, el) => {
+      const name = $s(el).find('h2, h3, .title').first().text().trim();
+      const desc = $s(el).find('p').first().text().trim();
+      const imgs = new Set<string>();
+      $s(el).find('img').each((__, img) => {
+        const raw = $s(img).attr('data-src') || $s(img).attr('src') || '';
+        const full = normalizeImage(raw);
+        if (full) imgs.add(full);
+      });
+      if (name && imgs.size) rooms.push({ name, description: desc, images: Array.from(imgs) });
+    });
+
+    // Scrape dining
+    const $d = await fetchHtml(diningUrl);
+    const outlets: { name: string; cuisine?: string; description?: string; hours?: string; images: string[] }[] = [];
+    $d('section, article, .restaurant, .dining').each((_, el) => {
+      const name = $d(el).find('h2, h3, .title').first().text().trim();
+      const desc = $d(el).find('p').first().text().trim();
+      const imgs = new Set<string>();
+      $d(el).find('img').each((__, img) => {
+        const raw = $d(img).attr('data-src') || $d(img).attr('src') || '';
+        const full = normalizeImage(raw);
+        if (full) imgs.add(full);
+      });
+      if (name && imgs.size) outlets.push({ name, description: desc, images: Array.from(imgs) });
+    });
+
+    // Download images and create records
+    const toBuffer = async (url: string) => {
+      const resp = await axios.get(url, { responseType: 'arraybuffer' });
+      const ct = resp.headers['content-type'] || 'image/jpeg';
+      const name = url.split('/').pop() || 'image.jpg';
+      const savedUrl = await uploadBuffer(name, ct, Buffer.from(resp.data));
+      return savedUrl;
+    };
+
+    // Rooms -> hotel_rooms
+    for (const r of rooms.slice(0, 40)) { // cap to avoid overload
+      const savedImages: string[] = [];
+      for (const u of r.images.slice(0, 6)) {
+        try { savedImages.push(await toBuffer(u)); } catch {}
+      }
+      await pool.query(
+        `INSERT INTO hotel_rooms (hotel_id, name, description, images) VALUES ($1,$2,$3,$4)`,
+        [hotelId, r.name, r.description || null, JSON.stringify(savedImages)]
+      );
+    }
+
+    // Dining -> hotel_dining
+    for (const o of outlets.slice(0, 40)) {
+      const savedImages: string[] = [];
+      for (const u of o.images.slice(0, 6)) {
+        try { savedImages.push(await toBuffer(u)); } catch {}
+      }
+      await pool.query(
+        `INSERT INTO hotel_dining (hotel_id, name, cuisine, description, hours, images) VALUES ($1,$2,$3,$4,$5,$6)`,
+        [hotelId, o.name, o.cuisine || null, o.description || null, o.hours || null, JSON.stringify(savedImages)]
+      );
+    }
+
+    res.json({ importedRooms: rooms.length, importedDining: outlets.length });
+  } catch (e:any) {
+    console.error('Importer error', e?.message);
+    res.status(500).json({ message: 'Import failed' });
+  }
+});
 
 
