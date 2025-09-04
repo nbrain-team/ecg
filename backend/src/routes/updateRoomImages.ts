@@ -25,51 +25,51 @@ router.post('/update-room-images', async (req, res) => {
     const roomImages = [
       {
         name: 'Ambassador Spa & Pool Suite',
-        image: 'https://www.grandvelas.com/resourcefiles/master-section-slider-desktop/ambassador-spa-pool-grand-velas-los-cabos.jpg'
+        image: 'https://www.grandvelas.com/resourcefiles/accommodationsliderimagesnew/ambassador-spa-suite-grand-velas-los-cabos.jpg'
       },
       {
         name: 'Ambassador Ocean Suite',
-        image: 'https://www.grandvelas.com/resourcefiles/master-section-slider-desktop/ambassador-ocean-suite-grand-velas-los-cabos.jpg'
+        image: 'https://www.grandvelas.com/resourcefiles/accommodationsliderimagesnew/ambassador-ocean-suite-grand-velas-los-cabos.jpg'
       },
       {
         name: 'Master Pool Suite',
-        image: 'https://www.grandvelas.com/resourcefiles/master-section-slider-desktop/master-pool-suite-grand-velas-los-cabos.jpg'
+        image: 'https://www.grandvelas.com/resourcefiles/accommodationsliderimagesnew/master-pool-suite-grand-velas-los-cabos.jpg'
       },
       {
         name: 'Master Ocean Suite',
-        image: 'https://www.grandvelas.com/resourcefiles/master-section-slider-desktop/master-ocean-suite-grand-velas-los-cabos.jpg'
+        image: 'https://www.grandvelas.com/resourcefiles/accommodationsliderimagesnew/master-ocean-suite-grand-velas-los-cabos.jpg'
       },
       {
         name: 'Grand Class Spa Suite',
-        image: 'https://www.grandvelas.com/resourcefiles/master-section-slider-desktop/grand-class-spa-suite-grand-velas-los-cabos.jpg'
+        image: 'https://www.grandvelas.com/resourcefiles/accommodationsliderimagesnew/grand-class-spa-suite-grand-velas-los-cabos.jpg'
       },
       {
         name: 'Grand Class Ocean Suite',
-        image: 'https://www.grandvelas.com/resourcefiles/master-section-slider-desktop/grand-class-suite-grand-velas-los-cabos.jpg'
+        image: 'https://www.grandvelas.com/resourcefiles/accommodationsliderimagesnew/grand-class-suite-grand-velas-los-cabos.jpg'
       },
       {
         name: 'Wellness Suite Ocean View',
-        image: 'https://www.grandvelas.com/resourcefiles/master-section-slider-desktop/wellness-suites-grand-velas-los-cabos.jpg'
+        image: 'https://www.grandvelas.com/resourcefiles/accommodationsliderimagesnew/wellness-suite-grand-velas-los-cabos.jpg'
       },
       {
         name: 'Wellness Suite Oceanfront',
-        image: 'https://www.grandvelas.com/resourcefiles/master-section-slider-desktop/wellness-suites-grand-velas-los-cabos.jpg'
+        image: 'https://www.grandvelas.com/resourcefiles/accommodationsliderimagesnew/wellness-suite-grand-velas-los-cabos.jpg'
       },
       {
         name: 'Two Bedroom Family Suite',
-        image: 'https://www.grandvelas.com/resourcefiles/master-section-slider-desktop/ambassador-ocean-suite-grand-velas-los-cabos.jpg'
+        image: 'https://www.grandvelas.com/resourcefiles/accommodationsliderimagesnew/two-bedroom-family-suite-grand-velas-los-cabos.jpg'
       },
       {
         name: 'Two Bedroom Residence Suite',
-        image: 'https://www.grandvelas.com/resourcefiles/master-section-slider-desktop/master-ocean-suite-grand-velas-los-cabos.jpg'
+        image: 'https://www.grandvelas.com/resourcefiles/accommodationsliderimagesnew/two-bedroom-family-suite-grand-velas-los-cabos.jpg'
       },
       {
         name: 'Imperial Suite',
-        image: 'https://www.grandvelas.com/resourcefiles/master-section-slider-desktop/imperial-suite-grand-velas-los-cabos.jpg'
+        image: 'https://www.grandvelas.com/resourcefiles/accommodationsliderimagesnew/imperial-suite-grand-velas-los-cabos.jpg'
       },
       {
         name: 'Presidential Suite',
-        image: 'https://www.grandvelas.com/resourcefiles/master-section-slider-desktop/presidential-suite-grand-velas-los-cabos.jpg'
+        image: 'https://www.grandvelas.com/resourcefiles/accommodationsliderimagesnew/presidential-suite-grand-velas-los-cabos.jpg'
       }
     ];
     
