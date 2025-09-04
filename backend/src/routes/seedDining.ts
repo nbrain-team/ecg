@@ -291,7 +291,7 @@ router.post('/seed-grand-velas-dining', async (req, res) => {
           dining.name,
           dining.description,
           dining.cuisine_type,
-          dining.meal_periods,
+          JSON.stringify(dining.meal_periods),
           dining.price_range,
           dining.capacity,
           dining.hours_of_operation,
