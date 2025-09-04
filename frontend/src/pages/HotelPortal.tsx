@@ -1003,7 +1003,15 @@ function HotelPortal() {
           {(dining || []).map(d => (
             <div key={d.id} className="selection-card">
               {Array.isArray(d.images) && d.images[0] && (
-                <img src={d.images[0]} alt={d.name} />
+                <img 
+                  src={d.images[0]} 
+                  alt={d.name}
+                  onError={(e) => {
+                    console.error('Dining image failed to load:', d.images[0]);
+                    const target = e.target as HTMLImageElement;
+                    target.src = 'https://placehold.co/280x160?text=' + encodeURIComponent(d.name);
+                  }}
+                />
               )}
               <div className="card-content">
                 <h3>{d.name}</h3>
