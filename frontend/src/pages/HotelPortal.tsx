@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import axios from 'axios';
-import './Dashboard.css';
+import './HotelPortal.css';
 import Modal from '../components/Modal';
 
 const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:3001';
@@ -40,6 +40,7 @@ function HotelPortal() {
   const [error, setError] = useState('');
   const [schema, setSchema] = useState<any>({});
   const [activeTab, setActiveTab] = useState<'overview'|'profile'|'contact'|'location'|'images'|'policies'|'financials'|'amenities'|'workflow'|'rooms'|'venues'|'dining'>('overview');
+  const [sidebarTab, setSidebarTab] = useState<'overview'|'profile'|'contact'>('overview');
   const [saving, setSaving] = useState(false);
   const [schemaDraft, setSchemaDraft] = useState<any>({});
   
@@ -401,35 +402,119 @@ function HotelPortal() {
   }
 
   return (
-    <div className="container">
-      <div className="dashboard-header">
-        <h1>Hotel Portal</h1>
-        {hotel && <p>{hotel.name} {hotel.rating_level ? `• ${hotel.rating_level}` : ''}</p>}
+    <div className="hotel-portal-container">
+      {/* Sidebar */}
+      <div className="hotel-sidebar">
+        <div className="hotel-sidebar-header">
+          <h2 className="hotel-sidebar-title">Hotel Manager</h2>
+          <p className="hotel-sidebar-subtitle">{hotel?.name || 'Loading...'}</p>
+        </div>
+        
+        <nav className="hotel-sidebar-nav">
+          <button 
+            className={`hotel-sidebar-nav-item ${activeTab==='overview' ? 'active' : ''}`}
+            onClick={() => setActiveTab('overview')}
+          >
+            <span className="hotel-sidebar-icon">📊</span>
+            Overview
+          </button>
+          <button 
+            className={`hotel-sidebar-nav-item ${activeTab==='profile' ? 'active' : ''}`}
+            onClick={() => setActiveTab('profile')}
+          >
+            <span className="hotel-sidebar-icon">🏨</span>
+            Profile
+          </button>
+          <button 
+            className={`hotel-sidebar-nav-item ${activeTab==='contact' ? 'active' : ''}`}
+            onClick={() => setActiveTab('contact')}
+          >
+            <span className="hotel-sidebar-icon">📞</span>
+            Contact
+          </button>
+        </nav>
       </div>
-      {error && <div className="alert alert-error">{error}</div>}
 
-      <div className="tabbar">
-        <button className={`btn btn-sm ${activeTab==='overview'?'btn-primary':'btn-outline'}`} onClick={()=>setActiveTab('overview')}>Overview</button>
-        <button className={`btn btn-sm ${activeTab==='profile'?'btn-primary':'btn-outline'}`} onClick={()=>setActiveTab('profile')}>Profile</button>
-        <button className={`btn btn-sm ${activeTab==='contact'?'btn-primary':'btn-outline'}`} onClick={()=>setActiveTab('contact')}>Contact</button>
-        <button className={`btn btn-sm ${activeTab==='location'?'btn-primary':'btn-outline'}`} onClick={()=>setActiveTab('location')}>Location</button>
-        <button className={`btn btn-sm ${activeTab==='images'?'btn-primary':'btn-outline'}`} onClick={()=>setActiveTab('images')}>Images & Media</button>
-        <button className={`btn btn-sm ${activeTab==='policies'?'btn-primary':'btn-outline'}`} onClick={()=>setActiveTab('policies')}>Policies</button>
-        <button className={`btn btn-sm ${activeTab==='financials'?'btn-primary':'btn-outline'}`} onClick={()=>setActiveTab('financials')}>Financials</button>
-        <button className={`btn btn-sm ${activeTab==='amenities'?'btn-primary':'btn-outline'}`} onClick={()=>setActiveTab('amenities')}>Amenities</button>
-        <button className={`btn btn-sm ${activeTab==='workflow'?'btn-primary':'btn-outline'}`} onClick={()=>setActiveTab('workflow')}>Workflow</button>
-        <button className={`btn btn-sm ${activeTab==='rooms'?'btn-primary':'btn-outline'}`} onClick={()=>setActiveTab('rooms')}>Rooms</button>
-        <button className={`btn btn-sm ${activeTab==='venues'?'btn-primary':'btn-outline'}`} onClick={()=>setActiveTab('venues')}>Venues</button>
-        <button className={`btn btn-sm ${activeTab==='dining'?'btn-primary':'btn-outline'}`} onClick={()=>setActiveTab('dining')}>Dining</button>
-      </div>
+      {/* Main Content */}
+      <div className="hotel-main-content">
+        {/* Header */}
+        <div className="hotel-header">
+          <div className="hotel-header-content">
+            <h1 className="hotel-page-title">
+              {activeTab === 'overview' && 'Hotel Overview'}
+              {activeTab === 'profile' && 'Hotel Profile'}
+              {activeTab === 'contact' && 'Contact Information'}
+              {activeTab === 'location' && 'Location Settings'}
+              {activeTab === 'images' && 'Images & Media'}
+              {activeTab === 'policies' && 'Hotel Policies'}
+              {activeTab === 'financials' && 'Financial Settings'}
+              {activeTab === 'amenities' && 'Amenities & Features'}
+              {activeTab === 'workflow' && 'Workflow Settings'}
+              {activeTab === 'rooms' && 'Room Management'}
+              {activeTab === 'venues' && 'Venue Management'}
+              {activeTab === 'dining' && 'Dining Management'}
+            </h1>
+            
+            {/* Top Tab Navigation */}
+            <div className="hotel-tab-nav">
+              <button 
+                className={`hotel-tab-btn ${activeTab==='location' ? 'active' : ''}`} 
+                onClick={() => setActiveTab('location')}
+              >Location</button>
+              <button 
+                className={`hotel-tab-btn ${activeTab==='images' ? 'active' : ''}`} 
+                onClick={() => setActiveTab('images')}
+              >Images & Media</button>
+              <button 
+                className={`hotel-tab-btn ${activeTab==='policies' ? 'active' : ''}`} 
+                onClick={() => setActiveTab('policies')}
+              >Policies</button>
+              <button 
+                className={`hotel-tab-btn ${activeTab==='financials' ? 'active' : ''}`} 
+                onClick={() => setActiveTab('financials')}
+              >Financials</button>
+              <button 
+                className={`hotel-tab-btn ${activeTab==='amenities' ? 'active' : ''}`} 
+                onClick={() => setActiveTab('amenities')}
+              >Amenities</button>
+              <button 
+                className={`hotel-tab-btn ${activeTab==='workflow' ? 'active' : ''}`} 
+                onClick={() => setActiveTab('workflow')}
+              >Workflow</button>
+              <button 
+                className={`hotel-tab-btn ${activeTab==='rooms' ? 'active' : ''}`} 
+                onClick={() => setActiveTab('rooms')}
+              >Rooms</button>
+              <button 
+                className={`hotel-tab-btn ${activeTab==='venues' ? 'active' : ''}`} 
+                onClick={() => setActiveTab('venues')}
+              >Venues</button>
+              <button 
+                className={`hotel-tab-btn ${activeTab==='dining' ? 'active' : ''}`} 
+                onClick={() => setActiveTab('dining')}
+              >Dining</button>
+            </div>
+          </div>
+        </div>
 
-      <div className="tab-content">
+        {/* Content Area */}
+        <div className="hotel-content">
+          {error && <div className="alert alert-error">{error}</div>}
+          
+          <div className="tab-content">
       {activeTab==='overview' && (
       <div className="hotel-profile">
         {/* Hero Section */}
         {images.length > 0 && (
           <div className="hotel-hero">
-            <img src={images[0].url} alt={hotel?.name || 'Hotel'} />
+            <img 
+              src={images[0]?.url || '/images/rooms/grand-class-suite.jpg'} 
+              alt={hotel?.name || 'Hotel'}
+              onError={(e) => {
+                const target = e.target as HTMLImageElement;
+                target.src = '/images/rooms/grand-class-suite.jpg';
+              }}
+            />
             <div className="hotel-hero-content">
               <h1>{hotel?.name || 'Grand Velas Los Cabos'}</h1>
               <div className="hotel-rating">
@@ -480,7 +565,17 @@ function HotelPortal() {
                     console.log('Room data:', room.name, room.images);
                     return (
                     <div key={room.id} className="room-card">
-                      {room.images?.[0] && <img src={room.images[0]} alt={room.name} onError={(e) => console.error('Image failed to load:', room.images[0])} />}
+                      {room.images?.[0] && (
+                        <img 
+                          src={room.images[0]} 
+                          alt={room.name} 
+                          onError={(e) => {
+                            console.error('Image failed to load:', room.images[0]);
+                            const target = e.target as HTMLImageElement;
+                            target.src = 'https://placehold.co/280x160?text=' + encodeURIComponent(room.name);
+                          }} 
+                        />
+                      )}
                       <div className="room-card-content">
                         <h4>{room.name}</h4>
                         <p>{room.description}</p>
@@ -505,7 +600,16 @@ function HotelPortal() {
                 <div className="venue-showcase">
                   {(venues || []).map(venue => (
                     <div key={venue.id} className="room-card">
-                      {venue.images?.[0] && <img src={venue.images[0]} alt={venue.name} />}
+                      {venue.images?.[0] && (
+                        <img 
+                          src={venue.images[0]} 
+                          alt={venue.name}
+                          onError={(e) => {
+                            const target = e.target as HTMLImageElement;
+                            target.src = 'https://placehold.co/280x160?text=' + encodeURIComponent(venue.name);
+                          }}
+                        />
+                      )}
                       <div className="room-card-content">
                         <h4>{venue.name}</h4>
                         <p>{venue.description}</p>
@@ -528,7 +632,16 @@ function HotelPortal() {
                 <div className="dining-showcase">
                   {(dining || []).map(outlet => (
                     <div key={outlet.id} className="room-card">
-                      {outlet.images?.[0] && <img src={outlet.images[0]} alt={outlet.name} />}
+                      {outlet.images?.[0] && (
+                        <img 
+                          src={outlet.images[0]} 
+                          alt={outlet.name}
+                          onError={(e) => {
+                            const target = e.target as HTMLImageElement;
+                            target.src = 'https://placehold.co/280x160?text=' + encodeURIComponent(outlet.name);
+                          }}
+                        />
+                      )}
                       <div className="room-card-content">
                         <h4>{outlet.name}</h4>
                         <p>{outlet.cuisine}</p>
