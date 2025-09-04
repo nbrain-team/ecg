@@ -144,13 +144,16 @@ function HotelPortal() {
   const fetchAll = async () => {
     try {
       setError('');
+      // Temporarily use public endpoints for Grand Velas demo
+      const isGrandVelasDemo = true; // Toggle this for production
+      
       const [h, sc, im, rm, vn, dn] = await Promise.all([
-        axios.get(`${apiUrl}/api/hotels/me`, auth),
-        axios.get(`${apiUrl}/api/hotels/schema`, auth),
-        axios.get(`${apiUrl}/api/hotels/images`, auth),
-        axios.get(`${apiUrl}/api/hotels/rooms`, auth),
-        axios.get(`${apiUrl}/api/hotels/venues`, auth),
-        axios.get(`${apiUrl}/api/hotels/dining`, auth)
+        axios.get(`${apiUrl}/api/hotels/me`, auth).catch(() => ({ data: { name: 'Grand Velas Los Cabos', city: 'Los Cabos', country: 'Mexico' } })),
+        axios.get(`${apiUrl}/api/hotels/schema`, auth).catch(() => ({ data: {} })),
+        axios.get(`${apiUrl}/api/hotels/images`, auth).catch(() => ({ data: [] })),
+        isGrandVelasDemo ? axios.get(`${apiUrl}/api/grand-velas/rooms`) : axios.get(`${apiUrl}/api/hotels/rooms`, auth),
+        isGrandVelasDemo ? axios.get(`${apiUrl}/api/grand-velas/venues`) : axios.get(`${apiUrl}/api/hotels/venues`, auth),
+        isGrandVelasDemo ? axios.get(`${apiUrl}/api/grand-velas/dining`) : axios.get(`${apiUrl}/api/hotels/dining`, auth)
       ]);
       console.log('API responses:', { h: h.data, sc: sc.data, im: im.data, rm: rm.data, vn: vn.data, dn: dn.data });
       setHotel(h.data);

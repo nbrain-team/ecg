@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Chat Flow - EventIntel</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .test-section {
+            background: white;
+            padding: 20px;
+            margin-bottom: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        h1, h2 {
+            color: #333;
+        }
+        .status {
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 4px;
+        }
+        .success {
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .error {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        .data-preview {
+            background-color: #f8f9fa;
+            padding: 10px;
+            border-radius: 4px;
+            margin-top: 10px;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+        .link-button {
+            display: inline-block;
+            padding: 10px 20px;
+            background-color: #007bff;
+            color: white;
+            text-decoration: none;
+            border-radius: 4px;
+            margin: 10px 0;
+        }
+        .link-button:hover {
+            background-color: #0056b3;
+        }
+        pre {
+            white-space: pre-wrap;
+            word-wrap: break-word;
+        }
+    </style>
+</head>
+<body>
+    <h1>EventIntel Chat Flow Test</h1>
+    
+    <div class="test-section">
+        <h2>Test Objectives</h2>
+        <ul>
+            <li>Verify Grand Velas Los Cabos appears as a hotel option</li>
+            <li>Check that all 14 rooms are available for selection</li>
+            <li>Confirm all 16 venues appear in the event space selection</li>
+            <li>Ensure all 14 dining options are shown</li>
+            <li>Complete a full proposal creation</li>
+        </ul>
+    </div>
+
+    <div class="test-section">
+        <h2>1. API Connectivity Test</h2>
+        <button onclick="testAPIs()">Run API Tests</button>
+        <div id="api-results"></div>
+    </div>
+
+    <div class="test-section">
+        <h2>2. Direct Links</h2>
+        <a href="https://ecg-intelligence-frontend.onrender.com" target="_blank" class="link-button">Open Main App (CORRECT)</a>
+        <a href="https://ecg-intelligence-frontend.onrender.com/chat" target="_blank" class="link-button">Open Chat Interface</a>
+        <a href="https://ecg-intelligence-frontend.onrender.com/hotel/portal" target="_blank" class="link-button">Open Hotel Portal</a>
+        <br/><br/>
+        <p style="color: red;">DO NOT USE: https://eventintel-app.onrender.com (This is the old static site)</p>
+    </div>
+
+    <div class="test-section">
+        <h2>3. Manual Test Steps</h2>
+        <ol>
+            <li><strong>Login to the platform</strong>
+                <ul>
+                    <li>Use test credentials or create a new account</li>
+                </ul>
+            </li>
+            <li><strong>Navigate to Chat Interface</strong>
+                <ul>
+                    <li>Click on "Create Proposal with AI" or navigate to /chat</li>
+                </ul>
+            </li>
+            <li><strong>Start Chat Flow</strong>
+                <ul>
+                    <li>Enter event name: "Grand Velas Test Event"</li>
+                    <li>Select destination: Los Cabos</li>
+                    <li>Choose resort: Grand Velas Los Cabos</li>
+                </ul>
+            </li>
+            <li><strong>Verify Room Selection</strong>
+                <ul>
+                    <li>Should see 14 room options including:
+                        <ul>
+                            <li>Wellness Suite Ocean View & Oceanfront</li>
+                            <li>Ambassador Ocean Suite, Pool Suite, Spa & Pool Suite</li>
+                            <li>Master Pool Suite, Ocean Suite, Spa Suite</li>
+                            <li>Grand Class Ocean Suite, Spa Suite</li>
+                            <li>Two Bedroom Family Suite, Residence Suite</li>
+                            <li>Presidential Suite, Imperial Suite</li>
+                        </ul>
+                    </li>
+                </ul>
+            </li>
+            <li><strong>Verify Venue Selection</strong>
+                <ul>
+                    <li>Should see 16 venue options including:
+                        <ul>
+                            <li>GRAND MARISSA (6,617 sq ft ballroom)</li>
+                            <li>Marissa, Monica, Mariana (divisible spaces)</li>
+                            <li>Ocean Garden (outdoor, 8,134 sq ft)</li>
+                            <li>All other meeting rooms</li>
+                        </ul>
+                    </li>
+                </ul>
+            </li>
+            <li><strong>Verify Dining Selection</strong>
+                <ul>
+                    <li>Should see 14 dining options including:
+                        <ul>
+                            <li>Cocina de Autor, Azul, Cabrilla</li>
+                            <li>Velas 10, Sen Lin, Lucca, Frida</li>
+                            <li>Loto Robata & Bar</li>
+                            <li>All bars and cafes</li>
+                        </ul>
+                    </li>
+                </ul>
+            </li>
+            <li><strong>Complete Proposal</strong>
+                <ul>
+                    <li>Fill in remaining details</li>
+                    <li>Generate proposal</li>
+                    <li>Verify proposal displays with hotel images and data</li>
+                </ul>
+            </li>
+        </ol>
+    </div>
+
+    <script>
+        async function testAPIs() {
+            const resultsDiv = document.getElementById('api-results');
+            resultsDiv.innerHTML = '<p>Testing APIs...</p>';
+            
+            const apiUrl = 'https://eventintel-api.onrender.com';
+            const tests = [
+                { name: 'Backend Health', url: `${apiUrl}/` },
+                { name: 'Hotels Endpoint', url: `${apiUrl}/api/hotels/all` },
+                { name: 'Rooms Endpoint', url: `${apiUrl}/api/hotels/rooms/all` },
+                { name: 'Venues Endpoint', url: `${apiUrl}/api/hotels/venues/all` },
+                { name: 'Dining Endpoint', url: `${apiUrl}/api/hotels/dining/all` }
+            ];
+            
+            let results = '';
+            
+            for (const test of tests) {
+                try {
+                    const response = await fetch(test.url);
+                    const data = await response.json();
+                    
+                    if (response.ok) {
+                        let details = '';
+                        if (Array.isArray(data)) {
+                            details = `<div class="data-preview">Found ${data.length} items</div>`;
+                        }
+                        results += `<div class="status success">✓ ${test.name}: Success ${details}</div>`;
+                    } else {
+                        results += `<div class="status error">✗ ${test.name}: ${data.message || 'Failed'}</div>`;
+                    }
+                } catch (error) {
+                    results += `<div class="status error">✗ ${test.name}: ${error.message}</div>`;
+                }
+            }
+            
+            resultsDiv.innerHTML = results;
+        }
+    </script>
+</body>
+</html>
