@@ -190,8 +190,8 @@ router.post('/seed-all-dining', async (req, res) => {
         `INSERT INTO hotel_dining (
           hotel_id, name, description, cuisine_type, meal_periods, 
           price_range, capacity, hours_of_operation, dress_code, images, 
-          cuisine, created_at, updated_at
-        ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, NOW(), NOW())`,
+          cuisine
+        ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)`,
         [
           hotelId,
           dining.name,
