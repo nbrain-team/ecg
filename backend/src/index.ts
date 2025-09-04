@@ -12,6 +12,7 @@ import updateRoomImagesLocalRoutes from './routes/updateRoomImagesLocal';
 import seedDiningRoutes from './routes/seedDining';
 import updateDiningImagesLocalRoutes from './routes/updateDiningImagesLocal';
 import seedRoomsLocalRoutes from './routes/seedRoomsLocal';
+import updateAllDiningImagesLocalRoutes from './routes/updateAllDiningImagesLocal';
 import { applySchema } from './db/migrate';
 import { bootstrapGrandVelasIfMissing } from './db/bootstrap';
 
@@ -49,6 +50,7 @@ app.use('/api/update', updateRoomImagesRoutes);
 app.use('/api/update', updateRoomImagesLocalRoutes);
 app.use('/api/update', updateDiningImagesLocalRoutes);
 app.use('/api/seed', seedRoomsLocalRoutes);
+app.use('/api/update', updateAllDiningImagesLocalRoutes);
 
 // Error handling middleware
 app.use((err: any, req: express.Request, res: express.Response, next: express.NextFunction) => {
