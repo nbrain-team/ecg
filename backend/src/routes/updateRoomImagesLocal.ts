@@ -21,7 +21,7 @@ router.post('/update-room-images-local', async (req, res) => {
     // Room image mappings - using local placeholder images
     const roomImageMappings = [
       {
-        name: 'Ambassador Ocean View Suite',
+        name: 'Ambassador Ocean Suite',
         images: ['/images/rooms/ambassador-ocean-suite.jpg']
       },
       {
@@ -29,11 +29,11 @@ router.post('/update-room-images-local', async (req, res) => {
         images: ['/images/rooms/grand-class-spa-suite.jpg']
       },
       {
-        name: 'Ambassador Spa Suite',
+        name: 'Ambassador Spa & Pool Suite',
         images: ['/images/rooms/ambassador-spa-suite.jpg']
       },
       {
-        name: 'Grand Class Suite',
+        name: 'Grand Class Ocean Suite',
         images: ['/images/rooms/grand-class-suite.jpg']
       },
       {
@@ -41,15 +41,23 @@ router.post('/update-room-images-local', async (req, res) => {
         images: ['/images/rooms/master-pool-suite.jpg']
       },
       {
-        name: 'Master Ocean View Suite',
+        name: 'Master Ocean Suite',
         images: ['/images/rooms/master-ocean-suite.jpg']
       },
       {
-        name: 'Wellness Suite',
+        name: 'Wellness Suite Oceanfront',
+        images: ['/images/rooms/wellness-suite.jpg']
+      },
+      {
+        name: 'Wellness Suite Ocean View',
         images: ['/images/rooms/wellness-suite.jpg']
       },
       {
         name: 'Two Bedroom Family Suite',
+        images: ['/images/rooms/two-bedroom-family-suite.jpg']
+      },
+      {
+        name: 'Two Bedroom Residence Suite',
         images: ['/images/rooms/two-bedroom-family-suite.jpg']
       },
       {
@@ -59,14 +67,6 @@ router.post('/update-room-images-local', async (req, res) => {
       {
         name: 'Presidential Suite',
         images: ['/images/rooms/presidential-suite.jpg']
-      },
-      {
-        name: 'Ambassador Pool Suite',
-        images: ['/images/rooms/ambassador-pool-suite.jpg']
-      },
-      {
-        name: 'Master Spa Suite',
-        images: ['/images/rooms/master-spa-suite.jpg']
       }
     ];
     
