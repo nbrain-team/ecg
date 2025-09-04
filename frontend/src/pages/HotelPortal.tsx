@@ -476,9 +476,11 @@ function HotelPortal() {
               <div className="hotel-section">
                 <h3>Accommodations</h3>
                 <div className="room-showcase">
-                  {(rooms || []).map(room => (
+                  {(rooms || []).map(room => {
+                    console.log('Room data:', room.name, room.images);
+                    return (
                     <div key={room.id} className="room-card">
-                      {room.images?.[0] && <img src={room.images[0]} alt={room.name} />}
+                      {room.images?.[0] && <img src={room.images[0]} alt={room.name} onError={(e) => console.error('Image failed to load:', room.images[0])} />}
                       <div className="room-card-content">
                         <h4>{room.name}</h4>
                         <p>{room.description}</p>
@@ -490,7 +492,8 @@ function HotelPortal() {
                         {room.base_rate && <p><strong>From ${room.base_rate}/night</strong></p>}
                       </div>
                     </div>
-                  ))}
+                    );
+                  })}
                 </div>
               </div>
             )}
