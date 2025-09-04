@@ -71,7 +71,7 @@ export async function applySchema(): Promise<void> {
     `CREATE TABLE IF NOT EXISTS hotel_venues (id UUID PRIMARY KEY DEFAULT gen_random_uuid(), hotel_id UUID REFERENCES hotels(id) ON DELETE CASCADE, name VARCHAR(255) NOT NULL, description TEXT, sqft INTEGER, ceiling_height_ft DECIMAL(5,2), capacity_reception INTEGER, capacity_banquet INTEGER, capacity_theater INTEGER, outdoor BOOLEAN DEFAULT false, details JSONB, attributes JSONB, images JSONB, created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP);`,
     `ALTER TABLE hotel_venues ADD COLUMN IF NOT EXISTS outdoor BOOLEAN DEFAULT false;`,
     `ALTER TABLE hotel_venues ADD COLUMN IF NOT EXISTS details JSONB;`,
-    `CREATE TABLE IF NOT EXISTS hotel_dining (id UUID PRIMARY KEY DEFAULT gen_random_uuid(), hotel_id UUID REFERENCES hotels(id) ON DELETE CASCADE, name VARCHAR(255) NOT NULL, cuisine VARCHAR(100), description TEXT, hours VARCHAR(255), dress_code VARCHAR(100), details JSONB, attributes JSONB, images JSONB, created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP);`,
+    `CREATE TABLE IF NOT EXISTS hotel_dining (id UUID PRIMARY KEY DEFAULT gen_random_uuid(), hotel_id UUID REFERENCES hotels(id) ON DELETE CASCADE, name VARCHAR(255) NOT NULL, cuisine VARCHAR(100), description TEXT, hours VARCHAR(255), dress_code VARCHAR(255), details JSONB, attributes JSONB, images JSONB, created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP);`,
     // Ensure attributes columns exist on upgrades
     `ALTER TABLE hotel_rooms ADD COLUMN IF NOT EXISTS attributes JSONB;`,
     `ALTER TABLE hotel_venues ADD COLUMN IF NOT EXISTS attributes JSONB;`,
@@ -82,6 +82,7 @@ export async function applySchema(): Promise<void> {
     `ALTER TABLE hotel_dining ADD COLUMN IF NOT EXISTS price_range VARCHAR(10);`,
     `ALTER TABLE hotel_dining ADD COLUMN IF NOT EXISTS capacity INTEGER;`,
     `ALTER TABLE hotel_dining ADD COLUMN IF NOT EXISTS hours_of_operation TEXT;`,
+    `ALTER TABLE hotel_dining ALTER COLUMN dress_code TYPE VARCHAR(255);`,
     `CREATE TABLE IF NOT EXISTS hotel_rates (id UUID PRIMARY KEY DEFAULT gen_random_uuid(), hotel_id UUID REFERENCES hotels(id) ON DELETE CASCADE, room_id UUID REFERENCES hotel_rooms(id) ON DELETE CASCADE, season VARCHAR(100), start_date DATE, end_date DATE, rate NUMERIC(10,2));`,
     // Proposals table
     `CREATE TABLE IF NOT EXISTS proposals (
