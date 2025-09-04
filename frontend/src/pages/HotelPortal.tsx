@@ -505,16 +505,15 @@ function HotelPortal() {
       {activeTab==='overview' && (
       <div className="hotel-profile">
         {/* Hero Section */}
-        {images.length > 0 && (
-          <div className="hotel-hero">
-            <img 
-              src={images[0]?.url || '/images/rooms/grand-class-suite.jpg'} 
-              alt={hotel?.name || 'Hotel'}
-              onError={(e) => {
-                const target = e.target as HTMLImageElement;
-                target.src = '/images/rooms/grand-class-suite.jpg';
-              }}
-            />
+        <div className="hotel-hero">
+          <img 
+            src="/images/grand-velas-los-cabos.jpg"
+            alt={hotel?.name || 'Grand Velas Los Cabos'}
+            onError={(e) => {
+              const target = e.target as HTMLImageElement;
+              target.src = '/images/rooms/grand-class-suite.jpg';
+            }}
+          />
             <div className="hotel-hero-content">
               <h1>{hotel?.name || 'Grand Velas Los Cabos'}</h1>
               <div className="hotel-rating">
@@ -526,7 +525,6 @@ function HotelPortal() {
               <p>{hotel?.address}, {hotel?.city}, {hotel?.country}</p>
             </div>
           </div>
-        )}
         
         <div className="hotel-info-grid">
           <div>
