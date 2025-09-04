@@ -77,6 +77,11 @@ export async function applySchema(): Promise<void> {
     `ALTER TABLE hotel_venues ADD COLUMN IF NOT EXISTS attributes JSONB;`,
     `ALTER TABLE hotel_dining ADD COLUMN IF NOT EXISTS attributes JSONB;`,
     `ALTER TABLE hotel_dining ADD COLUMN IF NOT EXISTS details JSONB;`,
+    `ALTER TABLE hotel_dining ADD COLUMN IF NOT EXISTS cuisine_type VARCHAR(100);`,
+    `ALTER TABLE hotel_dining ADD COLUMN IF NOT EXISTS meal_periods JSONB;`,
+    `ALTER TABLE hotel_dining ADD COLUMN IF NOT EXISTS price_range VARCHAR(10);`,
+    `ALTER TABLE hotel_dining ADD COLUMN IF NOT EXISTS capacity INTEGER;`,
+    `ALTER TABLE hotel_dining ADD COLUMN IF NOT EXISTS hours_of_operation TEXT;`,
     `CREATE TABLE IF NOT EXISTS hotel_rates (id UUID PRIMARY KEY DEFAULT gen_random_uuid(), hotel_id UUID REFERENCES hotels(id) ON DELETE CASCADE, room_id UUID REFERENCES hotel_rooms(id) ON DELETE CASCADE, season VARCHAR(100), start_date DATE, end_date DATE, rate NUMERIC(10,2));`,
     // Proposals table
     `CREATE TABLE IF NOT EXISTS proposals (
