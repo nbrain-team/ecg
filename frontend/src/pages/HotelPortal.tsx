@@ -935,9 +935,12 @@ function HotelPortal() {
         </div>
         <div className="selection-grid">
           {(rooms || []).map(r => (
-            <div key={r.id} className={`selection-card`}>
+            <div key={r.id} className="selection-card clickable" onClick={() => startEditRoom(r)}>
               {Array.isArray(r.images) && r.images[0] && (
-                <img src={r.images[0]} alt={r.name} />
+                <img src={r.images[0]} alt={r.name} onError={(e) => {
+                  const target = e.target as HTMLImageElement;
+                  target.src = 'https://placehold.co/280x160?text=' + encodeURIComponent(r.name);
+                }} />
               )}
               <div className="card-content">
                 <h3>{r.name}</h3>
@@ -945,10 +948,6 @@ function HotelPortal() {
                 <p className="room-info">{r.size_sqft ? `${r.size_sqft} sqft` : ''} {r.view ? `• ${r.view} view` : ''}</p>
                 <p className="capacity">Sleeps {r.capacity}</p>
                 <p className="capacity">${r.base_rate}/night</p>
-                <div className="builder-actions">
-                  <button className="btn btn-outline" onClick={()=>startEditRoom(r)}>Edit</button>
-                  <button className="btn btn-outline" onClick={()=>removeRoom(r.id)}>Delete</button>
-                </div>
               </div>
             </div>
           ))}
@@ -969,19 +968,18 @@ function HotelPortal() {
         </div>
         <div className="selection-grid">
           {(venues || []).map(v => (
-            <div key={v.id} className="selection-card">
+            <div key={v.id} className="selection-card clickable" onClick={() => startEditVenue(v)}>
               {Array.isArray(v.images) && v.images[0] && (
-                <img src={v.images[0]} alt={v.name} />
+                <img src={v.images[0]} alt={v.name} onError={(e) => {
+                  const target = e.target as HTMLImageElement;
+                  target.src = 'https://placehold.co/280x160?text=' + encodeURIComponent(v.name);
+                }} />
               )}
               <div className="card-content">
                 <h3>{v.name}</h3>
                 <p className="description">{v.description}</p>
                 <p className="size">{v.sqft} sq ft • {v.ceiling_height_ft} ft ceiling</p>
                 <p className="capacity">Reception {v.capacity_reception} • Banquet {v.capacity_banquet} • Theater {v.capacity_theater}</p>
-                <div className="builder-actions">
-                  <button className="btn btn-outline" onClick={()=>startEditVenue(v)}>Edit</button>
-                  <button className="btn btn-outline" onClick={()=>removeVenue(v.id)}>Delete</button>
-                </div>
               </div>
             </div>
           ))}
@@ -1002,7 +1000,7 @@ function HotelPortal() {
         </div>
         <div className="selection-grid">
           {(dining || []).map(d => (
-            <div key={d.id} className="selection-card">
+            <div key={d.id} className="selection-card clickable" onClick={() => startEditDining(d)}>
               {Array.isArray(d.images) && d.images[0] && (
                 <img 
                   src={d.images[0]} 
@@ -1021,10 +1019,6 @@ function HotelPortal() {
                 {(d.attributes?.seating_capacity || d.attributes?.standing_capacity) && (
                   <p className="capacity">Capacity: {d.attributes.seating_capacity ? `${d.attributes.seating_capacity} seated` : ''}{d.attributes.seating_capacity && d.attributes.standing_capacity ? ', ' : ''}{d.attributes.standing_capacity ? `${d.attributes.standing_capacity} standing` : ''}</p>
                 )}
-                <div className="builder-actions">
-                  <button className="btn btn-outline" onClick={()=>startEditDining(d)}>Edit</button>
-                  <button className="btn btn-outline" onClick={()=>removeDining(d.id)}>Delete</button>
-                </div>
               </div>
             </div>
           ))}
