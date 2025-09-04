@@ -1350,10 +1350,10 @@ function HotelPortal() {
           </div>
         )}
       </Modal>
+        </div>
+      </div>
     </div>
   );
 }
 
 export default HotelPortal;
-
-
