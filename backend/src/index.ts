@@ -9,6 +9,8 @@ import hotelIntegrationRoutes from './routes/hotelIntegration';
 import seedRoomsRoutes from './routes/seedRooms';
 import updateRoomImagesRoutes from './routes/updateRoomImages';
 import updateRoomImagesLocalRoutes from './routes/updateRoomImagesLocal';
+import seedDiningRoutes from './routes/seedDining';
+import updateDiningImagesLocalRoutes from './routes/updateDiningImagesLocal';
 import { applySchema } from './db/migrate';
 import { bootstrapGrandVelasIfMissing } from './db/bootstrap';
 
@@ -41,8 +43,10 @@ app.use('/api/destinations', destinationRoutes);
 app.use('/api/hotels', hotelRoutes);
 app.use('/api/hotel-integration', hotelIntegrationRoutes);
 app.use('/api/seed', seedRoomsRoutes);
+app.use('/api/seed', seedDiningRoutes);
 app.use('/api/update', updateRoomImagesRoutes);
 app.use('/api/update', updateRoomImagesLocalRoutes);
+app.use('/api/update', updateDiningImagesLocalRoutes);
 
 // Error handling middleware
 app.use((err: any, req: express.Request, res: express.Response, next: express.NextFunction) => {
