@@ -911,7 +911,7 @@ function HotelPortal() {
         <h2>Rooms</h2>
         <div className="builder-actions">
           <button className="btn btn-primary" onClick={() => {
-            setNewRoom({ name: '', description: '', size_sqft: '', view: '', capacity: '', base_rate: '', image1: '', images: [], attributes: { bed_configuration: '', connectable: 'false', max_occupancy: '', view_type: '', in_room_amenities_csv: '', accessibility_features_csv: '', typical_group_rate_low: '', typical_group_rate_high: '' } });
+            setNewRoom({ name: '', description: '', image1: '', images: [], attributes: { occupancy: '', size_label: '', amenities: ['', '', '', ''] } });
             setModalType('room');
             setModalMode('add');
             setModalOpen(true);
