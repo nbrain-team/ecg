@@ -57,9 +57,9 @@ function HotelPortal() {
   const [editingRoomId, setEditingRoomId] = useState<string | null>(null);
   const [editRoomForm, setEditRoomForm] = useState<any>({ name: '', description: '', image1: '', images: [], attributes: { occupancy: '', size_label: '', amenities: ['', '', '', ''] } });
   // Venues forms
-  const [newVenue, setNewVenue] = useState<any>({ name: '', description: '', sqft: '', ceiling_height_ft: '', capacity_reception: '', capacity_banquet: '', capacity_theater: '', image1: '', attributes: { length_m: '', width_m: '', height_m: '', floor_type: '', natural_light: 'false', rigging_points: 'false', theater: '', classroom: '', banquet_rounds_10: '', reception: '', u_shape: '', boardroom: '', rental_fee_usd_day: '', setup_tear_down_fee_usd: '' } });
+  const [newVenue, setNewVenue] = useState<any>({ name: '', description: '', image1: '', images: [], attributes: { room_size_label: '', ceiling_height_label: '', maximum_capacity: '', u_shape: '', banquet_rounds: '', cocktail_rounds: '', theater: '', classroom: '', boardroom: '', crescent_rounds_cabaret: '', hollow_square: '', royal_conference: '' } });
   const [editingVenueId, setEditingVenueId] = useState<string | null>(null);
-  const [editVenueForm, setEditVenueForm] = useState<any>({ name: '', description: '', sqft: '', ceiling_height_ft: '', capacity_reception: '', capacity_banquet: '', capacity_theater: '', image1: '', attributes: { length_m: '', width_m: '', height_m: '', floor_type: '', natural_light: 'false', rigging_points: 'false', theater: '', classroom: '', banquet_rounds_10: '', reception: '', u_shape: '', boardroom: '', rental_fee_usd_day: '', setup_tear_down_fee_usd: '' } });
+  const [editVenueForm, setEditVenueForm] = useState<any>({ name: '', description: '', image1: '', images: [], attributes: { room_size_label: '', ceiling_height_label: '', maximum_capacity: '', u_shape: '', banquet_rounds: '', cocktail_rounds: '', theater: '', classroom: '', boardroom: '', crescent_rounds_cabaret: '', hollow_square: '', royal_conference: '' } });
   // Dining forms
   const [newDiningOutlet, setNewDiningOutlet] = useState<any>({ name: '', cuisine: '', description: '', hours: '', dress_code: '', image1: '', attributes: { buyout_available: 'false', buyout_min_spend_usd: '', seating_capacity: '', standing_capacity: '', private_rooms_csv: '', outdoor: 'false', noise_restrictions_after: '' } });
   const [editingDiningId, setEditingDiningId] = useState<string | null>(null);
@@ -262,28 +262,26 @@ function HotelPortal() {
   const addVenue = async () => {
     try {
       const payload:any = {
-        name: newVenue.name, description: newVenue.description, sqft: Number(newVenue.sqft||0), ceiling_height_ft: Number(newVenue.ceiling_height_ft||0),
-        capacity_reception: Number(newVenue.capacity_reception||0), capacity_banquet: Number(newVenue.capacity_banquet||0), capacity_theater: Number(newVenue.capacity_theater||0),
+        name: newVenue.name,
+        description: newVenue.description,
         images: newVenue.images?.length > 0 ? newVenue.images : (newVenue.image1 ? [newVenue.image1] : []),
         attributes: {
-          length_m: newVenue.attributes?.length_m || '',
-          width_m: newVenue.attributes?.width_m || '',
-          height_m: newVenue.attributes?.height_m || '',
-          floor_type: newVenue.attributes?.floor_type || '',
-          natural_light: newVenue.attributes?.natural_light === 'true',
-          rigging_points: newVenue.attributes?.rigging_points === 'true',
+          room_size_label: newVenue.attributes?.room_size_label || '',
+          ceiling_height_label: newVenue.attributes?.ceiling_height_label || '',
+          maximum_capacity: newVenue.attributes?.maximum_capacity || '',
+          u_shape: newVenue.attributes?.u_shape || '',
+          banquet_rounds: newVenue.attributes?.banquet_rounds || '',
+          cocktail_rounds: newVenue.attributes?.cocktail_rounds || '',
           theater: newVenue.attributes?.theater || '',
           classroom: newVenue.attributes?.classroom || '',
-          banquet_rounds_10: newVenue.attributes?.banquet_rounds_10 || '',
-          reception: newVenue.attributes?.reception || '',
-          u_shape: newVenue.attributes?.u_shape || '',
           boardroom: newVenue.attributes?.boardroom || '',
-          rental_fee_usd_day: newVenue.attributes?.rental_fee_usd_day || '',
-          setup_tear_down_fee_usd: newVenue.attributes?.setup_tear_down_fee_usd || ''
+          crescent_rounds_cabaret: newVenue.attributes?.crescent_rounds_cabaret || '',
+          hollow_square: newVenue.attributes?.hollow_square || '',
+          royal_conference: newVenue.attributes?.royal_conference || ''
         }
       };
       await axios.post(`${apiUrl}/api/hotels/venues`, payload, auth);
-      setNewVenue({ name: '', description: '', sqft: '', ceiling_height_ft: '', capacity_reception: '', capacity_banquet: '', capacity_theater: '', image1: '', images: [], attributes: { length_m:'', width_m:'', height_m:'', floor_type:'', natural_light:'false', rigging_points:'false', theater:'', classroom:'', banquet_rounds_10:'', reception:'', u_shape:'', boardroom:'', rental_fee_usd_day:'', setup_tear_down_fee_usd:'' } });
+      setNewVenue({ name: '', description: '', image1: '', images: [], attributes: { room_size_label:'', ceiling_height_label:'', maximum_capacity:'', u_shape:'', banquet_rounds:'', cocktail_rounds:'', theater:'', classroom:'', boardroom:'', crescent_rounds_cabaret:'', hollow_square:'', royal_conference:'' } });
       fetchAll();
     } catch (e:any) { setError(e.response?.data?.message || 'Failed to add venue'); }
   };
@@ -292,28 +290,21 @@ function HotelPortal() {
     setEditVenueForm({ 
       name: v.name||'', 
       description: v.description||'', 
-      sqft: v.sqft||'', 
-      ceiling_height_ft: v.ceiling_height_ft||'', 
-      capacity_reception: v.capacity_reception||'', 
-      capacity_banquet: v.capacity_banquet||'', 
-      capacity_theater: v.capacity_theater||'', 
       image1: Array.isArray(v.images)&&v.images[0]?v.images[0]:'',
       images: Array.isArray(v.images) ? v.images : [],
       attributes: {
-        length_m: v.attributes?.length_m || '',
-        width_m: v.attributes?.width_m || '',
-        height_m: v.attributes?.height_m || '',
-        floor_type: v.attributes?.floor_type || '',
-        natural_light: v.attributes?.natural_light || 'false',
-        rigging_points: v.attributes?.rigging_points || 'false',
+        room_size_label: v.attributes?.room_size_label || '',
+        ceiling_height_label: v.attributes?.ceiling_height_label || '',
+        maximum_capacity: v.attributes?.maximum_capacity || '',
+        u_shape: v.attributes?.u_shape || '',
+        banquet_rounds: v.attributes?.banquet_rounds || '',
+        cocktail_rounds: v.attributes?.cocktail_rounds || '',
         theater: v.attributes?.theater || '',
         classroom: v.attributes?.classroom || '',
-        banquet_rounds_10: v.attributes?.banquet_rounds_10 || '',
-        reception: v.attributes?.reception || '',
-        u_shape: v.attributes?.u_shape || '',
         boardroom: v.attributes?.boardroom || '',
-        rental_fee_usd_day: v.attributes?.rental_fee_usd_day || '',
-        setup_tear_down_fee_usd: v.attributes?.setup_tear_down_fee_usd || ''
+        crescent_rounds_cabaret: v.attributes?.crescent_rounds_cabaret || '',
+        hollow_square: v.attributes?.hollow_square || '',
+        royal_conference: v.attributes?.royal_conference || ''
       }
     });
     setModalType('venue');
@@ -325,8 +316,8 @@ function HotelPortal() {
     try {
       if (!editingVenueId) return;
       const payload:any = {
-        name: editVenueForm.name, description: editVenueForm.description, sqft: editVenueForm.sqft===''?null:Number(editVenueForm.sqft), ceiling_height_ft: editVenueForm.ceiling_height_ft===''?null:Number(editVenueForm.ceiling_height_ft),
-        capacity_reception: editVenueForm.capacity_reception===''?null:Number(editVenueForm.capacity_reception), capacity_banquet: editVenueForm.capacity_banquet===''?null:Number(editVenueForm.capacity_banquet), capacity_theater: editVenueForm.capacity_theater===''?null:Number(editVenueForm.capacity_theater),
+        name: editVenueForm.name,
+        description: editVenueForm.description,
         images: editVenueForm.images?.length > 0 ? editVenueForm.images : (editVenueForm.image1 ? [editVenueForm.image1] : []),
         attributes: editVenueForm.attributes
       };
@@ -1131,11 +1122,18 @@ function HotelPortal() {
           <div className="form-grid" style={{gap: '1rem'}}>
             <div className="form-group"><label className="form-label">Name</label><input className="form-control" value={modalMode === 'edit' ? editVenueForm.name : newVenue.name} onChange={(e)=>modalMode === 'edit' ? setEditVenueForm({...editVenueForm, name:e.target.value}) : setNewVenue({...newVenue, name:e.target.value})} /></div>
             <div className="form-group"><label className="form-label">Description</label><textarea className="form-control" rows={3} value={modalMode === 'edit' ? editVenueForm.description : newVenue.description} onChange={(e)=>modalMode === 'edit' ? setEditVenueForm({...editVenueForm, description:e.target.value}) : setNewVenue({...newVenue, description:e.target.value})} /></div>
-            <div className="form-group"><label className="form-label">Square Feet</label><input className="form-control" value={modalMode === 'edit' ? editVenueForm.sqft : newVenue.sqft} onChange={(e)=>modalMode === 'edit' ? setEditVenueForm({...editVenueForm, sqft:e.target.value}) : setNewVenue({...newVenue, sqft:e.target.value})} /></div>
-            <div className="form-group"><label className="form-label">Ceiling Height (ft)</label><input className="form-control" value={modalMode === 'edit' ? editVenueForm.ceiling_height_ft : newVenue.ceiling_height_ft} onChange={(e)=>modalMode === 'edit' ? setEditVenueForm({...editVenueForm, ceiling_height_ft:e.target.value}) : setNewVenue({...newVenue, ceiling_height_ft:e.target.value})} /></div>
-            <div className="form-group"><label className="form-label">Reception Capacity</label><input className="form-control" value={modalMode === 'edit' ? editVenueForm.capacity_reception : newVenue.capacity_reception} onChange={(e)=>modalMode === 'edit' ? setEditVenueForm({...editVenueForm, capacity_reception:e.target.value}) : setNewVenue({...newVenue, capacity_reception:e.target.value})} /></div>
-            <div className="form-group"><label className="form-label">Banquet Capacity</label><input className="form-control" value={modalMode === 'edit' ? editVenueForm.capacity_banquet : newVenue.capacity_banquet} onChange={(e)=>modalMode === 'edit' ? setEditVenueForm({...editVenueForm, capacity_banquet:e.target.value}) : setNewVenue({...newVenue, capacity_banquet:e.target.value})} /></div>
-            <div className="form-group"><label className="form-label">Theater Capacity</label><input className="form-control" value={modalMode === 'edit' ? editVenueForm.capacity_theater : newVenue.capacity_theater} onChange={(e)=>modalMode === 'edit' ? setEditVenueForm({...editVenueForm, capacity_theater:e.target.value}) : setNewVenue({...newVenue, capacity_theater:e.target.value})} /></div>
+            <div className="form-group"><label className="form-label">Room size</label><input className="form-control" placeholder={'e.g., "6,617 sq. ft. 103 x 67 sq. ft."'} value={modalMode === 'edit' ? editVenueForm.attributes?.room_size_label : newVenue.attributes?.room_size_label} onChange={(e)=>modalMode === 'edit' ? setEditVenueForm({...editVenueForm, attributes:{...(editVenueForm.attributes||{}), room_size_label:e.target.value}}) : setNewVenue({...newVenue, attributes:{...(newVenue.attributes||{}), room_size_label:e.target.value}})} /></div>
+            <div className="form-group"><label className="form-label">Ceiling height</label><input className="form-control" placeholder={'e.g., "18 ft."'} value={modalMode === 'edit' ? editVenueForm.attributes?.ceiling_height_label : newVenue.attributes?.ceiling_height_label} onChange={(e)=>modalMode === 'edit' ? setEditVenueForm({...editVenueForm, attributes:{...(editVenueForm.attributes||{}), ceiling_height_label:e.target.value}}) : setNewVenue({...newVenue, attributes:{...(newVenue.attributes||{}), ceiling_height_label:e.target.value}})} /></div>
+            <div className="form-group"><label className="form-label">Maximum capacity</label><input className="form-control" value={modalMode === 'edit' ? editVenueForm.attributes?.maximum_capacity : newVenue.attributes?.maximum_capacity} onChange={(e)=>modalMode === 'edit' ? setEditVenueForm({...editVenueForm, attributes:{...(editVenueForm.attributes||{}), maximum_capacity:e.target.value}}) : setNewVenue({...newVenue, attributes:{...(newVenue.attributes||{}), maximum_capacity:e.target.value}})} /></div>
+            <div className="form-group"><label className="form-label">U-Shape</label><input className="form-control" value={modalMode === 'edit' ? editVenueForm.attributes?.u_shape : newVenue.attributes?.u_shape} onChange={(e)=>modalMode === 'edit' ? setEditVenueForm({...editVenueForm, attributes:{...(editVenueForm.attributes||{}), u_shape:e.target.value}}) : setNewVenue({...newVenue, attributes:{...(newVenue.attributes||{}), u_shape:e.target.value}})} /></div>
+            <div className="form-group"><label className="form-label">Banquet rounds</label><input className="form-control" value={modalMode === 'edit' ? editVenueForm.attributes?.banquet_rounds : newVenue.attributes?.banquet_rounds} onChange={(e)=>modalMode === 'edit' ? setEditVenueForm({...editVenueForm, attributes:{...(editVenueForm.attributes||{}), banquet_rounds:e.target.value}}) : setNewVenue({...newVenue, attributes:{...(newVenue.attributes||{}), banquet_rounds:e.target.value}})} /></div>
+            <div className="form-group"><label className="form-label">Cocktail rounds</label><input className="form-control" value={modalMode === 'edit' ? editVenueForm.attributes?.cocktail_rounds : newVenue.attributes?.cocktail_rounds} onChange={(e)=>modalMode === 'edit' ? setEditVenueForm({...editVenueForm, attributes:{...(editVenueForm.attributes||{}), cocktail_rounds:e.target.value}}) : setNewVenue({...newVenue, attributes:{...(newVenue.attributes||{}), cocktail_rounds:e.target.value}})} /></div>
+            <div className="form-group"><label className="form-label">Theater</label><input className="form-control" value={modalMode === 'edit' ? editVenueForm.attributes?.theater : newVenue.attributes?.theater} onChange={(e)=>modalMode === 'edit' ? setEditVenueForm({...editVenueForm, attributes:{...(editVenueForm.attributes||{}), theater:e.target.value}}) : setNewVenue({...newVenue, attributes:{...(newVenue.attributes||{}), theater:e.target.value}})} /></div>
+            <div className="form-group"><label className="form-label">Classroom</label><input className="form-control" value={modalMode === 'edit' ? editVenueForm.attributes?.classroom : newVenue.attributes?.classroom} onChange={(e)=>modalMode === 'edit' ? setEditVenueForm({...editVenueForm, attributes:{...(editVenueForm.attributes||{}), classroom:e.target.value}}) : setNewVenue({...newVenue, attributes:{...(newVenue.attributes||{}), classroom:e.target.value}})} /></div>
+            <div className="form-group"><label className="form-label">Boardroom</label><input className="form-control" value={modalMode === 'edit' ? editVenueForm.attributes?.boardroom : newVenue.attributes?.boardroom} onChange={(e)=>modalMode === 'edit' ? setEditVenueForm({...editVenueForm, attributes:{...(editVenueForm.attributes||{}), boardroom:e.target.value}}) : setNewVenue({...newVenue, attributes:{...(newVenue.attributes||{}), boardroom:e.target.value}})} /></div>
+            <div className="form-group"><label className="form-label">Crescent rounds (Cabaret)</label><input className="form-control" value={modalMode === 'edit' ? editVenueForm.attributes?.crescent_rounds_cabaret : newVenue.attributes?.crescent_rounds_cabaret} onChange={(e)=>modalMode === 'edit' ? setEditVenueForm({...editVenueForm, attributes:{...(editVenueForm.attributes||{}), crescent_rounds_cabaret:e.target.value}}) : setNewVenue({...newVenue, attributes:{...(newVenue.attributes||{}), crescent_rounds_cabaret:e.target.value}})} /></div>
+            <div className="form-group"><label className="form-label">Hollow square</label><input className="form-control" value={modalMode === 'edit' ? editVenueForm.attributes?.hollow_square : newVenue.attributes?.hollow_square} onChange={(e)=>modalMode === 'edit' ? setEditVenueForm({...editVenueForm, attributes:{...(editVenueForm.attributes||{}), hollow_square:e.target.value}}) : setNewVenue({...newVenue, attributes:{...(newVenue.attributes||{}), hollow_square:e.target.value}})} /></div>
+            <div className="form-group"><label className="form-label">Royal conference</label><input className="form-control" value={modalMode === 'edit' ? editVenueForm.attributes?.royal_conference : newVenue.attributes?.royal_conference} onChange={(e)=>modalMode === 'edit' ? setEditVenueForm({...editVenueForm, attributes:{...(editVenueForm.attributes||{}), royal_conference:e.target.value}}) : setNewVenue({...newVenue, attributes:{...(newVenue.attributes||{}), royal_conference:e.target.value}})} /></div>
             <div className="form-group full-width" style={{borderTop: '1px solid #e5e7eb', paddingTop: '1rem'}}>
               <h4>Image Gallery</h4>
               <div style={{display: 'flex', gap: '0.5rem', marginBottom: '1rem'}}>
