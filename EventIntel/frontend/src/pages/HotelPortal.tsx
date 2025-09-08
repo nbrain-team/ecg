@@ -144,8 +144,8 @@ function HotelPortal() {
   const fetchAll = async () => {
     try {
       setError('');
-      // Temporarily use public endpoints for Grand Velas demo
-      const isGrandVelasDemo = true; // Toggle this for production
+      // Use authenticated endpoints
+      const isGrandVelasDemo = false; // Toggle this for production
       
       const [h, sc, im, rm, vn, dn] = await Promise.all([
         axios.get(`${apiUrl}/api/hotels/me`, auth).catch(() => ({ data: { name: 'Grand Velas Los Cabos', city: 'Los Cabos', country: 'Mexico' } })),
@@ -581,11 +581,9 @@ function HotelPortal() {
                         <h4>{room.name}</h4>
                         <p>{room.description}</p>
                         <p className="room-info">
-                          {room.size_sqft && `${room.size_sqft} sq ft`}
-                          {room.view && ` • ${room.view} view`}
-                          {room.capacity && ` • Sleeps ${room.capacity}`}
+                          {room.attributes?.occupancy || ''}
+                          {room.attributes?.size_label ? ` • ${room.attributes.size_label}` : (room.size_sqft ? ` • ${room.size_sqft} sq ft` : '')}
                         </p>
-                        {room.base_rate && <p><strong>From ${room.base_rate}/night</strong></p>}
                       </div>
                     </div>
                     );
@@ -945,9 +943,7 @@ function HotelPortal() {
               <div className="card-content">
                 <h3>{r.name}</h3>
                 <p className="description">{r.description}</p>
-                <p className="room-info">{r.size_sqft ? `${r.size_sqft} sqft` : ''} {r.view ? `• ${r.view} view` : ''}</p>
-                <p className="capacity">Sleeps {r.capacity}</p>
-                <p className="capacity">${r.base_rate}/night</p>
+                <p className="room-info">{r.attributes?.occupancy || ''}{r.attributes?.size_label ? ` • ${r.attributes.size_label}` : (r.size_sqft ? ` • ${r.size_sqft} sqft` : '')}</p>
               </div>
             </div>
           ))}
