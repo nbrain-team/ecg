@@ -8,6 +8,7 @@
     "start": "node dist/index.js",
     "seed": "ts-node src/db/seed.ts",
     "import:rooms": "ts-node src/scripts/importRoomsFromCsv.ts",
+    "import:venues": "ts-node src/scripts/importVenuesFromCsv.ts",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
