@@ -60,10 +60,10 @@ function HotelPortal() {
   const [newVenue, setNewVenue] = useState<any>({ name: '', description: '', image1: '', images: [], attributes: { room_size_label: '', ceiling_height_label: '', maximum_capacity: '', u_shape: '', banquet_rounds: '', cocktail_rounds: '', theater: '', classroom: '', boardroom: '', crescent_rounds_cabaret: '', hollow_square: '', royal_conference: '' } });
   const [editingVenueId, setEditingVenueId] = useState<string | null>(null);
   const [editVenueForm, setEditVenueForm] = useState<any>({ name: '', description: '', image1: '', images: [], attributes: { room_size_label: '', ceiling_height_label: '', maximum_capacity: '', u_shape: '', banquet_rounds: '', cocktail_rounds: '', theater: '', classroom: '', boardroom: '', crescent_rounds_cabaret: '', hollow_square: '', royal_conference: '' } });
-  // Dining forms
-  const [newDiningOutlet, setNewDiningOutlet] = useState<any>({ name: '', cuisine: '', description: '', hours: '', dress_code: '', image1: '', attributes: { buyout_available: 'false', buyout_min_spend_usd: '', seating_capacity: '', standing_capacity: '', private_rooms_csv: '', outdoor: 'false', noise_restrictions_after: '' } });
+  // Dining forms (CSV-only fields)
+  const [newDiningOutlet, setNewDiningOutlet] = useState<any>({ name: '', cuisine: '', description: '', hours: '', dress_code: '', image1: '', images: [], attributes: { capacity: '', rules: '', reservation_required: '' } });
   const [editingDiningId, setEditingDiningId] = useState<string | null>(null);
-  const [editDiningForm, setEditDiningForm] = useState<any>({ name: '', cuisine: '', description: '', hours: '', dress_code: '', image1: '', attributes: { buyout_available: 'false', buyout_min_spend_usd: '', seating_capacity: '', standing_capacity: '', private_rooms_csv: '', outdoor: 'false', noise_restrictions_after: '' } });
+  const [editDiningForm, setEditDiningForm] = useState<any>({ name: '', cuisine: '', description: '', hours: '', dress_code: '', image1: '', images: [], attributes: { capacity: '', rules: '', reservation_required: '' } });
   
   // Image gallery state for modal forms
   const [currentImageUrl, setCurrentImageUrl] = useState('');
@@ -331,17 +331,13 @@ function HotelPortal() {
   // Dining CRUD
   const addDining = async () => {
     try {
-      const payload:any = { name: newDiningOutlet.name, cuisine: newDiningOutlet.cuisine, description: newDiningOutlet.description, hours: newDiningOutlet.hours, dress_code: newDiningOutlet.dress_code, images: newDiningOutlet.images?.length > 0 ? newDiningOutlet.images : (newDiningOutlet.image1 ? [newDiningOutlet.image1] : []), attributes: {
-        buyout_available: newDiningOutlet.attributes?.buyout_available === 'true',
-        buyout_min_spend_usd: newDiningOutlet.attributes?.buyout_min_spend_usd || '',
-        seating_capacity: newDiningOutlet.attributes?.seating_capacity || '',
-        standing_capacity: newDiningOutlet.attributes?.standing_capacity || '',
-        private_rooms_csv: newDiningOutlet.attributes?.private_rooms_csv || '',
-        outdoor: newDiningOutlet.attributes?.outdoor === 'true',
-        noise_restrictions_after: newDiningOutlet.attributes?.noise_restrictions_after || ''
-      } };
+      const payload:any = { 
+        name: newDiningOutlet.name, cuisine: newDiningOutlet.cuisine, description: newDiningOutlet.description, hours: newDiningOutlet.hours, dress_code: newDiningOutlet.dress_code, 
+        images: newDiningOutlet.images?.length > 0 ? newDiningOutlet.images : (newDiningOutlet.image1 ? [newDiningOutlet.image1] : []), 
+        attributes: { capacity: newDiningOutlet.attributes?.capacity || '', rules: newDiningOutlet.attributes?.rules || '', reservation_required: newDiningOutlet.attributes?.reservation_required || '' }
+      };
       await axios.post(`${apiUrl}/api/hotels/dining`, payload, auth);
-      setNewDiningOutlet({ name: '', cuisine: '', description: '', hours: '', dress_code: '', image1: '', attributes: { buyout_available:'false', buyout_min_spend_usd:'', seating_capacity:'', standing_capacity:'', private_rooms_csv:'', outdoor:'false', noise_restrictions_after:'' } });
+      setNewDiningOutlet({ name: '', cuisine: '', description: '', hours: '', dress_code: '', image1: '', images: [], attributes: { capacity:'', rules:'', reservation_required:'' } });
       fetchAll();
     } catch (e:any) { setError(e.response?.data?.message || 'Failed to add outlet'); }
   };
@@ -355,15 +351,7 @@ function HotelPortal() {
       dress_code: d.dress_code||'', 
       image1: Array.isArray(d.images)&&d.images[0]?d.images[0]:'',
       images: Array.isArray(d.images) ? d.images : [],
-      attributes: {
-        buyout_available: d.attributes?.buyout_available || 'false',
-        buyout_min_spend_usd: d.attributes?.buyout_min_spend_usd || '',
-        seating_capacity: d.attributes?.seating_capacity || '',
-        standing_capacity: d.attributes?.standing_capacity || '',
-        private_rooms_csv: d.attributes?.private_rooms_csv || '',
-        outdoor: d.attributes?.outdoor || 'false',
-        noise_restrictions_after: d.attributes?.noise_restrictions_after || ''
-      }
+      attributes: { capacity: d.attributes?.capacity || '', rules: d.attributes?.rules || '', reservation_required: d.attributes?.reservation_required || '' }
     }); 
     setModalType('dining');
     setModalMode('edit');
@@ -622,7 +610,10 @@ function HotelPortal() {
                         <h4>{outlet.name}</h4>
                         <p>{outlet.cuisine}</p>
                         <p>{outlet.description}</p>
-                        <p className="room-info">{outlet.hours}</p>
+                        <p className="room-info">{outlet.hours}{outlet.dress_code ? ` • ${outlet.dress_code}` : ''}</p>
+                        {outlet.attributes?.capacity && (
+                          <p className="room-info">Capacity: {outlet.attributes.capacity}</p>
+                        )}
                       </div>
                     </div>
                   ))}
