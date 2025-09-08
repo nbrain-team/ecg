@@ -155,13 +155,30 @@ function HotelPortal() {
         isGrandVelasDemo ? axios.get(`${apiUrl}/api/grand-velas/venues`) : axios.get(`${apiUrl}/api/hotels/venues`, auth),
         isGrandVelasDemo ? axios.get(`${apiUrl}/api/grand-velas/dining`) : axios.get(`${apiUrl}/api/hotels/dining`, auth)
       ]);
-      console.log('API responses:', { h: h.data, sc: sc.data, im: im.data, rm: rm.data, vn: vn.data, dn: dn.data });
+      const toAbsolute = (u: string) => (u && !u.startsWith('http') ? `${apiUrl}${u}` : u);
+      const mapImages = (arr: any[]) => Array.isArray(arr) ? arr.map(toAbsolute) : [];
+      const absRooms = (Array.isArray(rm.data) ? rm.data : []).map((r: any) => ({
+        ...r,
+        images: mapImages(r.images)
+      }));
+      const absVenues = (Array.isArray(vn.data) ? vn.data : []).map((v: any) => ({
+        ...v,
+        images: mapImages(v.images)
+      }));
+      const absDining = (Array.isArray(dn.data) ? dn.data : []).map((d: any) => ({
+        ...d,
+        images: mapImages(d.images)
+      }));
+      const absImages = (Array.isArray(im.data) ? im.data : []).map((i: any) => ({
+        ...i,
+        url: toAbsolute(i.url)
+      }));
       setHotel(h.data);
       setSchema(sc.data || {});
-      setImages(Array.isArray(im.data) ? im.data : []);
-      setRooms(Array.isArray(rm.data) ? rm.data : []);
-      setVenues(Array.isArray(vn.data) ? vn.data : []);
-      setDining(Array.isArray(dn.data) ? dn.data : []);
+      setImages(absImages);
+      setRooms(absRooms);
+      setVenues(absVenues);
+      setDining(absDining);
     } catch (err: any) {
       console.error('fetchAll error:', err);
       setError(err.response?.data?.message || 'Failed to load');
