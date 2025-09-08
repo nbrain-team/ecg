@@ -603,7 +603,7 @@ function HotelPortal() {
                     <div key={venue.id} className="room-card">
                       {venue.images?.[0] && (
                         <img 
-                          src={venue.images[0]} 
+                          src={(venue.images[0] || '').startsWith('http') ? venue.images[0] : `${apiUrl}${venue.images[0]}`} 
                           alt={venue.name}
                           onError={(e) => {
                             const target = e.target as HTMLImageElement;
@@ -635,7 +635,7 @@ function HotelPortal() {
                     <div key={outlet.id} className="room-card">
                       {outlet.images?.[0] && (
                         <img 
-                          src={outlet.images[0]} 
+                          src={(outlet.images[0] || '').startsWith('http') ? outlet.images[0] : `${apiUrl}${outlet.images[0]}`} 
                           alt={outlet.name}
                           onError={(e) => {
                             const target = e.target as HTMLImageElement;
