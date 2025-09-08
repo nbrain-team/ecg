@@ -876,7 +876,7 @@ function HotelPortal() {
         <div className="selection-grid">
           {(images || []).map(i => (
             <div key={i.id} className="selection-card">
-              <img src={i.url} alt={i.alt || ''} />
+              <img src={(i.url || '').startsWith('http') ? i.url : `${apiUrl}${i.url}`} alt={i.alt || ''} />
               <div className="card-content">
                 <p className="description">{i.category || 'image'}</p>
                 <div className="builder-actions">
