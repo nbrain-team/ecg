@@ -1066,7 +1066,7 @@ function HotelPortal() {
                 {((modalMode === 'edit' ? editRoomForm.images : newRoom.images) || []).map((img: string, idx: number) => (
                   <div key={idx} style={{position: 'relative', paddingBottom: '75%', background: '#f5f5f5', borderRadius: '4px', overflow: 'hidden'}}>
                     <img 
-                      src={img} 
+                      src={(img || '').startsWith('http') ? img : `${apiUrl}${img}`} 
                       alt={`Room ${idx + 1}`} 
                       style={{position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', objectFit: 'cover'}}
                       onError={(e) => {e.currentTarget.src = 'https://placehold.co/400x300?text=Invalid+Image'}}
@@ -1172,7 +1172,7 @@ function HotelPortal() {
                 {((modalMode === 'edit' ? editVenueForm.images : newVenue.images) || []).map((img: string, idx: number) => (
                   <div key={idx} style={{position: 'relative', paddingBottom: '75%', background: '#f5f5f5', borderRadius: '4px', overflow: 'hidden'}}>
                     <img 
-                      src={img} 
+                      src={(img || '').startsWith('http') ? img : `${apiUrl}${img}`} 
                       alt={`Venue ${idx + 1}`} 
                       style={{position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', objectFit: 'cover'}}
                       onError={(e) => {e.currentTarget.src = 'https://placehold.co/400x300?text=Invalid+Image'}}
@@ -1273,7 +1273,7 @@ function HotelPortal() {
                 {((modalMode === 'edit' ? editDiningForm.images : newDiningOutlet.images) || []).map((img: string, idx: number) => (
                   <div key={idx} style={{position: 'relative', paddingBottom: '75%', background: '#f5f5f5', borderRadius: '4px', overflow: 'hidden'}}>
                     <img 
-                      src={img} 
+                      src={(img || '').startsWith('http') ? img : `${apiUrl}${img}`} 
                       alt={`Dining ${idx + 1}`} 
                       style={{position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', objectFit: 'cover'}}
                       onError={(e) => {e.currentTarget.src = 'https://placehold.co/400x300?text=Invalid+Image'}}
