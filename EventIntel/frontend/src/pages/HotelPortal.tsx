@@ -578,9 +578,8 @@ function HotelPortal() {
                         <h4>{venue.name}</h4>
                         <p>{venue.description}</p>
                         <p className="room-info">
-                          {venue.sqft && `${venue.sqft} sq ft`}
-                          {venue.capacity_reception && ` • Reception: ${venue.capacity_reception}`}
-                          {venue.capacity_banquet && ` • Banquet: ${venue.capacity_banquet}`}
+                          {venue.attributes?.room_size_label || ''}
+                          {venue.attributes?.maximum_capacity ? ` • Max: ${venue.attributes.maximum_capacity}` : ''}
                         </p>
                       </div>
                     </div>
@@ -924,7 +923,7 @@ function HotelPortal() {
         <h2>Venues</h2>
         <div className="builder-actions">
           <button className="btn btn-primary" onClick={() => {
-            setNewVenue({ name: '', description: '', sqft: '', ceiling_height_ft: '', capacity_reception: '', capacity_banquet: '', capacity_theater: '', image1: '', images: [], attributes: { length_m:'', width_m:'', height_m:'', floor_type:'', natural_light:'false', rigging_points:'false', theater:'', classroom:'', banquet_rounds_10:'', reception:'', u_shape:'', boardroom:'', rental_fee_usd_day:'', setup_tear_down_fee_usd:'' } });
+            setNewVenue({ name: '', description: '', image1: '', images: [], attributes: { room_size_label:'', ceiling_height_label:'', maximum_capacity:'', u_shape:'', banquet_rounds:'', cocktail_rounds:'', theater:'', classroom:'', boardroom:'', crescent_rounds_cabaret:'', hollow_square:'', royal_conference:'' } });
             setModalType('venue');
             setModalMode('add');
             setModalOpen(true);
@@ -934,7 +933,7 @@ function HotelPortal() {
           {(venues || []).map(v => (
             <div key={v.id} className="selection-card clickable" onClick={() => startEditVenue(v)}>
               {Array.isArray(v.images) && v.images[0] && (
-                <img src={v.images[0]} alt={v.name} onError={(e) => {
+                <img src={(v.images[0] || '').startsWith('http') ? v.images[0] : `${apiUrl}${v.images[0]}`} alt={v.name} onError={(e) => {
                   const target = e.target as HTMLImageElement;
                   target.src = 'https://placehold.co/280x160?text=' + encodeURIComponent(v.name);
                 }} />
@@ -942,8 +941,8 @@ function HotelPortal() {
               <div className="card-content">
                 <h3>{v.name}</h3>
                 <p className="description">{v.description}</p>
-                <p className="size">{v.sqft} sq ft • {v.ceiling_height_ft} ft ceiling</p>
-                <p className="capacity">Reception {v.capacity_reception} • Banquet {v.capacity_banquet} • Theater {v.capacity_theater}</p>
+                <p className="size">{v.attributes?.room_size_label}{v.attributes?.ceiling_height_label ? ` • ${v.attributes.ceiling_height_label}` : ''}</p>
+                <p className="capacity">{v.attributes?.maximum_capacity ? `Maximum capacity ${v.attributes.maximum_capacity}` : ''}</p>
               </div>
             </div>
           ))}

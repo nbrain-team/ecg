@@ -9,6 +9,7 @@
     "seed": "ts-node src/db/seed.ts",
     "import:rooms": "ts-node src/scripts/importRoomsFromCsv.ts",
     "import:venues": "ts-node src/scripts/importVenuesFromCsv.ts",
+    "import:dining": "ts-node src/scripts/importDiningFromCsv.ts",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
