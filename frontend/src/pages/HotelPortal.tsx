@@ -52,10 +52,10 @@ function HotelPortal() {
 
   // Images form state
   const [imageForm, setImageForm] = useState<{url:string;alt:string;category:string}>({ url: '', alt: '', category: '' });
-  // Rooms forms state
-  const [newRoom, setNewRoom] = useState<any>({ name: '', description: '', size_sqft: '', view: '', capacity: '', base_rate: '', image1: '', attributes: { bed_configuration: '', connectable: 'false', max_occupancy: '', view_type: '', in_room_amenities_csv: '', accessibility_features_csv: '', typical_group_rate_low: '', typical_group_rate_high: '' } });
+  // Rooms forms state (CSV-based fields only)
+  const [newRoom, setNewRoom] = useState<any>({ name: '', description: '', image1: '', images: [], attributes: { occupancy: '', size_label: '', amenities: ['', '', '', ''] } });
   const [editingRoomId, setEditingRoomId] = useState<string | null>(null);
-  const [editRoomForm, setEditRoomForm] = useState<any>({ name: '', description: '', size_sqft: '', view: '', capacity: '', base_rate: '', image1: '', attributes: { bed_configuration: '', connectable: 'false', max_occupancy: '', view_type: '', in_room_amenities_csv: '', accessibility_features_csv: '', typical_group_rate_low: '', typical_group_rate_high: '' } });
+  const [editRoomForm, setEditRoomForm] = useState<any>({ name: '', description: '', image1: '', images: [], attributes: { occupancy: '', size_label: '', amenities: ['', '', '', ''] } });
   // Venues forms
   const [newVenue, setNewVenue] = useState<any>({ name: '', description: '', sqft: '', ceiling_height_ft: '', capacity_reception: '', capacity_banquet: '', capacity_theater: '', image1: '', attributes: { length_m: '', width_m: '', height_m: '', floor_type: '', natural_light: 'false', rigging_points: 'false', theater: '', classroom: '', banquet_rounds_10: '', reception: '', u_shape: '', boardroom: '', rental_fee_usd_day: '', setup_tear_down_fee_usd: '' } });
   const [editingVenueId, setEditingVenueId] = useState<string | null>(null);
@@ -144,8 +144,8 @@ function HotelPortal() {
   const fetchAll = async () => {
     try {
       setError('');
-      // Temporarily use public endpoints for Grand Velas demo
-      const isGrandVelasDemo = true; // Toggle this for production
+      // Use authenticated endpoints
+      const isGrandVelasDemo = false; // Toggle this for production
       
       const [h, sc, im, rm, vn, dn] = await Promise.all([
         axios.get(`${apiUrl}/api/hotels/me`, auth).catch(() => ({ data: { name: 'Grand Velas Los Cabos', city: 'Los Cabos', country: 'Mexico' } })),
@@ -155,13 +155,30 @@ function HotelPortal() {
         isGrandVelasDemo ? axios.get(`${apiUrl}/api/grand-velas/venues`) : axios.get(`${apiUrl}/api/hotels/venues`, auth),
         isGrandVelasDemo ? axios.get(`${apiUrl}/api/grand-velas/dining`) : axios.get(`${apiUrl}/api/hotels/dining`, auth)
       ]);
-      console.log('API responses:', { h: h.data, sc: sc.data, im: im.data, rm: rm.data, vn: vn.data, dn: dn.data });
+      const toAbsolute = (u: string) => (u && !u.startsWith('http') ? `${apiUrl}${u}` : u);
+      const mapImages = (arr: any[]) => Array.isArray(arr) ? arr.map(toAbsolute) : [];
+      const absRooms = (Array.isArray(rm.data) ? rm.data : []).map((r: any) => ({
+        ...r,
+        images: mapImages(r.images)
+      }));
+      const absVenues = (Array.isArray(vn.data) ? vn.data : []).map((v: any) => ({
+        ...v,
+        images: mapImages(v.images)
+      }));
+      const absDining = (Array.isArray(dn.data) ? dn.data : []).map((d: any) => ({
+        ...d,
+        images: mapImages(d.images)
+      }));
+      const absImages = (Array.isArray(im.data) ? im.data : []).map((i: any) => ({
+        ...i,
+        url: toAbsolute(i.url)
+      }));
       setHotel(h.data);
       setSchema(sc.data || {});
-      setImages(Array.isArray(im.data) ? im.data : []);
-      setRooms(Array.isArray(rm.data) ? rm.data : []);
-      setVenues(Array.isArray(vn.data) ? vn.data : []);
-      setDining(Array.isArray(dn.data) ? dn.data : []);
+      setImages(absImages);
+      setRooms(absRooms);
+      setVenues(absVenues);
+      setDining(absDining);
     } catch (err: any) {
       console.error('fetchAll error:', err);
       setError(err.response?.data?.message || 'Failed to load');
@@ -191,26 +208,15 @@ function HotelPortal() {
       const payload:any = {
         name: newRoom.name,
         description: newRoom.description,
-        size_sqft: Number(newRoom.size_sqft||0),
-        view: newRoom.view,
-        capacity: Number(newRoom.capacity||0),
-        base_rate: Number(newRoom.base_rate||0),
         images: newRoom.images?.length > 0 ? newRoom.images : (newRoom.image1 ? [newRoom.image1] : []),
         attributes: {
-          bed_configuration: newRoom.attributes?.bed_configuration || '',
-          connectable: newRoom.attributes?.connectable === 'true',
-          max_occupancy: newRoom.attributes?.max_occupancy || '',
-          view_type: newRoom.attributes?.view_type || '',
-          in_room_amenities: newRoom.attributes?.in_room_amenities_csv ? newRoom.attributes.in_room_amenities_csv.split(',').map((s:string) => s.trim()).filter(Boolean) : [],
-          accessibility_features: newRoom.attributes?.accessibility_features_csv ? newRoom.attributes.accessibility_features_csv.split(',').map((s:string) => s.trim()).filter(Boolean) : [],
-          typical_group_rate_usd: {
-            low: newRoom.attributes?.typical_group_rate_low ? Number(newRoom.attributes.typical_group_rate_low) : null,
-            high: newRoom.attributes?.typical_group_rate_high ? Number(newRoom.attributes.typical_group_rate_high) : null
-          }
+          occupancy: newRoom.attributes?.occupancy || '',
+          size_label: newRoom.attributes?.size_label || '',
+          amenities: (newRoom.attributes?.amenities || []).map((a:string)=>a||'').slice(0,4)
         }
       };
       await axios.post(`${apiUrl}/api/hotels/rooms`, payload, auth);
-      setNewRoom({ name: '', description: '', size_sqft: '', view: '', capacity: '', base_rate: '', image1: '', attributes: { bed_configuration: '', connectable: 'false', max_occupancy: '', view_type: '', in_room_amenities_csv: '', accessibility_features_csv: '', typical_group_rate_low: '', typical_group_rate_high: '' } });
+      setNewRoom({ name: '', description: '', image1: '', images: [], attributes: { occupancy: '', size_label: '', amenities: ['', '', '', ''] } });
       fetchAll();
     } catch (e:any) { setError(e.response?.data?.message || 'Failed to add room'); }
   };
@@ -219,21 +225,12 @@ function HotelPortal() {
     setEditRoomForm({ 
       name: r.name||'', 
       description: r.description||'', 
-      size_sqft: r.size_sqft||'', 
-      view: r.view||'', 
-      capacity: r.capacity||'', 
-      base_rate: r.base_rate||'', 
       image1: Array.isArray(r.images)&&r.images[0]?r.images[0]:'',
       images: Array.isArray(r.images) ? r.images : [],
       attributes: {
-        bed_configuration: r.attributes?.bed_configuration || '',
-        connectable: String(r.attributes?.connectable || 'false'),
-        max_occupancy: r.attributes?.max_occupancy || '',
-        view_type: r.attributes?.view_type || '',
-        in_room_amenities_csv: Array.isArray(r.attributes?.in_room_amenities) ? r.attributes.in_room_amenities.join(', ') : (r.attributes?.in_room_amenities_csv || ''),
-        accessibility_features_csv: Array.isArray(r.attributes?.accessibility_features) ? r.attributes.accessibility_features.join(', ') : (r.attributes?.accessibility_features_csv || ''),
-        typical_group_rate_low: r.attributes?.typical_group_rate_usd?.low || r.attributes?.typical_group_rate_low || '',
-        typical_group_rate_high: r.attributes?.typical_group_rate_usd?.high || r.attributes?.typical_group_rate_high || ''
+        occupancy: r.attributes?.occupancy || '',
+        size_label: r.attributes?.size_label || '',
+        amenities: Array.isArray(r.attributes?.amenities) ? r.attributes.amenities.slice(0,4) : ['', '', '', '']
       }
     });
     setModalType('room');
@@ -247,22 +244,11 @@ function HotelPortal() {
       const payload:any = {
         name: editRoomForm.name,
         description: editRoomForm.description,
-        size_sqft: editRoomForm.size_sqft === '' ? null : Number(editRoomForm.size_sqft),
-        view: editRoomForm.view,
-        capacity: editRoomForm.capacity === '' ? null : Number(editRoomForm.capacity),
-        base_rate: editRoomForm.base_rate === '' ? null : Number(editRoomForm.base_rate),
         images: editRoomForm.images?.length > 0 ? editRoomForm.images : (editRoomForm.image1 ? [editRoomForm.image1] : []),
         attributes: {
-          bed_configuration: editRoomForm.attributes?.bed_configuration || '',
-          connectable: editRoomForm.attributes?.connectable === 'true',
-          max_occupancy: editRoomForm.attributes?.max_occupancy || '',
-          view_type: editRoomForm.attributes?.view_type || '',
-          in_room_amenities: editRoomForm.attributes?.in_room_amenities_csv ? editRoomForm.attributes.in_room_amenities_csv.split(',').map((s:string) => s.trim()).filter(Boolean) : [],
-          accessibility_features: editRoomForm.attributes?.accessibility_features_csv ? editRoomForm.attributes.accessibility_features_csv.split(',').map((s:string) => s.trim()).filter(Boolean) : [],
-          typical_group_rate_usd: {
-            low: editRoomForm.attributes?.typical_group_rate_low ? Number(editRoomForm.attributes.typical_group_rate_low) : null,
-            high: editRoomForm.attributes?.typical_group_rate_high ? Number(editRoomForm.attributes.typical_group_rate_high) : null
-          }
+          occupancy: editRoomForm.attributes?.occupancy || '',
+          size_label: editRoomForm.attributes?.size_label || '',
+          amenities: (editRoomForm.attributes?.amenities || []).map((a:string)=>a||'').slice(0,4)
         }
       };
       await axios.put(`${apiUrl}/api/hotels/rooms/${editingRoomId}`, payload, auth);
@@ -568,7 +554,7 @@ function HotelPortal() {
                     <div key={room.id} className="room-card">
                       {room.images?.[0] && (
                         <img 
-                          src={room.images[0]} 
+                          src={(room.images[0] || '').startsWith('http') ? room.images[0] : `${apiUrl}${room.images[0]}`} 
                           alt={room.name} 
                           onError={(e) => {
                             console.error('Image failed to load:', room.images[0]);
@@ -581,11 +567,9 @@ function HotelPortal() {
                         <h4>{room.name}</h4>
                         <p>{room.description}</p>
                         <p className="room-info">
-                          {room.size_sqft && `${room.size_sqft} sq ft`}
-                          {room.view && ` • ${room.view} view`}
-                          {room.capacity && ` • Sleeps ${room.capacity}`}
+                          {room.attributes?.occupancy || ''}
+                          {room.attributes?.size_label ? ` • ${room.attributes.size_label}` : (room.size_sqft ? ` • ${room.size_sqft} sq ft` : '')}
                         </p>
-                        {room.base_rate && <p><strong>From ${room.base_rate}/night</strong></p>}
                       </div>
                     </div>
                     );
@@ -603,7 +587,7 @@ function HotelPortal() {
                     <div key={venue.id} className="room-card">
                       {venue.images?.[0] && (
                         <img 
-                          src={venue.images[0]} 
+                          src={(venue.images[0] || '').startsWith('http') ? venue.images[0] : `${apiUrl}${venue.images[0]}`} 
                           alt={venue.name}
                           onError={(e) => {
                             const target = e.target as HTMLImageElement;
@@ -635,7 +619,7 @@ function HotelPortal() {
                     <div key={outlet.id} className="room-card">
                       {outlet.images?.[0] && (
                         <img 
-                          src={outlet.images[0]} 
+                          src={(outlet.images[0] || '').startsWith('http') ? outlet.images[0] : `${apiUrl}${outlet.images[0]}`} 
                           alt={outlet.name}
                           onError={(e) => {
                             const target = e.target as HTMLImageElement;
@@ -909,7 +893,7 @@ function HotelPortal() {
         <div className="selection-grid">
           {(images || []).map(i => (
             <div key={i.id} className="selection-card">
-              <img src={i.url} alt={i.alt || ''} />
+              <img src={(i.url || '').startsWith('http') ? i.url : `${apiUrl}${i.url}`} alt={i.alt || ''} />
               <div className="card-content">
                 <p className="description">{i.category || 'image'}</p>
                 <div className="builder-actions">
@@ -937,7 +921,7 @@ function HotelPortal() {
           {(rooms || []).map(r => (
             <div key={r.id} className="selection-card clickable" onClick={() => startEditRoom(r)}>
               {Array.isArray(r.images) && r.images[0] && (
-                <img src={r.images[0]} alt={r.name} onError={(e) => {
+                <img src={(r.images[0] || '').startsWith('http') ? r.images[0] : `${apiUrl}${r.images[0]}`} alt={r.name} onError={(e) => {
                   const target = e.target as HTMLImageElement;
                   target.src = 'https://placehold.co/280x160?text=' + encodeURIComponent(r.name);
                 }} />
@@ -945,9 +929,7 @@ function HotelPortal() {
               <div className="card-content">
                 <h3>{r.name}</h3>
                 <p className="description">{r.description}</p>
-                <p className="room-info">{r.size_sqft ? `${r.size_sqft} sqft` : ''} {r.view ? `• ${r.view} view` : ''}</p>
-                <p className="capacity">Sleeps {r.capacity}</p>
-                <p className="capacity">${r.base_rate}/night</p>
+                <p className="room-info">{r.attributes?.occupancy || ''}{r.attributes?.size_label ? ` • ${r.attributes.size_label}` : (r.size_sqft ? ` • ${r.size_sqft} sqft` : '')}</p>
               </div>
             </div>
           ))}
@@ -1045,10 +1027,8 @@ function HotelPortal() {
           <div className="form-grid" style={{gap: '1rem'}}>
             <div className="form-group"><label className="form-label">Name</label><input className="form-control" value={modalMode === 'edit' ? editRoomForm.name : newRoom.name} onChange={(e)=>modalMode === 'edit' ? setEditRoomForm({...editRoomForm, name:e.target.value}) : setNewRoom({...newRoom, name:e.target.value})} /></div>
             <div className="form-group"><label className="form-label">Description</label><textarea className="form-control" rows={3} value={modalMode === 'edit' ? editRoomForm.description : newRoom.description} onChange={(e)=>modalMode === 'edit' ? setEditRoomForm({...editRoomForm, description:e.target.value}) : setNewRoom({...newRoom, description:e.target.value})} /></div>
-            <div className="form-group"><label className="form-label">Size (sqft)</label><input className="form-control" value={modalMode === 'edit' ? editRoomForm.size_sqft : newRoom.size_sqft} onChange={(e)=>modalMode === 'edit' ? setEditRoomForm({...editRoomForm, size_sqft:e.target.value}) : setNewRoom({...newRoom, size_sqft:e.target.value})} /></div>
-            <div className="form-group"><label className="form-label">View</label><input className="form-control" value={modalMode === 'edit' ? editRoomForm.view : newRoom.view} onChange={(e)=>modalMode === 'edit' ? setEditRoomForm({...editRoomForm, view:e.target.value}) : setNewRoom({...newRoom, view:e.target.value})} /></div>
-            <div className="form-group"><label className="form-label">Capacity</label><input className="form-control" value={modalMode === 'edit' ? editRoomForm.capacity : newRoom.capacity} onChange={(e)=>modalMode === 'edit' ? setEditRoomForm({...editRoomForm, capacity:e.target.value}) : setNewRoom({...newRoom, capacity:e.target.value})} /></div>
-            <div className="form-group"><label className="form-label">Base Rate (USD)</label><input className="form-control" value={modalMode === 'edit' ? editRoomForm.base_rate : newRoom.base_rate} onChange={(e)=>modalMode === 'edit' ? setEditRoomForm({...editRoomForm, base_rate:e.target.value}) : setNewRoom({...newRoom, base_rate:e.target.value})} /></div>
+            <div className="form-group"><label className="form-label">Occupancy</label><input className="form-control" value={modalMode === 'edit' ? (editRoomForm.attributes?.occupancy || '') : (newRoom.attributes?.occupancy || '')} onChange={(e)=>modalMode === 'edit' ? setEditRoomForm({...editRoomForm, attributes:{...(editRoomForm.attributes||{}), occupancy:e.target.value}}) : setNewRoom({...newRoom, attributes:{...(newRoom.attributes||{}), occupancy:e.target.value}})} /></div>
+            <div className="form-group"><label className="form-label">Size (label)</label><input className="form-control" placeholder={'e.g., "1,081 sq. ft."'} value={modalMode === 'edit' ? (editRoomForm.attributes?.size_label || '') : (newRoom.attributes?.size_label || '')} onChange={(e)=>modalMode === 'edit' ? setEditRoomForm({...editRoomForm, attributes:{...(editRoomForm.attributes||{}), size_label:e.target.value}}) : setNewRoom({...newRoom, attributes:{...(newRoom.attributes||{}), size_label:e.target.value}})} /></div>
             <div className="form-group full-width" style={{borderTop: '1px solid #e5e7eb', paddingTop: '1rem'}}>
               <h4>Image Gallery</h4>
               <div style={{display: 'flex', gap: '0.5rem', marginBottom: '1rem'}}>
@@ -1103,7 +1083,7 @@ function HotelPortal() {
                 {((modalMode === 'edit' ? editRoomForm.images : newRoom.images) || []).map((img: string, idx: number) => (
                   <div key={idx} style={{position: 'relative', paddingBottom: '75%', background: '#f5f5f5', borderRadius: '4px', overflow: 'hidden'}}>
                     <img 
-                      src={img} 
+                      src={(img || '').startsWith('http') ? img : `${apiUrl}${img}`} 
                       alt={`Room ${idx + 1}`} 
                       style={{position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', objectFit: 'cover'}}
                       onError={(e) => {e.currentTarget.src = 'https://placehold.co/400x300?text=Invalid+Image'}}
@@ -1128,15 +1108,11 @@ function HotelPortal() {
                 ))}
               </div>
             </div>
-            <div className="form-group full-width" style={{borderTop: '1px solid #e5e7eb', paddingTop: '1rem'}}><h4>Additional Details</h4></div>
-            <div className="form-group"><label className="form-label">Bed Configuration</label><input className="form-control" placeholder="e.g., King, Two Queens" value={modalMode === 'edit' ? editRoomForm.attributes.bed_configuration : newRoom.attributes.bed_configuration} onChange={(e)=>modalMode === 'edit' ? setEditRoomForm({...editRoomForm, attributes:{...editRoomForm.attributes, bed_configuration:e.target.value}}) : setNewRoom({...newRoom, attributes:{...newRoom.attributes, bed_configuration:e.target.value}})} /></div>
-            <div className="form-group"><label className="form-label">Connectable</label><select className="form-control" value={modalMode === 'edit' ? editRoomForm.attributes.connectable : newRoom.attributes.connectable} onChange={(e)=>modalMode === 'edit' ? setEditRoomForm({...editRoomForm, attributes:{...editRoomForm.attributes, connectable:e.target.value}}) : setNewRoom({...newRoom, attributes:{...newRoom.attributes, connectable:e.target.value}})}><option value="false">No</option><option value="true">Yes</option></select></div>
-            <div className="form-group"><label className="form-label">Max Occupancy</label><input className="form-control" value={modalMode === 'edit' ? editRoomForm.attributes.max_occupancy : newRoom.attributes.max_occupancy} onChange={(e)=>modalMode === 'edit' ? setEditRoomForm({...editRoomForm, attributes:{...editRoomForm.attributes, max_occupancy:e.target.value}}) : setNewRoom({...newRoom, attributes:{...newRoom.attributes, max_occupancy:e.target.value}})} /></div>
-            <div className="form-group"><label className="form-label">View Type</label><input className="form-control" placeholder="e.g., Ocean, Garden, City" value={modalMode === 'edit' ? editRoomForm.attributes.view_type : newRoom.attributes.view_type} onChange={(e)=>modalMode === 'edit' ? setEditRoomForm({...editRoomForm, attributes:{...editRoomForm.attributes, view_type:e.target.value}}) : setNewRoom({...newRoom, attributes:{...newRoom.attributes, view_type:e.target.value}})} /></div>
-            <div className="form-group full-width"><label className="form-label">In-Room Amenities</label><textarea className="form-control" rows={2} placeholder="Comma-separated list" value={modalMode === 'edit' ? editRoomForm.attributes.in_room_amenities_csv : newRoom.attributes.in_room_amenities_csv} onChange={(e)=>modalMode === 'edit' ? setEditRoomForm({...editRoomForm, attributes:{...editRoomForm.attributes, in_room_amenities_csv:e.target.value}}) : setNewRoom({...newRoom, attributes:{...newRoom.attributes, in_room_amenities_csv:e.target.value}})} /></div>
-            <div className="form-group full-width"><label className="form-label">Accessibility Features</label><textarea className="form-control" rows={2} placeholder="Comma-separated list" value={modalMode === 'edit' ? editRoomForm.attributes.accessibility_features_csv : newRoom.attributes.accessibility_features_csv} onChange={(e)=>modalMode === 'edit' ? setEditRoomForm({...editRoomForm, attributes:{...editRoomForm.attributes, accessibility_features_csv:e.target.value}}) : setNewRoom({...newRoom, attributes:{...newRoom.attributes, accessibility_features_csv:e.target.value}})} /></div>
-            <div className="form-group"><label className="form-label">Group Rate Low (USD)</label><input className="form-control" value={modalMode === 'edit' ? editRoomForm.attributes.typical_group_rate_low : newRoom.attributes.typical_group_rate_low} onChange={(e)=>modalMode === 'edit' ? setEditRoomForm({...editRoomForm, attributes:{...editRoomForm.attributes, typical_group_rate_low:e.target.value}}) : setNewRoom({...newRoom, attributes:{...newRoom.attributes, typical_group_rate_low:e.target.value}})} /></div>
-            <div className="form-group"><label className="form-label">Group Rate High (USD)</label><input className="form-control" value={modalMode === 'edit' ? editRoomForm.attributes.typical_group_rate_high : newRoom.attributes.typical_group_rate_high} onChange={(e)=>modalMode === 'edit' ? setEditRoomForm({...editRoomForm, attributes:{...editRoomForm.attributes, typical_group_rate_high:e.target.value}}) : setNewRoom({...newRoom, attributes:{...newRoom.attributes, typical_group_rate_high:e.target.value}})} /></div>
+            <div className="form-group full-width" style={{borderTop: '1px solid #e5e7eb', paddingTop: '1rem'}}><h4>Room Amenities (CSV)</h4></div>
+            <div className="form-group full-width"><label className="form-label">Amenities 1</label><input className="form-control" value={modalMode==='edit' ? ((editRoomForm.attributes?.amenities||[])[0] || '') : ((newRoom.attributes?.amenities||[])[0] || '')} onChange={(e)=>{ const arr=(modalMode==='edit'?(editRoomForm.attributes?.amenities||[]):(newRoom.attributes?.amenities||[])).slice(); arr[0]=e.target.value; if(modalMode==='edit'){ setEditRoomForm({...editRoomForm, attributes:{...(editRoomForm.attributes||{}), amenities:arr}});} else { setNewRoom({...newRoom, attributes:{...(newRoom.attributes||{}), amenities:arr}});} }} /></div>
+            <div className="form-group full-width"><label className="form-label">Amenities 2</label><input className="form-control" value={modalMode==='edit' ? ((editRoomForm.attributes?.amenities||[])[1] || '') : ((newRoom.attributes?.amenities||[])[1] || '')} onChange={(e)=>{ const arr=(modalMode==='edit'?(editRoomForm.attributes?.amenities||[]):(newRoom.attributes?.amenities||[])).slice(); arr[1]=e.target.value; if(modalMode==='edit'){ setEditRoomForm({...editRoomForm, attributes:{...(editRoomForm.attributes||{}), amenities:arr}});} else { setNewRoom({...newRoom, attributes:{...(newRoom.attributes||{}), amenities:arr}});} }} /></div>
+            <div className="form-group full-width"><label className="form-label">Amenities 3</label><input className="form-control" value={modalMode==='edit' ? ((editRoomForm.attributes?.amenities||[])[2] || '') : ((newRoom.attributes?.amenities||[])[2] || '')} onChange={(e)=>{ const arr=(modalMode==='edit'?(editRoomForm.attributes?.amenities||[]):(newRoom.attributes?.amenities||[])).slice(); arr[2]=e.target.value; if(modalMode==='edit'){ setEditRoomForm({...editRoomForm, attributes:{...(editRoomForm.attributes||{}), amenities:arr}});} else { setNewRoom({...newRoom, attributes:{...(newRoom.attributes||{}), amenities:arr}});} }} /></div>
+            <div className="form-group full-width"><label className="form-label">Amenities 4</label><input className="form-control" value={modalMode==='edit' ? ((editRoomForm.attributes?.amenities||[])[3] || '') : ((newRoom.attributes?.amenities||[])[3] || '')} onChange={(e)=>{ const arr=(modalMode==='edit'?(editRoomForm.attributes?.amenities||[]):(newRoom.attributes?.amenities||[])).slice(); arr[3]=e.target.value; if(modalMode==='edit'){ setEditRoomForm({...editRoomForm, attributes:{...(editRoomForm.attributes||{}), amenities:arr}});} else { setNewRoom({...newRoom, attributes:{...(newRoom.attributes||{}), amenities:arr}});} }} /></div>
             <div className="builder-actions full-width" style={{marginTop: '1.5rem'}}>
               <button className="btn btn-primary" onClick={async () => {
                 if (modalMode === 'edit') {
@@ -1213,7 +1189,7 @@ function HotelPortal() {
                 {((modalMode === 'edit' ? editVenueForm.images : newVenue.images) || []).map((img: string, idx: number) => (
                   <div key={idx} style={{position: 'relative', paddingBottom: '75%', background: '#f5f5f5', borderRadius: '4px', overflow: 'hidden'}}>
                     <img 
-                      src={img} 
+                      src={(img || '').startsWith('http') ? img : `${apiUrl}${img}`} 
                       alt={`Venue ${idx + 1}`} 
                       style={{position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', objectFit: 'cover'}}
                       onError={(e) => {e.currentTarget.src = 'https://placehold.co/400x300?text=Invalid+Image'}}
@@ -1314,7 +1290,7 @@ function HotelPortal() {
                 {((modalMode === 'edit' ? editDiningForm.images : newDiningOutlet.images) || []).map((img: string, idx: number) => (
                   <div key={idx} style={{position: 'relative', paddingBottom: '75%', background: '#f5f5f5', borderRadius: '4px', overflow: 'hidden'}}>
                     <img 
-                      src={img} 
+                      src={(img || '').startsWith('http') ? img : `${apiUrl}${img}`} 
                       alt={`Dining ${idx + 1}`} 
                       style={{position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', objectFit: 'cover'}}
                       onError={(e) => {e.currentTarget.src = 'https://placehold.co/400x300?text=Invalid+Image'}}
