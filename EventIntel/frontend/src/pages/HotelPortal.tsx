@@ -1103,6 +1103,9 @@ function HotelPortal() {
                 }
                 setModalOpen(false);
               }}>{modalMode === 'edit' ? 'Save Changes' : 'Add Room'}</button>
+              {modalMode === 'edit' && editingRoomId && (
+                <button className="btn btn-outline" onClick={async () => { await removeRoom(editingRoomId); setModalOpen(false); }}>Delete</button>
+              )}
               <button className="btn btn-outline" onClick={() => setModalOpen(false)}>Cancel</button>
             </div>
           </div>
@@ -1211,6 +1214,9 @@ function HotelPortal() {
                 }
                 setModalOpen(false);
               }}>{modalMode === 'edit' ? 'Save Changes' : 'Add Venue'}</button>
+              {modalMode === 'edit' && editingVenueId && (
+                <button className="btn btn-outline" onClick={async () => { await removeVenue(editingVenueId); setModalOpen(false); }}>Delete</button>
+              )}
               <button className="btn btn-outline" onClick={() => setModalOpen(false)}>Cancel</button>
             </div>
           </div>
@@ -1312,6 +1318,9 @@ function HotelPortal() {
                 }
                 setModalOpen(false);
               }}>{modalMode === 'edit' ? 'Save Changes' : 'Add Dining Outlet'}</button>
+              {modalMode === 'edit' && editingDiningId && (
+                <button className="btn btn-outline" onClick={async () => { await removeDining(editingDiningId); setModalOpen(false); }}>Delete</button>
+              )}
               <button className="btn btn-outline" onClick={() => setModalOpen(false)}>Cancel</button>
             </div>
           </div>
