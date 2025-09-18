@@ -1,1 +1,7 @@
+# Allow direct access to static proposal page
+/proposal-static.html    /proposal-static.html    200
+/proposal-design.css     /proposal-design.css     200
+/images/*               /images/:splat           200
+
+# Catch all - send everything else to React app
 /*    /index.html   200
