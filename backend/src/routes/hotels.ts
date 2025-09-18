@@ -472,7 +472,7 @@ router.post('/import/loscabos', requireAuth(['admin']), async (req: Authenticate
 
     const fetchHtml = async (url: string) => {
       const r = await axios.get(url, { headers: { 'User-Agent': 'Mozilla/5.0 ECG-Importer' } });
-      return cheerio.load(r.data);
+      return cheerio.load(String(r.data));
     };
 
     const uploadBuffer = async (filename: string, mimetype: string, data: Buffer) => {
@@ -541,9 +541,9 @@ router.post('/import/loscabos', requireAuth(['admin']), async (req: Authenticate
     // Download images and create records
     const toBuffer = async (url: string) => {
       const resp = await axios.get(url, { responseType: 'arraybuffer' });
-      const ct = resp.headers['content-type'] || 'image/jpeg';
-      const name = url.split('/').pop() || 'image.jpg';
-      const savedUrl = await uploadBuffer(name, ct, Buffer.from(resp.data));
+      const ct = String(resp.headers['content-type'] || 'image/jpeg');
+      const name = (url.split('/').pop() || 'image.jpg') as string;
+      const savedUrl = await uploadBuffer(name, ct, Buffer.from(resp.data as ArrayBuffer));
       return savedUrl;
     };
 

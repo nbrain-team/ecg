@@ -115,6 +115,23 @@ export interface Proposal {
       doubleRooms: number;
       suitesNotes?: string;
     };
+    // New fields from 16-question flow
+    eventType?: string;
+    preferredDates?: string;
+    datesFlexible?: boolean;
+    flexibleDateRange?: string;
+    numberOfNights?: number;
+    daysPattern?: string;
+    attendeeRooms?: number;
+    staffRooms?: number;
+    doubleOccupancy?: boolean;
+    roomView?: 'ocean' | 'run_of_house';
+    suiteCount?: number;
+    privateSatelliteCheckIn?: boolean;
+    businessSessions?: { day: number; description?: string }[];
+    awardsDinner?: { night: number };
+    dineArounds?: { nights: number[] };
+    otherEvents?: { day: number; description: string }[];
   };
   destination: Destination;
   resort: Resort;

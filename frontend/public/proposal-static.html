@@ -1,0 +1,1071 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Event Proposal - Grand Velas Los Cabos</title>
+    <link rel="stylesheet" href="proposal-design.css">
+</head>
+<body>
+    <!-- Top Bar -->
+    <div class="top-bar">
+        <div class="top-bar-content">
+            <div class="top-bar-title">Grand Velas Los Cabos</div>
+            <button class="save-button">Save</button>
+        </div>
+    </div>
+
+    <!-- Header Section -->
+    <header class="proposal-header">
+        <div class="header-background" style="background-image: url('/images/hotel-overview.webp');"></div>
+        <div class="header-content">
+            <h1 class="company-name">ESLER<br><span class="company-subtitle">COMPANIES</span></h1>
+            <h2 class="event-name">TPC 2027</h2>
+            <p class="event-subtitle">Destination Options & Pricing Summary</p>
+            <div class="header-ecg-logo">
+                <img src="/images/ecg-logo.avif" alt="ECG">
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="proposal-content">
+        <!-- Introduction Section -->
+        <div class="section-header">
+            <h2 class="section-title">Your Event Experience</h2>
+            <p class="section-subtitle">March 15-18, 2025 • 150 Attendees</p>
+        </div>
+
+        <!-- Rooms Section -->
+        <div class="rooms-container">
+            <!-- Grand Class Suite -->
+            <div class="room-card" onclick="openRoomModal('grand-class')">
+                <div class="room-images">
+                    <div class="room-main-image">
+                        <img src="/images/rooms/grand-class-suite.jpg" alt="Grand Class Suite">
+                    </div>
+                    <div class="room-thumbnails">
+                        <div class="room-thumbnail">
+                            <img src="/images/rooms/grand-class-spa-suite.jpg" alt="Grand Class Suite View">
+                        </div>
+                        <div class="room-thumbnail">
+                            <img src="/images/rooms/wellness-suite.jpg" alt="Grand Class Suite Amenities">
+                        </div>
+                    </div>
+                </div>
+                <div class="room-info">
+                    <div class="room-header">
+                        <div>
+                            <h3 class="room-name">Grand Class Suite</h3>
+                            <p class="room-category">Premium Ocean View</p>
+                        </div>
+                        <div class="room-capacity">
+                            <div class="capacity-number">45</div>
+                            <div class="capacity-label">ROOMS</div>
+                        </div>
+                    </div>
+                    <p class="room-description">
+                        Experience luxury redefined in our Grand Class Suites, featuring panoramic ocean views, 
+                        contemporary Mexican design, and spacious living areas. Each suite offers a private terrace 
+                        with plunge pool, premium amenities, and personalized concierge service.
+                    </p>
+                    <div class="room-features">
+                        <div class="feature-item">
+                            <span class="feature-icon">✓</span>
+                            <span>1,100 sq ft living space</span>
+                        </div>
+                        <div class="feature-item">
+                            <span class="feature-icon">✓</span>
+                            <span>Private plunge pool</span>
+                        </div>
+                        <div class="feature-item">
+                            <span class="feature-icon">✓</span>
+                            <span>King bed configuration</span>
+                        </div>
+                        <div class="feature-item">
+                            <span class="feature-icon">✓</span>
+                            <span>24-hour room service</span>
+                        </div>
+                    </div>
+                    <div class="room-details">
+                        <div class="detail-item">
+                            <div class="detail-label">Maximum Occupancy</div>
+                            <div class="detail-value">3 Adults</div>
+                        </div>
+                        <div class="detail-item">
+                            <div class="detail-label">View Type</div>
+                            <div class="detail-value">Ocean Front</div>
+                        </div>
+                        <div class="detail-item">
+                            <div class="detail-label">Suite Size</div>
+                            <div class="detail-value">1,100 sq ft</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Ambassador Pool Suite -->
+            <div class="room-card" onclick="openRoomModal('ambassador')">
+                <div class="room-images">
+                    <div class="room-main-image">
+                        <img src="/images/rooms/ambassador-pool-suite.jpg" alt="Ambassador Pool Suite">
+                    </div>
+                    <div class="room-thumbnails">
+                        <div class="room-thumbnail">
+                            <img src="/images/rooms/ambassador-ocean-suite.jpg" alt="Ambassador Suite View">
+                        </div>
+                        <div class="room-thumbnail">
+                            <img src="/images/rooms/ambassador-spa-suite.jpg" alt="Ambassador Suite Amenities">
+                        </div>
+                    </div>
+                </div>
+                <div class="room-info">
+                    <div class="room-header">
+                        <div>
+                            <h3 class="room-name">Ambassador Pool Suite</h3>
+                            <p class="room-category">Ultra Luxury Collection</p>
+                        </div>
+                        <div class="room-capacity">
+                            <div class="capacity-number">20</div>
+                            <div class="capacity-label">ROOMS</div>
+                        </div>
+                    </div>
+                    <p class="room-description">
+                        The pinnacle of luxury accommodation at Grand Velas Los Cabos. These expansive suites feature 
+                        separate living and dining areas, oversized terraces with private pools, and breathtaking views 
+                        of the Sea of Cortez. Perfect for executives and VIP guests.
+                    </p>
+                    <div class="room-features">
+                        <div class="feature-item">
+                            <span class="feature-icon">✓</span>
+                            <span>2,100 sq ft living space</span>
+                        </div>
+                        <div class="feature-item">
+                            <span class="feature-icon">✓</span>
+                            <span>Full-size private pool</span>
+                        </div>
+                        <div class="feature-item">
+                            <span class="feature-icon">✓</span>
+                            <span>Separate living room</span>
+                        </div>
+                        <div class="feature-item">
+                            <span class="feature-icon">✓</span>
+                            <span>Personal concierge</span>
+                        </div>
+                    </div>
+                    <div class="room-details">
+                        <div class="detail-item">
+                            <div class="detail-label">Maximum Occupancy</div>
+                            <div class="detail-value">4 Adults</div>
+                        </div>
+                        <div class="detail-item">
+                            <div class="detail-label">View Type</div>
+                            <div class="detail-value">Ocean Front Premium</div>
+                        </div>
+                        <div class="detail-item">
+                            <div class="detail-label">Suite Size</div>
+                            <div class="detail-value">2,100 sq ft</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Master Suite -->
+            <div class="room-card" onclick="openRoomModal('master')">
+                <div class="room-images">
+                    <div class="room-main-image">
+                        <img src="/images/rooms/master-ocean-suite.jpg" alt="Master Ocean Suite">
+                    </div>
+                    <div class="room-thumbnails">
+                        <div class="room-thumbnail">
+                            <img src="/images/rooms/master-pool-suite.jpg" alt="Master Suite View">
+                        </div>
+                        <div class="room-thumbnail">
+                            <img src="/images/rooms/master-spa-suite.jpg" alt="Master Suite Amenities">
+                        </div>
+                    </div>
+                </div>
+                <div class="room-info">
+                    <div class="room-header">
+                        <div>
+                            <h3 class="room-name">Master Ocean Suite</h3>
+                            <p class="room-category">Executive Accommodation</p>
+                        </div>
+                        <div class="room-capacity">
+                            <div class="capacity-number">10</div>
+                            <div class="capacity-label">ROOMS</div>
+                        </div>
+                    </div>
+                    <p class="room-description">
+                        Sophisticated and spacious, our Master Ocean Suites offer the perfect blend of comfort and elegance. 
+                        Features include marble bathrooms with double vanities, rain showers, and deep soaking tubs, 
+                        complemented by stunning ocean vistas from your private terrace.
+                    </p>
+                    <div class="room-features">
+                        <div class="feature-item">
+                            <span class="feature-icon">✓</span>
+                            <span>1,500 sq ft living space</span>
+                        </div>
+                        <div class="feature-item">
+                            <span class="feature-icon">✓</span>
+                            <span>Jacuzzi on terrace</span>
+                        </div>
+                        <div class="feature-item">
+                            <span class="feature-icon">✓</span>
+                            <span>Walk-in closet</span>
+                        </div>
+                        <div class="feature-item">
+                            <span class="feature-icon">✓</span>
+                            <span>Premium bar selection</span>
+                        </div>
+                    </div>
+                    <div class="room-details">
+                        <div class="detail-item">
+                            <div class="detail-label">Maximum Occupancy</div>
+                            <div class="detail-value">3 Adults</div>
+                        </div>
+                        <div class="detail-item">
+                            <div class="detail-label">View Type</div>
+                            <div class="detail-value">Ocean View</div>
+                        </div>
+                        <div class="detail-item">
+                            <div class="detail-label">Suite Size</div>
+                            <div class="detail-value">1,500 sq ft</div>
+                        </div>
+                    </div>
+                </div>
+                </div>
+            </div>
+
+            <!-- Presidential Suite -->
+            <div class="room-card" onclick="openRoomModal('presidential')">
+                <div class="room-images">
+                    <div class="room-main-image">
+                        <img src="/images/rooms/presidential-suite.jpg" alt="Presidential Suite">
+                    </div>
+                    <div class="room-thumbnails">
+                        <div class="room-thumbnail">
+                            <img src="/images/rooms/imperial-suite.jpg" alt="Presidential Suite View">
+                        </div>
+                        <div class="room-thumbnail">
+                            <img src="/images/rooms/two-bedroom-family-suite.jpg" alt="Presidential Suite Amenities">
+                        </div>
+                    </div>
+                </div>
+                <div class="room-info">
+                    <div class="room-header">
+                        <div>
+                            <h3 class="room-name">Presidential Suite</h3>
+                            <p class="room-category">Ultimate Luxury Experience</p>
+                        </div>
+                        <div class="room-capacity">
+                            <div class="capacity-number">2</div>
+                            <div class="capacity-label">SUITES</div>
+                        </div>
+                    </div>
+                    <p class="room-description">
+                        The crown jewel of Grand Velas Los Cabos, our Presidential Suites redefine luxury with expansive 
+                        living spaces, private butler service, and unparalleled ocean views. Perfect for your VIP executives 
+                        and distinguished guests who expect nothing but the absolute best.
+                    </p>
+                    <div class="room-features">
+                        <div class="feature-item">
+                            <span class="feature-icon">✓</span>
+                            <span>4,000 sq ft living space</span>
+                        </div>
+                        <div class="feature-item">
+                            <span class="feature-icon">✓</span>
+                            <span>Private infinity pool</span>
+                        </div>
+                        <div class="feature-item">
+                            <span class="feature-icon">✓</span>
+                            <span>Multiple bedrooms</span>
+                        </div>
+                        <div class="feature-item">
+                            <span class="feature-icon">✓</span>
+                            <span>24-hour butler service</span>
+                        </div>
+                    </div>
+                    <div class="room-details">
+                        <div class="detail-item">
+                            <div class="detail-label">Maximum Occupancy</div>
+                            <div class="detail-value">6 Adults</div>
+                        </div>
+                        <div class="detail-item">
+                            <div class="detail-label">View Type</div>
+                            <div class="detail-value">Panoramic Ocean</div>
+                        </div>
+                        <div class="detail-item">
+                            <div class="detail-label">Suite Size</div>
+                            <div class="detail-value">4,000 sq ft</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Imperial Suite -->
+            <div class="room-card" onclick="openRoomModal('imperial')">
+                <div class="room-images">
+                    <div class="room-main-image">
+                        <img src="/images/rooms/imperial-suite.jpg" alt="Imperial Suite">
+                    </div>
+                    <div class="room-thumbnails">
+                        <div class="room-thumbnail">
+                            <img src="/images/rooms/wellness-suite.jpg" alt="Imperial Suite View">
+                        </div>
+                        <div class="room-thumbnail">
+                            <img src="/images/rooms/grand-class-spa-suite.jpg" alt="Imperial Suite Amenities">
+                        </div>
+                    </div>
+                </div>
+                <div class="room-info">
+                    <div class="room-header">
+                        <div>
+                            <h3 class="room-name">Imperial Suite</h3>
+                            <p class="room-category">Executive Premium Collection</p>
+                        </div>
+                        <div class="room-capacity">
+                            <div class="capacity-number">8</div>
+                            <div class="capacity-label">SUITES</div>
+                        </div>
+                    </div>
+                    <p class="room-description">
+                        Imperial Suites offer an extraordinary level of luxury with expansive indoor and outdoor living spaces, 
+                        premium amenities, and stunning views. These suites feature sophisticated décor, state-of-the-art 
+                        technology, and exclusive access to VIP areas throughout the resort.
+                    </p>
+                    <div class="room-features">
+                        <div class="feature-item">
+                            <span class="feature-icon">✓</span>
+                            <span>2,800 sq ft living space</span>
+                        </div>
+                        <div class="feature-item">
+                            <span class="feature-icon">✓</span>
+                            <span>Private hot tub</span>
+                        </div>
+                        <div class="feature-item">
+                            <span class="feature-icon">✓</span>
+                            <span>Entertainment system</span>
+                        </div>
+                        <div class="feature-item">
+                            <span class="feature-icon">✓</span>
+                            <span>VIP check-in</span>
+                        </div>
+                    </div>
+                    <div class="room-details">
+                        <div class="detail-item">
+                            <div class="detail-label">Maximum Occupancy</div>
+                            <div class="detail-value">4 Adults</div>
+                        </div>
+                        <div class="detail-item">
+                            <div class="detail-label">View Type</div>
+                            <div class="detail-value">Ocean Front Deluxe</div>
+                        </div>
+                        <div class="detail-item">
+                            <div class="detail-label">Suite Size</div>
+                            <div class="detail-value">2,800 sq ft</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Summary Section -->
+        <div class="summary-section">
+            <div class="summary-content">
+                <h2 class="section-title">Event Overview</h2>
+                <div class="summary-grid">
+                    <div class="summary-item">
+                        <div class="summary-value">150</div>
+                        <div class="summary-label">Total Attendees</div>
+                    </div>
+                    <div class="summary-item">
+                        <div class="summary-value">75</div>
+                        <div class="summary-label">Room Nights</div>
+                    </div>
+                    <div class="summary-item">
+                        <div class="summary-value">4</div>
+                        <div class="summary-label">Days</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Resort Details Header -->
+    <section style="background: #000; color: white; text-align: center; padding: 60px 20px;">
+        <h2 style="font-size: 48px; font-weight: 300; letter-spacing: 8px; margin: 0;">GRAND VELAS LOS CABOS</h2>
+    </section>
+
+    <!-- Notable Features Section -->
+    <section class="notable-features-section">
+        <div class="notable-features-content">
+            <h2 class="section-label">Notable Features</h2>
+            <ul class="features-list">
+                <li>307 all luxury suites property</li>
+                <li>Awarded the prestigious AAA Five Diamond accolade and awarded 5 Stars by Forbes Travel Guide, making it the only all-inclusive resort in the world to receive this honor</li>
+                <li>Convention Center comprising 26,152 total sq ft, including a 10,600 sq ft ballroom</li>
+                <li>Rooftop terrace</li>
+                <li>3 stunning infinity pools</li>
+                <li>Direct beach access</li>
+                <li>7 dining options, including the acclaimed Cocina de Autor Michelin Star award winning restaurant</li>
+                <li>24/7 room service</li>
+                <li>Award-winning 35,000 sq ft Se Spa with 16 treatment rooms</li>
+                <li>Distance from San José del Cabo Airport (SJD): 35 minutes</li>
+            </ul>
+        </div>
+    </section>
+
+    <!-- Resort Inclusions Section -->
+    <section class="resort-inclusions-section">
+        <div class="resort-inclusions-content">
+            <h2 class="section-label">Resort Inclusions</h2>
+            <div class="inclusions-wrapper">
+                <p class="inclusions-intro">All-inclusive rates include the following:</p>
+                <ul class="features-list">
+                    <li>Luxury accommodations with specified views</li>
+                    <li>Breakfast, lunch, fine dining, snacks</li>
+                    <li>24-hour suite service</li>
+                    <li>Minibar replenished daily</li>
+                    <li>All beverages - including a wide range of wines, and top-shelf domestic and international liquor brands</li>
+                    <li>Kids & teenager clubs</li>
+                    <li>Fitness centers</li>
+                    <li>Convention Center rentals</li>
+                    <li>Tourism taxes, gratuities and service charges</li>
+                </ul>
+            </div>
+        </div>
+    </section>
+
+    <!-- Function Spaces Section -->
+    <section class="function-spaces-section">
+        <div class="function-spaces-header">
+            <h2 class="function-spaces-title">GRAND VELAS LOS CABOS</h2>
+            <p class="function-spaces-subtitle">FUNCTION SPACES</p>
+        </div>
+        <div class="function-table">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Function</th>
+                        <th>Space Options</th>
+                        <th>Capacity</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Check-In/ Arrival Experience</td>
+                        <td>Koi Bar</td>
+                        <td>110 on flow</td>
+                    </tr>
+                    <tr>
+                        <td>Welcome Reception</td>
+                        <td>Main Pool</td>
+                        <td>450+ reception</td>
+                    </tr>
+                    <tr>
+                        <td>Business Session/ Keynote Speaker</td>
+                        <td>Ambassador Ballroom</td>
+                        <td>685 classroom/ 924 theatre</td>
+                    </tr>
+                    <tr>
+                        <td>Awards Reception</td>
+                        <td>Grand Velas Ballroom Foyer</td>
+                        <td>-</td>
+                    </tr>
+                    <tr>
+                        <td>Awards Dinner</td>
+                        <td>Grand Velas Ballroom</td>
+                        <td>1,042 reception/ 774 rounds</td>
+                    </tr>
+                    <tr>
+                        <td>Awards After Party</td>
+                        <td>Ambassador Ballroom</td>
+                        <td>477 reception</td>
+                    </tr>
+                    <tr>
+                        <td>Volleyball Tournament</td>
+                        <td>Main Beach</td>
+                        <td>-</td>
+                    </tr>
+                    <tr>
+                        <td>Beach Party</td>
+                        <td>Terraza del Mar</td>
+                        <td>600 reception/ 450 rounds</td>
+                    </tr>
+                    <tr>
+                        <td>Pool Party</td>
+                        <td>Main Pool</td>
+                        <td>450+</td>
+                    </tr>
+                    <tr>
+                        <td>Late Night Lounge</td>
+                        <td>Sky Sports Bar & Koi Bar</td>
+                        <td>330 on flow</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <div class="function-expandable">
+            <div class="function-item">
+                <div class="function-header" onclick="toggleFunction(this)">
+                    <h3>Welcome Reception</h3>
+                    <span class="function-arrow">▶</span>
+                </div>
+                <div class="function-content">
+                    <p>Host your welcome reception at our stunning Main Pool area, accommodating over 450 guests in a reception style setup. The perfect setting to kick off your event with cocktails and networking against the backdrop of the Sea of Cortez.</p>
+                </div>
+            </div>
+            <div class="function-item">
+                <div class="function-header" onclick="toggleFunction(this)">
+                    <h3>Keynote Speaker</h3>
+                    <span class="function-arrow">▶</span>
+                </div>
+                <div class="function-content">
+                    <p>Our Ambassador Ballroom provides state-of-the-art facilities for keynote presentations, with capacity for 685 in classroom style or 924 in theatre style. Full AV support and technical assistance included.</p>
+                </div>
+            </div>
+            <div class="function-item">
+                <div class="function-header" onclick="toggleFunction(this)">
+                    <h3>Awards Reception & Dinner/ After Party</h3>
+                    <span class="function-arrow">▶</span>
+                </div>
+                <div class="function-content">
+                    <p>The Grand Velas Ballroom transforms into an elegant awards venue, accommodating up to 774 guests in rounds or 1,042 for reception. Continue the celebration in the Ambassador Ballroom for an exclusive after party experience.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Venues Gallery Section -->
+    <section class="venues-section">
+        <div class="venues-header">
+            <h2 class="venues-title">Meeting Venues & Event Spaces</h2>
+            <p class="venues-subtitle">State-of-the-art facilities for every occasion</p>
+        </div>
+        <div class="venues-gallery">
+            <div class="venue-item">
+                <img src="/images/venues/Diego Rivera.webp" alt="Diego Rivera Ballroom">
+                <div class="venue-overlay">
+                    <div class="venue-name">Diego Rivera Ballroom</div>
+                    <div class="venue-capacity">Up to 500 guests</div>
+                </div>
+            </div>
+            <div class="venue-item">
+                <img src="/images/venues/Mariana.webp" alt="Mariana Meeting Room">
+                <div class="venue-overlay">
+                    <div class="venue-name">Mariana Meeting Room</div>
+                    <div class="venue-capacity">Up to 200 guests</div>
+                </div>
+            </div>
+            <div class="venue-item">
+                <img src="/images/venues/Tamayo I.webp" alt="Tamayo I">
+                <div class="venue-overlay">
+                    <div class="venue-name">Tamayo I</div>
+                    <div class="venue-capacity">Up to 100 guests</div>
+                </div>
+            </div>
+            <div class="venue-item">
+                <img src="/images/venues/Tamayo II.webp" alt="Tamayo II">
+                <div class="venue-overlay">
+                    <div class="venue-name">Tamayo II</div>
+                    <div class="venue-capacity">Up to 100 guests</div>
+                </div>
+            </div>
+            <div class="venue-item">
+                <img src="/images/venues/Siqueiros.webp" alt="Siqueiros">
+                <div class="venue-overlay">
+                    <div class="venue-name">Siqueiros</div>
+                    <div class="venue-capacity">Up to 150 guests</div>
+                </div>
+            </div>
+            <div class="venue-item">
+                <img src="/images/venues/Ocean Garden.webp" alt="Ocean Garden">
+                <div class="venue-overlay">
+                    <div class="venue-name">Ocean Garden</div>
+                    <div class="venue-capacity">Outdoor venue</div>
+                </div>
+            </div>
+            <div class="venue-item">
+                <img src="/images/venues/Gazebo.webp" alt="Gazebo">
+                <div class="venue-overlay">
+                    <div class="venue-name">Gazebo</div>
+                    <div class="venue-capacity">Intimate gatherings</div>
+                </div>
+            </div>
+            <div class="venue-item">
+                <img src="/images/venues/Monica.webp" alt="Monica Room">
+                <div class="venue-overlay">
+                    <div class="venue-name">Monica Room</div>
+                    <div class="venue-capacity">Up to 80 guests</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Dining Gallery -->
+    <section class="venues-section" style="background: #f5f5f5;">
+        <div class="venues-header">
+            <h2 class="venues-title" style="color: #333;">Culinary Experiences</h2>
+            <p class="venues-subtitle" style="color: #666;">World-class dining options</p>
+        </div>
+        <div class="venues-gallery">
+            <div class="venue-item">
+                <img src="/images/dining/azul.jpg" alt="Azul">
+                <div class="venue-overlay">
+                    <div class="venue-name">Azul</div>
+                    <div class="venue-capacity">Fine Dining</div>
+                </div>
+            </div>
+            <div class="venue-item">
+                <img src="/images/dining/frida.webp" alt="Frida">
+                <div class="venue-overlay">
+                    <div class="venue-name">Frida</div>
+                    <div class="venue-capacity">Mexican Haute Cuisine</div>
+                </div>
+            </div>
+            <div class="venue-item">
+                <img src="/images/dining/lucca.webp" alt="Lucca">
+                <div class="venue-overlay">
+                    <div class="venue-name">Lucca</div>
+                    <div class="venue-capacity">Italian Trattoria</div>
+                </div>
+            </div>
+            <div class="venue-item">
+                <img src="/images/dining/sen-lin.jpg" alt="Sen Lin">
+                <div class="venue-overlay">
+                    <div class="venue-name">Sen Lin</div>
+                    <div class="venue-capacity">Asian Cuisine</div>
+                </div>
+            </div>
+            <div class="venue-item">
+                <img src="/images/dining/cabrilla.jpg" alt="Cabrilla">
+                <div class="venue-overlay">
+                    <div class="venue-name">Cabrilla</div>
+                    <div class="venue-capacity">Seafood & Grill</div>
+                </div>
+            </div>
+            <div class="venue-item">
+                <img src="/images/dining/velas.jpg" alt="Velas">
+                <div class="venue-overlay">
+                    <div class="venue-name">Velas</div>
+                    <div class="venue-capacity">International Buffet</div>
+                </div>
+            </div>
+            <div class="venue-item">
+                <img src="/images/dining/amat-cafe.jpg" alt="Amat Cafe">
+                <div class="venue-overlay">
+                    <div class="venue-name">Amat Cafe</div>
+                    <div class="venue-capacity">Coffee & Pastries</div>
+                </div>
+            </div>
+            <div class="venue-item">
+                <img src="/images/dining/koi-bar.jpg" alt="Koi Bar">
+                <div class="venue-overlay">
+                    <div class="venue-name">Koi Bar</div>
+                    <div class="venue-capacity">Sushi & Cocktails</div>
+                </div>
+            </div>
+            <div class="venue-item">
+                <img src="/images/dining/sky-sports-bar.jpg" alt="Sky Sports Bar">
+                <div class="venue-overlay">
+                    <div class="venue-name">Sky Sports Bar</div>
+                    <div class="venue-capacity">Sports & Entertainment</div>
+                </div>
+            </div>
+            <div class="venue-item">
+                <img src="/images/dining/miramar-bar.jpg" alt="Miramar Bar">
+                <div class="venue-overlay">
+                    <div class="venue-name">Miramar Bar</div>
+                    <div class="venue-capacity">Beachfront Bar</div>
+                </div>
+            </div>
+            <div class="venue-item">
+                <img src="/images/dining/autor-bar.jpg" alt="Autor Bar">
+                <div class="venue-overlay">
+                    <div class="venue-name">Autor Bar</div>
+                    <div class="venue-capacity">Premium Cocktails</div>
+                </div>
+            </div>
+            <div class="venue-item">
+                <img src="/images/dining/tequila-mezcal-bar.jpg" alt="Tequila & Mezcal Bar">
+                <div class="venue-overlay">
+                    <div class="venue-name">Tequila & Mezcal Bar</div>
+                    <div class="venue-capacity">Premium Spirits</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Contact Section -->
+    <section class="contact-section">
+        <h2 class="contact-title">Ready to Create Your Perfect Event?</h2>
+        <p class="contact-subtitle">Let's discuss how we can make your vision a reality</p>
+        <div class="contact-buttons">
+            <a href="#" class="btn btn-primary">Schedule Consultation</a>
+            <a href="#" class="btn btn-outline">Download Proposal</a>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="proposal-footer">
+        <div class="footer-content">
+            <div class="footer-logo">EVENT CONNECTIONS GROUP</div>
+            <div class="footer-info">
+                <p>Exclusive Event Planning & Destination Management</p>
+                <p>© 2024 Event Connections Group • <a href="https://eventconnectionsgroup.com">www.eventconnectionsgroup.com</a></p>
+                <p>Contact: info@eventconnectionsgroup.com • +1 (555) 123-4567</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Room Modal -->
+    <div class="modal-overlay" id="roomModal">
+        <div class="modal-content">
+            <button class="modal-close" onclick="closeRoomModal()">×</button>
+            <div class="modal-images">
+                <div class="modal-main-image">
+                    <img id="modalMainImage" src="" alt="">
+                </div>
+                <div class="modal-thumbnails" id="modalThumbnails">
+                    <!-- Thumbnails will be populated by JavaScript -->
+                </div>
+            </div>
+            <div class="modal-info">
+                <div class="room-header">
+                    <div>
+                        <h3 class="room-name" id="modalRoomName"></h3>
+                        <p class="room-category" id="modalRoomCategory"></p>
+                    </div>
+                    <div class="room-capacity">
+                        <div class="capacity-number" id="modalCapacity"></div>
+                        <div class="capacity-label">ROOMS</div>
+                    </div>
+                </div>
+                <p class="room-description" id="modalDescription"></p>
+                <div class="room-features" id="modalFeatures">
+                    <!-- Features will be populated by JavaScript -->
+                </div>
+                <div class="room-details" id="modalDetails">
+                    <!-- Details will be populated by JavaScript -->
+                </div>
+                <div class="modal-amenities">
+                    <h3>Room Amenities</h3>
+                    <ul id="modalAmenities">
+                        <!-- Amenities will be populated by JavaScript -->
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Room data
+        const roomData = {
+            'grand-class': {
+                name: 'Grand Class Suite',
+                category: 'Premium Ocean View',
+                capacity: 45,
+                description: 'Experience luxury redefined in our Grand Class Suites, featuring panoramic ocean views, contemporary Mexican design, and spacious living areas. Each suite offers a private terrace with plunge pool, premium amenities, and personalized concierge service.',
+                images: [
+                    '/images/rooms/grand-class-suite.jpg',
+                    '/images/rooms/grand-class-spa-suite.jpg',
+                    '/images/rooms/wellness-suite.jpg'
+                ],
+                features: [
+                    '1,100 sq ft living space',
+                    'Private plunge pool',
+                    'King bed configuration',
+                    '24-hour room service'
+                ],
+                details: {
+                    occupancy: '3 Adults',
+                    view: 'Ocean Front',
+                    size: '1,100 sq ft'
+                },
+                amenities: [
+                    '24-hour personalized Concierge service',
+                    '24-hour in-suite service',
+                    'Welcome bottle of artisanal mezcal, white wine, and red wine',
+                    'Beach bag',
+                    'Goose-down pillows and duvet',
+                    'Bathroom with jacuzzi',
+                    'Molton Brown bath products',
+                    'Hairdryer and hair straightener',
+                    'Robes and slippers',
+                    'Jacuzzi',
+                    'Separate shower with rain and handheld showerheads',
+                    'Double sink',
+                    'Open-concept bedroom and living room',
+                    'Terrace with living area',
+                    'Daily stocked premium minibar',
+                    'Nespresso coffee machine',
+                    'Selection of Tea Forte teas',
+                    'Pillow menu',
+                    'Nightly turndown service and suite conditioning for your comfort and rest',
+                    '65" TV with interactive system',
+                    'Bluetooth alarm clock with USB port for charging your phone',
+                    'Laptop safe'
+                ]
+            },
+            'ambassador': {
+                name: 'Ambassador Pool Suite',
+                category: 'Ultra Luxury Collection',
+                capacity: 20,
+                description: 'The pinnacle of luxury accommodation at Grand Velas Los Cabos. These expansive suites feature separate living and dining areas, oversized terraces with private pools, and breathtaking views of the Sea of Cortez. Perfect for executives and VIP guests.',
+                images: [
+                    '/images/rooms/ambassador-pool-suite.jpg',
+                    '/images/rooms/ambassador-ocean-suite.jpg',
+                    '/images/rooms/ambassador-spa-suite.jpg'
+                ],
+                features: [
+                    '2,100 sq ft living space',
+                    'Full-size private pool',
+                    'Separate living room',
+                    'Personal concierge'
+                ],
+                details: {
+                    occupancy: '4 Adults',
+                    view: 'Ocean Front Premium',
+                    size: '2,100 sq ft'
+                },
+                amenities: [
+                    '24-hour personalized Concierge service',
+                    '24-hour in-suite service',
+                    'Premium selection of spirits and wines',
+                    'Full-size private infinity pool',
+                    'Outdoor dining area',
+                    'Separate living and dining areas',
+                    'Master bathroom with double vanity',
+                    'Luxury bath amenities',
+                    'Walk-in closet',
+                    'Entertainment system',
+                    'Personal butler service',
+                    'Premium bedding',
+                    'Espresso machine',
+                    'Full wet bar',
+                    'Smart home technology',
+                    'Private gym equipment available upon request'
+                ]
+            },
+            'master': {
+                name: 'Master Ocean Suite',
+                category: 'Executive Accommodation',
+                capacity: 10,
+                description: 'Sophisticated and spacious, our Master Ocean Suites offer the perfect blend of comfort and elegance. Features include marble bathrooms with double vanities, rain showers, and deep soaking tubs, complemented by stunning ocean vistas.',
+                images: [
+                    '/images/rooms/master-ocean-suite.jpg',
+                    '/images/rooms/master-pool-suite.jpg',
+                    '/images/rooms/master-spa-suite.jpg'
+                ],
+                features: [
+                    '1,500 sq ft living space',
+                    'Jacuzzi on terrace',
+                    'Walk-in closet',
+                    'Premium bar selection'
+                ],
+                details: {
+                    occupancy: '3 Adults',
+                    view: 'Ocean View',
+                    size: '1,500 sq ft'
+                },
+                amenities: [
+                    '24-hour personalized Concierge service',
+                    '24-hour in-suite service',
+                    'Welcome bottle of premium spirits',
+                    'Oversized marble bathroom',
+                    'Deep soaking tub',
+                    'Rain shower system',
+                    'Double vanity',
+                    'Luxury toiletries',
+                    'Spacious walk-in closet',
+                    'Private terrace with jacuzzi',
+                    'Ocean view seating area',
+                    'Premium entertainment system',
+                    'Fully stocked bar',
+                    'Nespresso machine',
+                    'Executive work desk',
+                    'High-speed internet'
+                ]
+            },
+            'presidential': {
+                name: 'Presidential Suite',
+                category: 'Ultimate Luxury Experience',
+                capacity: 2,
+                description: 'The crown jewel of Grand Velas Los Cabos, our Presidential Suites redefine luxury with expansive living spaces, private butler service, and unparalleled ocean views. Perfect for your VIP executives and distinguished guests.',
+                images: [
+                    '/images/rooms/presidential-suite.jpg',
+                    '/images/rooms/imperial-suite.jpg',
+                    '/images/rooms/two-bedroom-family-suite.jpg'
+                ],
+                features: [
+                    '4,000 sq ft living space',
+                    'Private infinity pool',
+                    'Multiple bedrooms',
+                    '24-hour butler service'
+                ],
+                details: {
+                    occupancy: '6 Adults',
+                    view: 'Panoramic Ocean',
+                    size: '4,000 sq ft'
+                },
+                amenities: [
+                    '24-hour dedicated butler service',
+                    'Private chef service available',
+                    'Multiple bedroom suites',
+                    'Grand living and dining areas',
+                    'Private infinity pool',
+                    'Outdoor kitchen and BBQ',
+                    'Home theater system',
+                    'Wine cellar',
+                    'Master suite with panoramic views',
+                    'Spa-style bathrooms',
+                    'Private gym',
+                    'Conference room',
+                    'Helicopter pad access',
+                    'Luxury car service',
+                    'Personal shopper service',
+                    'Private beach access'
+                ]
+            },
+            'imperial': {
+                name: 'Imperial Suite',
+                category: 'Executive Premium Collection',
+                capacity: 8,
+                description: 'Imperial Suites offer an extraordinary level of luxury with expansive indoor and outdoor living spaces, premium amenities, and stunning views. These suites feature sophisticated décor and exclusive access to VIP areas.',
+                images: [
+                    '/images/rooms/imperial-suite.jpg',
+                    '/images/rooms/wellness-suite.jpg',
+                    '/images/rooms/grand-class-spa-suite.jpg'
+                ],
+                features: [
+                    '2,800 sq ft living space',
+                    'Private hot tub',
+                    'Entertainment system',
+                    'VIP check-in'
+                ],
+                details: {
+                    occupancy: '4 Adults',
+                    view: 'Ocean Front Deluxe',
+                    size: '2,800 sq ft'
+                },
+                amenities: [
+                    'VIP check-in and checkout',
+                    'Personal concierge team',
+                    'Premium location with best views',
+                    'Expansive terrace with hot tub',
+                    'Separate bedroom and living areas',
+                    'Dining room for 6',
+                    'Full kitchen access',
+                    'Entertainment center',
+                    'Bose sound system',
+                    'Premium bath products',
+                    'Twice daily housekeeping',
+                    'Private bar setup',
+                    'Golf cart service',
+                    'Priority restaurant reservations',
+                    'Complimentary spa credits',
+                    'Access to VIP pool area'
+                ]
+            }
+        };
+
+        // Room modal functions
+        function openRoomModal(roomType) {
+            const modal = document.getElementById('roomModal');
+            const room = roomData[roomType];
+            
+            if (!room) return;
+            
+            // Update modal content
+            document.getElementById('modalRoomName').textContent = room.name;
+            document.getElementById('modalRoomCategory').textContent = room.category;
+            document.getElementById('modalCapacity').textContent = room.capacity;
+            document.getElementById('modalDescription').textContent = room.description;
+            
+            // Update main image
+            const mainImage = document.getElementById('modalMainImage');
+            mainImage.src = room.images[0];
+            mainImage.alt = room.name;
+            
+            // Update thumbnails
+            const thumbnailsContainer = document.getElementById('modalThumbnails');
+            thumbnailsContainer.innerHTML = '';
+            room.images.forEach((image, index) => {
+                const thumb = document.createElement('div');
+                thumb.className = 'modal-thumbnail' + (index === 0 ? ' active' : '');
+                thumb.innerHTML = `<img src="${image}" alt="${room.name} ${index + 1}">`;
+                thumb.onclick = () => {
+                    mainImage.src = image;
+                    document.querySelectorAll('.modal-thumbnail').forEach(t => t.classList.remove('active'));
+                    thumb.classList.add('active');
+                };
+                thumbnailsContainer.appendChild(thumb);
+            });
+            
+            // Update features
+            const featuresContainer = document.getElementById('modalFeatures');
+            featuresContainer.innerHTML = room.features.map(feature => 
+                `<div class="feature-item">
+                    <span class="feature-icon">✓</span>
+                    <span>${feature}</span>
+                </div>`
+            ).join('');
+            
+            // Update details
+            const detailsContainer = document.getElementById('modalDetails');
+            detailsContainer.innerHTML = `
+                <div class="detail-item">
+                    <div class="detail-label">Maximum Occupancy</div>
+                    <div class="detail-value">${room.details.occupancy}</div>
+                </div>
+                <div class="detail-item">
+                    <div class="detail-label">View Type</div>
+                    <div class="detail-value">${room.details.view}</div>
+                </div>
+                <div class="detail-item">
+                    <div class="detail-label">Suite Size</div>
+                    <div class="detail-value">${room.details.size}</div>
+                </div>
+            `;
+            
+            // Update amenities
+            const amenitiesContainer = document.getElementById('modalAmenities');
+            amenitiesContainer.innerHTML = room.amenities.map(amenity => 
+                `<li>${amenity}</li>`
+            ).join('');
+            
+            // Show modal
+            modal.classList.add('active');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeRoomModal() {
+            const modal = document.getElementById('roomModal');
+            modal.classList.remove('active');
+            document.body.style.overflow = '';
+        }
+
+        // Close modal on overlay click
+        document.getElementById('roomModal').onclick = function(e) {
+            if (e.target === this) {
+                closeRoomModal();
+            }
+        };
+
+        // Function spaces accordion
+        function toggleFunction(element) {
+            const content = element.nextElementSibling;
+            const arrow = element.querySelector('.function-arrow');
+            
+            if (content.style.display === 'block') {
+                content.style.display = 'none';
+                arrow.style.transform = 'rotate(0deg)';
+            } else {
+                content.style.display = 'block';
+                arrow.style.transform = 'rotate(90deg)';
+            }
+        }
+    </script>
+</body>
+</html>

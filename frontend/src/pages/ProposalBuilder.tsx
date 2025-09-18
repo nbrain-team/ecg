@@ -11,13 +11,25 @@ interface FormData {
   clientEmail: string;
   clientPhone: string;
   
-  // Step 2: Event Basics
+  // Step 2: Event Basics - Updated with new fields
+  eventType: string;
   eventName: string;
   eventPurpose: 'corporate' | 'incentive' | 'conference' | 'retreat' | '';
+  preferredDates: string;
+  datesFlexible: boolean;
+  flexibleDateRange: string;
   startDate: string;
   endDate: string;
+  numberOfNights: number;
+  daysPattern: string;
   attendeeCount: number;
+  attendeeRooms: number;
+  staffRooms: number;
   roomsNeeded: number;
+  doubleOccupancy: boolean;
+  roomView: 'ocean' | 'run_of_house';
+  suiteCount: number;
+  privateSatelliteCheckIn: boolean;
   ratingStandard: 'forbes' | 'aaa';
   hotelRating: '5-star' | '4-star' | '';
   roomPreferences: {
@@ -43,7 +55,12 @@ interface FormData {
   };
   stageSize: string;
   
-  // Step 9: Program Inclusions
+  // Step 9: Program Inclusions - Updated
+  welcomeReception: boolean;
+  businessSessions: { day: number; description?: string }[];
+  awardsDinner: { night: number } | null;
+  dineArounds: { nights: number[] };
+  otherEvents: { day: number; description: string }[];
   programInclusions: {
     airportTransfers: boolean;
     welcomeReception: boolean;
@@ -119,12 +136,24 @@ function ProposalBuilder() {
       clientCompany: '',
       clientEmail: '',
       clientPhone: '',
+      eventType: '',
       eventName: '',
       eventPurpose: '',
+      preferredDates: '',
+      datesFlexible: false,
+      flexibleDateRange: '',
       startDate: '',
       endDate: '',
+      numberOfNights: 3,
+      daysPattern: '',
       attendeeCount: 50,
-      roomsNeeded: 25,
+      attendeeRooms: 25,
+      staffRooms: 2,
+      roomsNeeded: 27,
+      doubleOccupancy: true,
+      roomView: 'run_of_house',
+      suiteCount: 0,
+      privateSatelliteCheckIn: false,
       ratingStandard: 'forbes',
       hotelRating: '',
       roomPreferences: {
@@ -145,6 +174,11 @@ function ProposalBuilder() {
         reception: false
       },
       stageSize: '',
+      welcomeReception: false,
+      businessSessions: [],
+      awardsDinner: null,
+      dineArounds: { nights: [] },
+      otherEvents: [],
       programInclusions: {
         airportTransfers: false,
         welcomeReception: false,
@@ -357,6 +391,18 @@ function ProposalBuilder() {
       const selectedDining = diningOptions.filter(d => formData.diningIds.includes(d.id));
       const selectedFlights = flightRoutes.filter(f => formData.flightRouteIds.includes(f.id));
 
+      // Calculate dates if needed
+      let startDate = formData.startDate;
+      let endDate = formData.endDate;
+      
+      if (!startDate && formData.preferredDates && formData.numberOfNights) {
+        const baseDate = new Date(formData.preferredDates.includes('2025') ? '2025-03-15' : '2025-06-01');
+        startDate = baseDate.toISOString().split('T')[0];
+        const endDateObj = new Date(baseDate);
+        endDateObj.setDate(endDateObj.getDate() + (formData.numberOfNights - 1));
+        endDate = endDateObj.toISOString().split('T')[0];
+      }
+
       const proposalData = {
         client: {
           name: formData.clientName,
@@ -365,16 +411,33 @@ function ProposalBuilder() {
           phone: formData.clientPhone
         },
         eventDetails: {
-          name: formData.eventName,
+          name: formData.eventName || `${formData.eventType} - ${formData.clientCompany}`,
           purpose: formData.eventPurpose,
-          startDate: formData.startDate,
-          endDate: formData.endDate,
+          startDate: startDate,
+          endDate: endDate,
           attendeeCount: formData.attendeeCount,
           roomsNeeded: formData.roomsNeeded,
-          hotelRating: formData.hotelRating,
+          hotelRating: formData.hotelRating || '5-star',
           ratingStandard: formData.ratingStandard,
-          programLengthDays: calculateProgramLengthDays() || undefined,
-          roomPreferences: formData.roomPreferences
+          programLengthDays: formData.numberOfNights || calculateProgramLengthDays() || undefined,
+          roomPreferences: formData.roomPreferences,
+          // New fields
+          eventType: formData.eventType,
+          preferredDates: formData.preferredDates,
+          datesFlexible: formData.datesFlexible,
+          flexibleDateRange: formData.flexibleDateRange,
+          numberOfNights: formData.numberOfNights,
+          daysPattern: formData.daysPattern,
+          attendeeRooms: formData.attendeeRooms,
+          staffRooms: formData.staffRooms,
+          doubleOccupancy: formData.doubleOccupancy,
+          roomView: formData.roomView,
+          suiteCount: formData.suiteCount,
+          privateSatelliteCheckIn: formData.privateSatelliteCheckIn,
+          businessSessions: formData.businessSessions,
+          awardsDinner: formData.awardsDinner,
+          dineArounds: formData.dineArounds,
+          otherEvents: formData.otherEvents
         },
         destination: selectedDestination,
         resort: selectedResort,
@@ -382,9 +445,22 @@ function ProposalBuilder() {
         selectedSpaces,
         selectedDining,
         flightRoutes: selectedFlights,
-        spaceSetups: formData.spaceSetups,
+        spaceSetups: {
+          ...formData.spaceSetups,
+          // Update based on events
+          theater: formData.businessSessions.length > 0 || formData.spaceSetups.theater,
+          banquet: formData.awardsDinner !== null || formData.spaceSetups.banquet,
+          reception: formData.welcomeReception || formData.spaceSetups.reception
+        },
         stageSize: formData.stageSize,
-        programInclusions: formData.programInclusions,
+        programInclusions: {
+          ...formData.programInclusions,
+          // Sync with event schedule
+          welcomeReception: formData.welcomeReception,
+          businessMeeting: formData.businessSessions.length > 0,
+          awardDinner: formData.awardsDinner !== null,
+          dineArounds: formData.dineArounds.nights.length > 0
+        },
         branding: {
           primaryColor: formData.primaryColor,
           secondaryColor: formData.secondaryColor,
@@ -472,64 +548,98 @@ function ProposalBuilder() {
             <h2>Event Details</h2>
             <div className="form-grid">
               <div className="form-group">
-                <label className="form-label">Event Name *</label>
-                <input
-                  type="text"
-                  className="form-control"
-                  value={formData.eventName}
-                  onChange={(e) => updateFormData('eventName', e.target.value)}
-                  placeholder="2024 Annual Sales Conference"
-                  required
-                />
-              </div>
-              <div className="form-group">
-                <label className="form-label">Event Purpose *</label>
+                <label className="form-label">Event Type *</label>
                 <select
                   className="form-control"
-                  value={formData.eventPurpose}
-                  onChange={(e) => updateFormData('eventPurpose', e.target.value)}
+                  value={formData.eventType}
+                  onChange={(e) => {
+                    updateFormData('eventType', e.target.value);
+                    // Map event type to purpose
+                    const purposeMap: any = {
+                      'Corporate Meeting': 'corporate',
+                      'Incentive Trip': 'incentive',
+                      'Conference': 'conference',
+                      'Company Retreat': 'retreat',
+                      'Sales Meeting': 'corporate',
+                      'Board Meeting': 'corporate'
+                    };
+                    updateFormData('eventPurpose', purposeMap[e.target.value] || 'corporate');
+                  }}
                   required
                 >
-                  <option value="">Select purpose</option>
-                  <option value="corporate">Corporate Meeting</option>
-                  <option value="incentive">Incentive Trip</option>
-                  <option value="conference">Conference</option>
-                  <option value="retreat">Team Retreat</option>
+                  <option value="">Select event type</option>
+                  <option value="Corporate Meeting">Corporate Meeting</option>
+                  <option value="Incentive Trip">Incentive Trip</option>
+                  <option value="Conference">Conference</option>
+                  <option value="Company Retreat">Company Retreat</option>
+                  <option value="Sales Meeting">Sales Meeting</option>
+                  <option value="Board Meeting">Board Meeting</option>
+                  <option value="Other">Other</option>
                 </select>
               </div>
               <div className="form-group">
-                <label className="form-label">Start Date *</label>
-                <input
-                  type="date"
-                  className="form-control"
-                  value={formData.startDate}
-                  onChange={(e) => updateFormData('startDate', e.target.value)}
-                  required
-                />
-              </div>
-              <div className="form-group">
-                <label className="form-label">End Date *</label>
-                <input
-                  type="date"
-                  className="form-control"
-                  value={formData.endDate}
-                  onChange={(e) => updateFormData('endDate', e.target.value)}
-                  min={formData.startDate}
-                  required
-                />
-              </div>
-              <div className="form-group">
-                <label className="form-label">Program Length</label>
+                <label className="form-label">Preferred Dates *</label>
                 <input
                   type="text"
                   className="form-control"
-                  value={calculateProgramLengthDays() ? `${calculateProgramLengthDays()} days` : ''}
-                  readOnly
-                  placeholder="Calculated from dates"
+                  value={formData.preferredDates}
+                  onChange={(e) => updateFormData('preferredDates', e.target.value)}
+                  placeholder="e.g., March 2025 or Q2 2025"
+                  required
                 />
               </div>
               <div className="form-group">
-                <label className="form-label">Number of Attendees *</label>
+                <label className="form-label">Are dates flexible? *</label>
+                <select
+                  className="form-control"
+                  value={formData.datesFlexible ? 'yes' : 'no'}
+                  onChange={(e) => updateFormData('datesFlexible', e.target.value === 'yes')}
+                  required
+                >
+                  <option value="no">No, fixed dates</option>
+                  <option value="yes">Yes, flexible</option>
+                </select>
+              </div>
+              {formData.datesFlexible && (
+                <div className="form-group">
+                  <label className="form-label">Date Range (if flexible)</label>
+                  <input
+                    type="text"
+                    className="form-control"
+                    value={formData.flexibleDateRange}
+                    onChange={(e) => updateFormData('flexibleDateRange', e.target.value)}
+                    placeholder="e.g., March 15 - April 30, 2025"
+                  />
+                </div>
+              )}
+              <div className="form-group">
+                <label className="form-label">Number of Nights *</label>
+                <input
+                  type="number"
+                  className="form-control"
+                  value={formData.numberOfNights}
+                  onChange={(e) => updateFormData('numberOfNights', parseInt(e.target.value))}
+                  min="1"
+                  required
+                />
+              </div>
+              <div className="form-group">
+                <label className="form-label">Preferred Days Pattern *</label>
+                <select
+                  className="form-control"
+                  value={formData.daysPattern}
+                  onChange={(e) => updateFormData('daysPattern', e.target.value)}
+                  required
+                >
+                  <option value="">Select pattern</option>
+                  <option value="Monday-Friday">Monday-Friday</option>
+                  <option value="Sunday-Thursday">Sunday-Thursday</option>
+                  <option value="Tuesday-Saturday">Tuesday-Saturday</option>
+                  <option value="No preference">No preference</option>
+                </select>
+              </div>
+              <div className="form-group">
+                <label className="form-label">Total Attendees *</label>
                 <input
                   type="number"
                   className="form-control"
@@ -540,62 +650,114 @@ function ProposalBuilder() {
                 />
               </div>
               <div className="form-group">
-                <label className="form-label">Number of Rooms Needed *</label>
+                <label className="form-label">Attendee Rooms *</label>
                 <input
                   type="number"
                   className="form-control"
-                  value={formData.roomsNeeded}
-                  onChange={(e) => updateFormData('roomsNeeded', parseInt(e.target.value))}
+                  value={formData.attendeeRooms}
+                  onChange={(e) => {
+                    const attendeeRooms = parseInt(e.target.value);
+                    updateFormData('attendeeRooms', attendeeRooms);
+                    updateFormData('roomsNeeded', attendeeRooms + formData.staffRooms);
+                  }}
                   min="1"
                   required
                 />
               </div>
               <div className="form-group">
-                <label className="form-label">Hotel Rating Standard *</label>
+                <label className="form-label">Staff Rooms *</label>
+                <input
+                  type="number"
+                  className="form-control"
+                  value={formData.staffRooms}
+                  onChange={(e) => {
+                    const staffRooms = parseInt(e.target.value);
+                    updateFormData('staffRooms', staffRooms);
+                    updateFormData('roomsNeeded', formData.attendeeRooms + staffRooms);
+                  }}
+                  min="0"
+                  required
+                />
+              </div>
+              <div className="form-group">
+                <label className="form-label">Total Rooms</label>
+                <input
+                  type="text"
+                  className="form-control"
+                  value={formData.roomsNeeded}
+                  readOnly
+                  style={{ backgroundColor: '#f3f4f6' }}
+                />
+              </div>
+              <div className="form-group">
+                <label className="form-label">Double Occupancy? *</label>
+                <select
+                  className="form-control"
+                  value={formData.doubleOccupancy ? 'yes' : 'no'}
+                  onChange={(e) => updateFormData('doubleOccupancy', e.target.value === 'yes')}
+                  required
+                >
+                  <option value="yes">Yes, majority double occupancy</option>
+                  <option value="no">No, mostly single occupancy</option>
+                </select>
+              </div>
+              <div className="form-group">
+                <label className="form-label">Room View Preference *</label>
+                <select
+                  className="form-control"
+                  value={formData.roomView}
+                  onChange={(e) => updateFormData('roomView', e.target.value)}
+                  required
+                >
+                  <option value="run_of_house">Run of house</option>
+                  <option value="ocean">All ocean view</option>
+                </select>
+              </div>
+              <div className="form-group">
+                <label className="form-label">Number of Suites *</label>
+                <input
+                  type="number"
+                  className="form-control"
+                  value={formData.suiteCount}
+                  onChange={(e) => updateFormData('suiteCount', parseInt(e.target.value))}
+                  min="0"
+                  required
+                />
+              </div>
+              <div className="form-group">
+                <label className="form-label">Private Satellite Check-in? *</label>
+                <select
+                  className="form-control"
+                  value={formData.privateSatelliteCheckIn ? 'yes' : 'no'}
+                  onChange={(e) => updateFormData('privateSatelliteCheckIn', e.target.value === 'yes')}
+                  required
+                >
+                  <option value="no">No</option>
+                  <option value="yes">Yes, private check-in</option>
+                </select>
+              </div>
+              <div className="form-group">
+                <label className="form-label">Hotel Rating Standard</label>
                 <select
                   className="form-control"
                   value={formData.ratingStandard}
                   onChange={(e) => updateFormData('ratingStandard', e.target.value)}
-                  required
                 >
                   <option value="forbes">Forbes Stars</option>
                   <option value="aaa">AAA Diamonds</option>
                 </select>
               </div>
-              <div className="form-group full-width">
-                <label className="form-label">Hotel Rating Preference *</label>
+              <div className="form-group">
+                <label className="form-label">Hotel Rating Preference</label>
                 <select
                   className="form-control"
                   value={formData.hotelRating}
                   onChange={(e) => updateFormData('hotelRating', e.target.value)}
-                  required
                 >
                   <option value="">Select rating</option>
                   <option value="5-star">{formData.ratingStandard === 'aaa' ? '5 Diamonds' : '5 Stars'}</option>
                   <option value="4-star">{formData.ratingStandard === 'aaa' ? '4 Diamonds' : '4 Stars'}</option>
                 </select>
-              </div>
-              <div className="form-group">
-                <label className="form-label">Preferred King Rooms</label>
-                <input
-                  type="number"
-                  className="form-control"
-                  value={formData.roomPreferences.kingRooms}
-                  onChange={(e) => updateFormData('roomPreferences', { ...formData.roomPreferences, kingRooms: parseInt(e.target.value || '0') })}
-                  min="0"
-                  placeholder="e.g., 15"
-                />
-              </div>
-              <div className="form-group">
-                <label className="form-label">Preferred Double/Queen Rooms</label>
-                <input
-                  type="number"
-                  className="form-control"
-                  value={formData.roomPreferences.doubleRooms}
-                  onChange={(e) => updateFormData('roomPreferences', { ...formData.roomPreferences, doubleRooms: parseInt(e.target.value || '0') })}
-                  min="0"
-                  placeholder="e.g., 10"
-                />
               </div>
             </div>
           </div>
@@ -1008,9 +1170,210 @@ function ProposalBuilder() {
         );
 
       case 9:
+        const dayOptions: { value: number; label: string }[] = [];
+        const nightOptions: { value: number; label: string }[] = [];
+        for (let i = 1; i <= formData.numberOfNights; i++) {
+          dayOptions.push({ value: i, label: `Day ${i}` });
+          nightOptions.push({ value: i, label: `Night ${i}` });
+        }
+
         return (
           <div className="step-content">
-            <h2>Program Inclusions</h2>
+            <h2>Program Schedule & Events</h2>
+            
+            <div className="form-group full-width">
+              <label className="form-label">Welcome Reception on First Night?</label>
+              <input
+                type="checkbox"
+                id="welcomeReception"
+                checked={formData.welcomeReception}
+                onChange={(e) => {
+                  updateFormData('welcomeReception', e.target.checked);
+                  updateFormData('programInclusions', { 
+                    ...formData.programInclusions, 
+                    welcomeReception: e.target.checked 
+                  });
+                }}
+              />
+              <label htmlFor="welcomeReception" style={{ marginLeft: '8px' }}>
+                Yes, include welcome reception
+              </label>
+            </div>
+
+            <div className="form-group full-width">
+              <label className="form-label">Business Sessions</label>
+              {formData.businessSessions.map((session, index) => (
+                <div key={index} style={{ display: 'flex', gap: '10px', marginBottom: '10px' }}>
+                  <select
+                    className="form-control"
+                    value={session.day}
+                    onChange={(e) => {
+                      const updated = [...formData.businessSessions];
+                      updated[index] = { ...session, day: parseInt(e.target.value) };
+                      updateFormData('businessSessions', updated);
+                    }}
+                  >
+                    <option value="">Select day</option>
+                    {dayOptions.map(opt => (
+                      <option key={opt.value} value={opt.value}>{opt.label}</option>
+                    ))}
+                  </select>
+                  <button
+                    type="button"
+                    className="btn btn-outline"
+                    onClick={() => {
+                      const updated = formData.businessSessions.filter((_, i) => i !== index);
+                      updateFormData('businessSessions', updated);
+                      updateFormData('programInclusions', { 
+                        ...formData.programInclusions, 
+                        businessMeeting: updated.length > 0 
+                      });
+                    }}
+                  >
+                    Remove
+                  </button>
+                </div>
+              ))}
+              <button
+                type="button"
+                className="btn btn-outline"
+                onClick={() => {
+                  updateFormData('businessSessions', [...formData.businessSessions, { day: 1 }]);
+                  updateFormData('programInclusions', { 
+                    ...formData.programInclusions, 
+                    businessMeeting: true 
+                  });
+                }}
+              >
+                + Add Business Session
+              </button>
+            </div>
+
+            <div className="form-group full-width">
+              <label className="form-label">Awards Dinner</label>
+              {formData.awardsDinner ? (
+                <div style={{ display: 'flex', gap: '10px' }}>
+                  <select
+                    className="form-control"
+                    value={formData.awardsDinner.night}
+                    onChange={(e) => updateFormData('awardsDinner', { night: parseInt(e.target.value) })}
+                  >
+                    <option value="">Select night</option>
+                    {nightOptions.map(opt => (
+                      <option key={opt.value} value={opt.value}>{opt.label}</option>
+                    ))}
+                  </select>
+                  <button
+                    type="button"
+                    className="btn btn-outline"
+                    onClick={() => {
+                      updateFormData('awardsDinner', null);
+                      updateFormData('programInclusions', { 
+                        ...formData.programInclusions, 
+                        awardDinner: false 
+                      });
+                    }}
+                  >
+                    Remove
+                  </button>
+                </div>
+              ) : (
+                <button
+                  type="button"
+                  className="btn btn-outline"
+                  onClick={() => {
+                    updateFormData('awardsDinner', { night: formData.numberOfNights });
+                    updateFormData('programInclusions', { 
+                      ...formData.programInclusions, 
+                      awardDinner: true 
+                    });
+                  }}
+                >
+                  + Add Awards Dinner
+                </button>
+              )}
+            </div>
+
+            <div className="form-group full-width">
+              <label className="form-label">Dine-Around Nights</label>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(120px, 1fr))', gap: '10px' }}>
+                {nightOptions.map(opt => (
+                  <label key={opt.value} style={{ display: 'flex', alignItems: 'center' }}>
+                    <input
+                      type="checkbox"
+                      checked={formData.dineArounds.nights.includes(opt.value)}
+                      onChange={(e) => {
+                        let nights = [...formData.dineArounds.nights];
+                        if (e.target.checked) {
+                          nights.push(opt.value);
+                        } else {
+                          nights = nights.filter(n => n !== opt.value);
+                        }
+                        updateFormData('dineArounds', { nights });
+                        updateFormData('programInclusions', { 
+                          ...formData.programInclusions, 
+                          dineArounds: nights.length > 0 
+                        });
+                      }}
+                    />
+                    <span style={{ marginLeft: '5px' }}>{opt.label}</span>
+                  </label>
+                ))}
+              </div>
+            </div>
+
+            <div className="form-group full-width">
+              <label className="form-label">Other Events</label>
+              {formData.otherEvents.map((event, index) => (
+                <div key={index} style={{ display: 'flex', gap: '10px', marginBottom: '10px' }}>
+                  <input
+                    type="text"
+                    className="form-control"
+                    placeholder="Event description"
+                    value={event.description}
+                    onChange={(e) => {
+                      const updated = [...formData.otherEvents];
+                      updated[index] = { ...event, description: e.target.value };
+                      updateFormData('otherEvents', updated);
+                    }}
+                  />
+                  <select
+                    className="form-control"
+                    style={{ maxWidth: '150px' }}
+                    value={event.day}
+                    onChange={(e) => {
+                      const updated = [...formData.otherEvents];
+                      updated[index] = { ...event, day: parseInt(e.target.value) };
+                      updateFormData('otherEvents', updated);
+                    }}
+                  >
+                    <option value="">Select day</option>
+                    {dayOptions.map(opt => (
+                      <option key={opt.value} value={opt.value}>{opt.label}</option>
+                    ))}
+                  </select>
+                  <button
+                    type="button"
+                    className="btn btn-outline"
+                    onClick={() => {
+                      const updated = formData.otherEvents.filter((_, i) => i !== index);
+                      updateFormData('otherEvents', updated);
+                    }}
+                  >
+                    Remove
+                  </button>
+                </div>
+              ))}
+              <button
+                type="button"
+                className="btn btn-outline"
+                onClick={() => updateFormData('otherEvents', [...formData.otherEvents, { day: 1, description: '' }])}
+              >
+                + Add Other Event
+              </button>
+            </div>
+
+            <h3 style={{ marginTop: '30px' }}>Additional Program Elements</h3>
             <div className="inclusion-grid">
               <div className="inclusion-item">
                 <input
@@ -1024,101 +1387,11 @@ function ProposalBuilder() {
               <div className="inclusion-item">
                 <input
                   type="checkbox"
-                  id="welcomeReception"
-                  checked={formData.programInclusions.welcomeReception}
-                  onChange={() => updateFormData('programInclusions', { ...formData.programInclusions, welcomeReception: !formData.programInclusions.welcomeReception })}
-                />
-                <label htmlFor="welcomeReception">Welcome Reception</label>
-              </div>
-              <div className="inclusion-item">
-                <input
-                  type="checkbox"
-                  id="businessMeeting"
-                  checked={formData.programInclusions.businessMeeting}
-                  onChange={() => updateFormData('programInclusions', { ...formData.programInclusions, businessMeeting: !formData.programInclusions.businessMeeting })}
-                />
-                <label htmlFor="businessMeeting">Business Meeting</label>
-              </div>
-              <div className="inclusion-item">
-                <input
-                  type="checkbox"
-                  id="awardDinner"
-                  checked={formData.programInclusions.awardDinner}
-                  onChange={() => updateFormData('programInclusions', { ...formData.programInclusions, awardDinner: !formData.programInclusions.awardDinner })}
-                />
-                <label htmlFor="awardDinner">Award Dinner</label>
-              </div>
-              <div className="inclusion-item">
-                <input
-                  type="checkbox"
-                  id="activityOptions"
-                  checked={formData.programInclusions.activityOptions}
-                  onChange={() => updateFormData('programInclusions', { ...formData.programInclusions, activityOptions: !formData.programInclusions.activityOptions })}
-                />
-                <label htmlFor="activityOptions">Activity Options</label>
-              </div>
-              <div className="inclusion-item">
-                <input
-                  type="checkbox"
-                  id="offSiteVenues"
-                  checked={formData.programInclusions.offSiteVenues}
-                  onChange={() => updateFormData('programInclusions', { ...formData.programInclusions, offSiteVenues: !formData.programInclusions.offSiteVenues })}
-                />
-                <label htmlFor="offSiteVenues">Off-Site Venues</label>
-              </div>
-              <div className="inclusion-item">
-                <input
-                  type="checkbox"
-                  id="offSiteRestaurants"
-                  checked={formData.programInclusions.offSiteRestaurants}
-                  onChange={() => updateFormData('programInclusions', { ...formData.programInclusions, offSiteRestaurants: !formData.programInclusions.offSiteRestaurants })}
-                />
-                <label htmlFor="offSiteRestaurants">Off-Site Restaurants</label>
-              </div>
-              <div className="inclusion-item">
-                <input
-                  type="checkbox"
-                  id="dineArounds"
-                  checked={formData.programInclusions.dineArounds}
-                  onChange={() => updateFormData('programInclusions', { ...formData.programInclusions, dineArounds: !formData.programInclusions.dineArounds })}
-                />
-                <label htmlFor="dineArounds">Dine Arounds</label>
-              </div>
-              <div className="inclusion-item">
-                <input
-                  type="checkbox"
-                  id="finalNightDinner"
-                  checked={formData.programInclusions.finalNightDinner}
-                  onChange={() => updateFormData('programInclusions', { ...formData.programInclusions, finalNightDinner: !formData.programInclusions.finalNightDinner })}
-                />
-                <label htmlFor="finalNightDinner">Final Night Dinner</label>
-              </div>
-              <div className="inclusion-item">
-                <input
-                  type="checkbox"
                   id="teamBuilding"
                   checked={formData.programInclusions.teamBuilding}
                   onChange={() => updateFormData('programInclusions', { ...formData.programInclusions, teamBuilding: !formData.programInclusions.teamBuilding })}
                 />
-                <label htmlFor="teamBuilding">Team Building</label>
-              </div>
-              <div className="inclusion-item">
-                <input
-                  type="checkbox"
-                  id="danceBand"
-                  checked={formData.programInclusions.danceBand}
-                  onChange={() => updateFormData('programInclusions', { ...formData.programInclusions, danceBand: !formData.programInclusions.danceBand })}
-                />
-                <label htmlFor="danceBand">Dance Band</label>
-              </div>
-              <div className="inclusion-item">
-                <input
-                  type="checkbox"
-                  id="decorIdeas"
-                  checked={formData.programInclusions.decorIdeas}
-                  onChange={() => updateFormData('programInclusions', { ...formData.programInclusions, decorIdeas: !formData.programInclusions.decorIdeas })}
-                />
-                <label htmlFor="decorIdeas">Decor Ideas</label>
+                <label htmlFor="teamBuilding">Team Building Activities</label>
               </div>
               <div className="inclusion-item">
                 <input
@@ -1127,7 +1400,7 @@ function ProposalBuilder() {
                   checked={formData.programInclusions.csrOptions}
                   onChange={() => updateFormData('programInclusions', { ...formData.programInclusions, csrOptions: !formData.programInclusions.csrOptions })}
                 />
-                <label htmlFor="csrOptions">Corporate Social Responsibility</label>
+                <label htmlFor="csrOptions">CSR Activities</label>
               </div>
               <div className="inclusion-item">
                 <input
@@ -1136,7 +1409,25 @@ function ProposalBuilder() {
                   checked={formData.programInclusions.giftingIdeas}
                   onChange={() => updateFormData('programInclusions', { ...formData.programInclusions, giftingIdeas: !formData.programInclusions.giftingIdeas })}
                 />
-                <label htmlFor="giftingIdeas">Gifting Ideas</label>
+                <label htmlFor="giftingIdeas">Gift Amenities</label>
+              </div>
+              <div className="inclusion-item">
+                <input
+                  type="checkbox"
+                  id="finalNightDinner"
+                  checked={formData.programInclusions.finalNightDinner}
+                  onChange={() => updateFormData('programInclusions', { ...formData.programInclusions, finalNightDinner: !formData.programInclusions.finalNightDinner })}
+                />
+                <label htmlFor="finalNightDinner">Farewell Dinner</label>
+              </div>
+              <div className="inclusion-item">
+                <input
+                  type="checkbox"
+                  id="danceBand"
+                  checked={formData.programInclusions.danceBand}
+                  onChange={() => updateFormData('programInclusions', { ...formData.programInclusions, danceBand: !formData.programInclusions.danceBand })}
+                />
+                <label htmlFor="danceBand">Entertainment/DJ/Band</label>
               </div>
             </div>
           </div>
@@ -1203,37 +1494,57 @@ function ProposalBuilder() {
                     <strong>Client:</strong> {formData.clientCompany}
                   </div>
                   <div className="review-item">
-                    <strong>Event:</strong> {formData.eventName}
+                    <strong>Event Type:</strong> {formData.eventType}
                   </div>
                   <div className="review-item">
-                    <strong>Dates:</strong> {formData.startDate} to {formData.endDate}
+                    <strong>Preferred Dates:</strong> {formData.preferredDates}
+                    {formData.datesFlexible && ` (Flexible: ${formData.flexibleDateRange})`}
+                  </div>
+                  <div className="review-item">
+                    <strong>Number of Nights:</strong> {formData.numberOfNights}
+                  </div>
+                  <div className="review-item">
+                    <strong>Days Pattern:</strong> {formData.daysPattern}
                   </div>
                   <div className="review-item">
                     <strong>Attendees:</strong> {formData.attendeeCount}
                   </div>
                   <div className="review-item">
-                    <strong>Rooms:</strong> {formData.roomsNeeded}
+                    <strong>Room Breakdown:</strong> {formData.attendeeRooms} attendee + {formData.staffRooms} staff = {formData.roomsNeeded} total
                   </div>
                   <div className="review-item">
-                    <strong>Hotel Rating:</strong> {formData.hotelRating || 'Not specified'}
+                    <strong>Room Type:</strong> {formData.doubleOccupancy ? 'Double' : 'Single'} occupancy, {formData.roomView === 'ocean' ? 'Ocean view' : 'Run of house'}
                   </div>
                   <div className="review-item">
-                    <strong>Destination:</strong> {destinations.find(d => d.id === formData.destinationId)?.name}
+                    <strong>Suites:</strong> {formData.suiteCount}
                   </div>
                   <div className="review-item">
-                    <strong>Resort:</strong> {resorts.find(r => r.id === formData.resortId)?.name}
+                    <strong>Private Check-in:</strong> {formData.privateSatelliteCheckIn ? 'Yes' : 'No'}
+                  </div>
+                  <div className="review-item">
+                    <strong>Hotel Rating:</strong> {formData.hotelRating || '5-star'}
+                  </div>
+                  <div className="review-item">
+                    <strong>Destination:</strong> {destinations.find(d => d.id === formData.destinationId)?.name || 'To be selected'}
+                  </div>
+                  <div className="review-item">
+                    <strong>Resort:</strong> {resorts.find(r => r.id === formData.resortId)?.name || 'To be selected'}
                   </div>
                   <div className="review-item full-width">
-                    <strong>Program Inclusions:</strong>
-                    <div className="inclusion-summary">
-                      {Object.entries(formData.programInclusions)
-                        .filter(([_, value]) => value)
-                        .map(([key, _]) => (
-                          <span key={key} className="inclusion-tag">
-                            {key.replace(/([A-Z])/g, ' $1').trim()}
-                          </span>
-                        ))}
-                    </div>
+                    <strong>Events Schedule:</strong>
+                    <ul style={{ margin: '5px 0', paddingLeft: '20px' }}>
+                      {formData.welcomeReception && <li>Welcome Reception - Night 1</li>}
+                      {formData.businessSessions.map((s, i) => (
+                        <li key={`bs-${i}`}>Business Session - Day {s.day}</li>
+                      ))}
+                      {formData.awardsDinner && <li>Awards Dinner - Night {formData.awardsDinner.night}</li>}
+                      {formData.dineArounds.nights.length > 0 && (
+                        <li>Dine-Arounds - Night(s) {formData.dineArounds.nights.join(', ')}</li>
+                      )}
+                      {formData.otherEvents.map((e, i) => (
+                        <li key={`oe-${i}`}>{e.description} - Day {e.day}</li>
+                      ))}
+                    </ul>
                   </div>
                 </div>
               </div>

@@ -7,6 +7,9 @@
     "build": "tsc",
     "start": "node dist/index.js",
     "seed": "ts-node src/db/seed.ts",
+    "import:rooms": "ts-node src/scripts/importRoomsFromCsv.ts",
+    "import:venues": "ts-node src/scripts/importVenuesFromCsv.ts",
+    "import:dining": "ts-node src/scripts/importDiningFromCsv.ts",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
@@ -21,6 +24,7 @@
     "@types/node": "^22.10.5",
     "@types/uuid": "^10.0.0",
     "axios": "^1.11.0",
+    "csv-parse": "^5.5.6",
     "bcryptjs": "^2.4.3",
     "cheerio": "^1.1.2",
     "cors": "^2.8.5",
@@ -35,6 +39,7 @@
   },
   "devDependencies": {
     "@types/multer": "^2.0.0",
+    "@types/csv-parse": "^1.2.5",
     "nodemon": "^3.1.9",
     "ts-node": "^10.9.2"
   }

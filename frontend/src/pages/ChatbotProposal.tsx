@@ -18,11 +18,28 @@ interface ChatState {
   currentStep: string;
   formData: {
     eventName?: string;
+    eventType?: string;
     eventPurpose?: string;
+    preferredDates?: string;
+    datesFlexible?: boolean;
+    flexibleDateRange?: string;
     startDate?: string;
     endDate?: string;
+    numberOfNights?: number;
+    daysPattern?: string;
     attendeeCount?: number;
+    attendeeRooms?: number;
+    staffRooms?: number;
     roomsNeeded?: number;
+    doubleOccupancy?: boolean;
+    roomView?: 'ocean' | 'run_of_house';
+    suiteCount?: number;
+    privateSatelliteCheckIn?: boolean;
+    welcomeReception?: boolean;
+    businessSessions?: { day: number; description?: string }[];
+    awardsDinner?: { night: number };
+    dineArounds?: { nights: number[] };
+    otherEvents?: { day: number; description: string }[];
     hotelRating?: string;
     ratingStandard?: string;
     destinationId?: string;
@@ -46,20 +63,25 @@ interface ChatState {
 
 const CHAT_STEPS = {
   START: 'start',
-  EVENT_NAME: 'event_name',
   EVENT_TYPE: 'event_type',
-  EVENT_DATES: 'event_dates',
+  PREFERRED_DATES: 'preferred_dates',
+  DATE_FLEXIBILITY: 'date_flexibility',
+  NUMBER_OF_NIGHTS: 'number_of_nights',
+  DAYS_PATTERN: 'days_pattern',
   ATTENDEE_COUNT: 'attendee_count',
-  ROOM_NEEDS: 'room_needs',
-  HOTEL_RATING: 'hotel_rating',
-  DESTINATION: 'destination',
-  RESORT: 'resort',
-  MEETING_NEEDS: 'meeting_needs',
-  MEETING_SETUP: 'meeting_setup',
-  PROGRAM_ELEMENTS: 'program_elements',
-  CLIENT_INFO: 'client_info',
-  BRANDING: 'branding',
+  ATTENDEE_ROOMS: 'attendee_rooms',
+  STAFF_ROOMS: 'staff_rooms',
+  DOUBLE_OCCUPANCY: 'double_occupancy',
+  ROOM_VIEW: 'room_view',
+  SUITE_COUNT: 'suite_count',
+  SATELLITE_CHECKIN: 'satellite_checkin',
+  WELCOME_RECEPTION: 'welcome_reception',
+  BUSINESS_SESSIONS: 'business_sessions',
+  AWARDS_DINNER: 'awards_dinner',
+  DINE_AROUNDS: 'dine_arounds',
+  OTHER_EVENTS: 'other_events',
   REVIEW: 'review',
+  CLIENT_INFO: 'client_info',
   COMPLETE: 'complete'
 };
 
@@ -109,7 +131,9 @@ function ChatbotProposal() {
       // New chat
       chatId.current = `chat_${Date.now()}`;
       localStorage.setItem('activeChatId', chatId.current);
-      addBotMessage("Hi! I'm here to help you create a perfect event proposal. What's the name of your event?");
+      addBotMessage("Hi! I'm here to help you create a perfect event proposal. Let's start with some details about your program. What type of program event are you holding?", {
+        options: ['Corporate Meeting', 'Incentive Trip', 'Conference', 'Company Retreat', 'Sales Meeting', 'Board Meeting', 'Other']
+      });
     }
     
     loadMockData();
@@ -211,48 +235,85 @@ function ChatbotProposal() {
         if (userInput) {
           setChatState(prev => ({
             ...prev,
-            formData: { ...prev.formData, eventName: userInput },
-            currentStep: CHAT_STEPS.EVENT_TYPE
+            formData: { ...prev.formData, eventType: userInput },
+            currentStep: CHAT_STEPS.PREFERRED_DATES
           }));
-          addBotMessage("Great! What type of event is this?", {
-            options: ['Corporate Meeting', 'Incentive Trip', 'Conference', 'Company Retreat']
+          addBotMessage("What are your preferred program dates? You can enter specific dates or a general timeframe like 'March 2025' or 'Q2 2025'.", {
+            inputType: 'text'
           });
         }
         break;
         
-      case CHAT_STEPS.EVENT_TYPE:
+      case CHAT_STEPS.PREFERRED_DATES:
         if (userInput) {
-          const purposeMap: any = {
-            'Corporate Meeting': 'corporate',
-            'Incentive Trip': 'incentive',
-            'Conference': 'conference',
-            'Company Retreat': 'retreat'
-          };
           setChatState(prev => ({
             ...prev,
-            formData: { ...prev.formData, eventPurpose: purposeMap[userInput] || userInput },
-            currentStep: CHAT_STEPS.EVENT_DATES
+            formData: { ...prev.formData, preferredDates: userInput },
+            currentStep: CHAT_STEPS.DATE_FLEXIBILITY
           }));
-          addBotMessage(`Perfect! When are you planning this ${userInput.toLowerCase()}? You can tell me the dates like "March 15-20, 2025" or use the date picker.`, {
-            inputType: 'date'
+          addBotMessage("Are your dates flexible?", {
+            options: ['Yes, flexible', 'No, fixed dates']
           });
         }
         break;
         
-      case CHAT_STEPS.EVENT_DATES:
+      case CHAT_STEPS.DATE_FLEXIBILITY:
         if (userInput) {
-          // Parse dates - this is simplified, would need better parsing
-          const dates = userInput.split(' to ');
+          const isFlexible = userInput.includes('flexible');
           setChatState(prev => ({
             ...prev,
-            formData: { 
-              ...prev.formData, 
-              startDate: dates[0],
-              endDate: dates[1] || dates[0]
-            },
+            formData: { ...prev.formData, datesFlexible: isFlexible },
+            currentStep: isFlexible ? CHAT_STEPS.NUMBER_OF_NIGHTS : CHAT_STEPS.NUMBER_OF_NIGHTS
+          }));
+          if (isFlexible) {
+            addBotMessage("What is your date range for flexibility? (e.g., 'March 15 - April 30, 2025')", {
+              inputType: 'text'
+            });
+          } else {
+            // Skip directly to number of nights
+            setChatState(prev => ({ ...prev, currentStep: CHAT_STEPS.NUMBER_OF_NIGHTS }));
+            addBotMessage("How many nights is your program?", {
+              inputType: 'number'
+            });
+          }
+        }
+        break;
+        
+      case CHAT_STEPS.NUMBER_OF_NIGHTS:
+        if (userInput) {
+          if (chatState.formData.datesFlexible && !chatState.formData.flexibleDateRange) {
+            // This was the date range input
+            setChatState(prev => ({
+              ...prev,
+              formData: { ...prev.formData, flexibleDateRange: userInput },
+              currentStep: CHAT_STEPS.NUMBER_OF_NIGHTS
+            }));
+            addBotMessage("How many nights is your program?", {
+              inputType: 'number'
+            });
+          } else {
+            // This was the number of nights input
+            const nights = parseInt(userInput);
+            setChatState(prev => ({
+              ...prev,
+              formData: { ...prev.formData, numberOfNights: nights },
+              currentStep: CHAT_STEPS.DAYS_PATTERN
+            }));
+            addBotMessage("Do you have preferred days of the week pattern for your program?", {
+              options: ['Monday-Friday', 'Sunday-Thursday', 'Tuesday-Saturday', 'No preference']
+            });
+          }
+        }
+        break;
+        
+      case CHAT_STEPS.DAYS_PATTERN:
+        if (userInput) {
+          setChatState(prev => ({
+            ...prev,
+            formData: { ...prev.formData, daysPattern: userInput },
             currentStep: CHAT_STEPS.ATTENDEE_COUNT
           }));
-          addBotMessage("How many people will be attending?", {
+          addBotMessage("What's your best guess on the total number of people attending?", {
             inputType: 'number'
           });
         }
@@ -261,141 +322,273 @@ function ChatbotProposal() {
       case CHAT_STEPS.ATTENDEE_COUNT:
         if (userInput) {
           const attendees = parseInt(userInput);
-          const estimatedRooms = Math.ceil(attendees / 2);
           setChatState(prev => ({
             ...prev,
             formData: { ...prev.formData, attendeeCount: attendees },
-            currentStep: CHAT_STEPS.ROOM_NEEDS
+            currentStep: CHAT_STEPS.ATTENDEE_ROOMS
           }));
-          addBotMessage(`Based on ${attendees} attendees, I estimate you'll need about ${estimatedRooms} rooms. Does that sound right?`, {
-            options: [`Yes, ${estimatedRooms} rooms`, `No, let me specify`]
+          addBotMessage("How many attendee rooms do you need?", {
+            inputType: 'number',
+            placeholder: `Suggested: ${Math.ceil(attendees / 2)} rooms (based on double occupancy)`
           });
         }
         break;
         
-      case CHAT_STEPS.ROOM_NEEDS:
+      case CHAT_STEPS.ATTENDEE_ROOMS:
         if (userInput) {
-          if (userInput.includes('Yes')) {
-            const rooms = parseInt(userInput.match(/\d+/)?.[0] || '0');
+          const attendeeRooms = parseInt(userInput);
+          setChatState(prev => ({
+            ...prev,
+            formData: { ...prev.formData, attendeeRooms: attendeeRooms },
+            currentStep: CHAT_STEPS.STAFF_ROOMS
+          }));
+          addBotMessage("How many staff rooms do you need?", {
+            inputType: 'number'
+          });
+        }
+        break;
+        
+      case CHAT_STEPS.STAFF_ROOMS:
+        if (userInput) {
+          const staffRooms = parseInt(userInput);
+          const totalRooms = (chatState.formData.attendeeRooms || 0) + staffRooms;
+          setChatState(prev => ({
+            ...prev,
+            formData: { 
+              ...prev.formData, 
+              staffRooms: staffRooms,
+              roomsNeeded: totalRooms
+            },
+            currentStep: CHAT_STEPS.DOUBLE_OCCUPANCY
+          }));
+          addBotMessage("Will the majority of your rooms be double occupancy?", {
+            options: ['Yes', 'No']
+          });
+        }
+        break;
+        
+      case CHAT_STEPS.DOUBLE_OCCUPANCY:
+        if (userInput) {
+          setChatState(prev => ({
+            ...prev,
+            formData: { ...prev.formData, doubleOccupancy: userInput === 'Yes' },
+            currentStep: CHAT_STEPS.ROOM_VIEW
+          }));
+          addBotMessage("Do you want all ocean view rooms or just run of house?", {
+            options: ['All ocean view', 'Run of house']
+          });
+        }
+        break;
+        
+      case CHAT_STEPS.ROOM_VIEW:
+        if (userInput) {
+          setChatState(prev => ({
+            ...prev,
+            formData: { ...prev.formData, roomView: userInput.includes('ocean') ? 'ocean' : 'run_of_house' },
+            currentStep: CHAT_STEPS.SUITE_COUNT
+          }));
+          addBotMessage("How many suites will you need?", {
+            inputType: 'number'
+          });
+        }
+        break;
+        
+      case CHAT_STEPS.SUITE_COUNT:
+        if (userInput) {
+          setChatState(prev => ({
+            ...prev,
+            formData: { ...prev.formData, suiteCount: parseInt(userInput) },
+            currentStep: CHAT_STEPS.SATELLITE_CHECKIN
+          }));
+          addBotMessage("Do you want a private satellite check in?", {
+            options: ['Yes', 'No']
+          });
+        }
+        break;
+        
+      case CHAT_STEPS.SATELLITE_CHECKIN:
+        if (userInput) {
+          setChatState(prev => ({
+            ...prev,
+            formData: { ...prev.formData, privateSatelliteCheckIn: userInput === 'Yes' },
+            currentStep: CHAT_STEPS.WELCOME_RECEPTION
+          }));
+          addBotMessage("Do you want a welcome reception on the first night?", {
+            options: ['Yes', 'No']
+          });
+        }
+        break;
+        
+      case CHAT_STEPS.WELCOME_RECEPTION:
+        if (userInput) {
+          setChatState(prev => ({
+            ...prev,
+            formData: { ...prev.formData, welcomeReception: userInput === 'Yes' },
+            currentStep: CHAT_STEPS.BUSINESS_SESSIONS
+          }));
+          const nights = chatState.formData.numberOfNights || 3;
+          const dayOptions = [];
+          for (let i = 1; i <= nights; i++) {
+            dayOptions.push(`Day ${i}`);
+          }
+          dayOptions.push('Multiple days');
+          dayOptions.push('No business sessions');
+          
+          addBotMessage("Will there be business session(s)? If so, which day(s)?", {
+            options: dayOptions
+          });
+        }
+        break;
+        
+      case CHAT_STEPS.BUSINESS_SESSIONS:
+        if (userInput) {
+          if (userInput === 'No business sessions') {
             setChatState(prev => ({
               ...prev,
-              formData: { ...prev.formData, roomsNeeded: rooms },
-              currentStep: CHAT_STEPS.HOTEL_RATING
+              currentStep: CHAT_STEPS.AWARDS_DINNER
+            }));
+          } else if (userInput === 'Multiple days') {
+            addBotMessage("Please specify which days (e.g., 'Day 1 and Day 3' or '1,3')", {
+              inputType: 'text'
+            });
+            return;
+          } else if (userInput.includes('Day')) {
+            const day = parseInt(userInput.replace('Day ', ''));
+            setChatState(prev => ({
+              ...prev,
+              formData: { 
+                ...prev.formData, 
+                businessSessions: [{ day }]
+              },
+              currentStep: CHAT_STEPS.AWARDS_DINNER
             }));
           } else {
-            addBotMessage("How many rooms would you like?", {
-              inputType: 'number'
-            });
-            return;
-          }
-          addBotMessage("What's your preferred hotel rating?", {
-            options: ['5-star Luxury', '4-star Premium', 'No preference']
-          });
-        }
-        break;
-        
-      case CHAT_STEPS.HOTEL_RATING:
-        if (userInput) {
-          const rating = userInput.includes('5-star') ? '5-star' : userInput.includes('4-star') ? '4-star' : '';
-          setChatState(prev => ({
-            ...prev,
-            formData: { ...prev.formData, hotelRating: rating },
-            currentStep: CHAT_STEPS.DESTINATION
-          }));
-          
-          // Show destinations based on event type
-          const eventType = chatState.formData.eventPurpose;
-          addBotMessage(`Based on your ${eventType} event, here are my top destination recommendations:`, {
-            options: destinations.slice(0, 4).map(d => d.name).concat(['Show me more', 'I have a specific place in mind'])
-          });
-        }
-        break;
-        
-      case CHAT_STEPS.DESTINATION:
-        if (userInput) {
-          if (userInput === 'Show me more') {
-            addBotMessage("Here are more destinations:", {
-              options: destinations.slice(4, 8).map(d => d.name)
-            });
-            return;
-          }
-          
-          const selectedDest = destinations.find(d => d.name === userInput);
-          setChatState(prev => ({
-            ...prev,
-            formData: { ...prev.formData, destinationId: selectedDest?.id },
-            currentStep: CHAT_STEPS.RESORT
-          }));
-          
-          // Show hotels/resorts
-          const availableHotels = hotels.length > 0 ? hotels : [
-            { name: 'Grand Velas Los Cabos', id: 'gv1', description: 'Luxury all-inclusive resort' },
-            { name: 'Four Seasons Resort', id: 'fs1', description: 'Premium beachfront property' }
-          ];
-          
-          addBotMessage(`Excellent choice! Here are the best resorts in ${userInput} for your event:`, {
-            options: availableHotels.map(h => h.name)
-          });
-        }
-        break;
-        
-      case CHAT_STEPS.RESORT:
-        if (userInput) {
-          setChatState(prev => ({
-            ...prev,
-            formData: { ...prev.formData, resortId: userInput },
-            currentStep: CHAT_STEPS.MEETING_NEEDS
-          }));
-          addBotMessage("Will you need meeting spaces for your event?", {
-            options: ['Yes, for the full group', 'Yes, with breakout rooms', 'No meeting space needed']
-          });
-        }
-        break;
-        
-      case CHAT_STEPS.MEETING_NEEDS:
-        if (userInput) {
-          if (userInput.includes('No meeting')) {
+            // Parse multiple days from text input
+            const days = userInput.match(/\d+/g)?.map(d => parseInt(d)) || [];
             setChatState(prev => ({
               ...prev,
-              currentStep: CHAT_STEPS.PROGRAM_ELEMENTS
+              formData: { 
+                ...prev.formData, 
+                businessSessions: days.map(day => ({ day }))
+              },
+              currentStep: CHAT_STEPS.AWARDS_DINNER
+            }));
+          }
+          
+          const nights = chatState.formData.numberOfNights || 3;
+          const nightOptions = [];
+          for (let i = 1; i <= nights; i++) {
+            nightOptions.push(`Night ${i}`);
+          }
+          nightOptions.push('No awards dinner');
+          
+          addBotMessage("Will there be an awards dinner? If so, which night?", {
+            options: nightOptions
+          });
+        }
+        break;
+        
+      case CHAT_STEPS.AWARDS_DINNER:
+        if (userInput) {
+          if (userInput !== 'No awards dinner') {
+            const night = parseInt(userInput.replace('Night ', ''));
+            setChatState(prev => ({
+              ...prev,
+              formData: { ...prev.formData, awardsDinner: { night } },
+              currentStep: CHAT_STEPS.DINE_AROUNDS
             }));
           } else {
             setChatState(prev => ({
               ...prev,
-              currentStep: CHAT_STEPS.MEETING_SETUP
+              currentStep: CHAT_STEPS.DINE_AROUNDS
             }));
-            addBotMessage("What setup style do you prefer?", {
-              options: ['Theater Style', 'Banquet Rounds', 'Classroom', 'Reception Style', 'Mixed Setups']
-            });
-            return;
           }
-          showProgramElements();
-        }
-        break;
-        
-      case CHAT_STEPS.MEETING_SETUP:
-        if (userInput) {
-          setChatState(prev => ({
-            ...prev,
-            formData: { ...prev.formData, setupPreferences: [userInput] },
-            currentStep: CHAT_STEPS.PROGRAM_ELEMENTS
-          }));
-          showProgramElements();
-        }
-        break;
-        
-      case CHAT_STEPS.PROGRAM_ELEMENTS:
-        if (selectedOptions.length > 0) {
-          setChatState(prev => ({
-            ...prev,
-            formData: { ...prev.formData, programInclusions: selectedOptions },
-            currentStep: CHAT_STEPS.CLIENT_INFO
-          }));
-          addBotMessage("Almost done! Who should I address this proposal to? Please provide your name, company, and email.", {
-            inputType: 'text'
+          
+          const nights = chatState.formData.numberOfNights || 3;
+          const nightOptions = [];
+          for (let i = 1; i <= nights; i++) {
+            nightOptions.push(`Night ${i}`);
+          }
+          nightOptions.push('Multiple nights');
+          nightOptions.push('No dine-arounds');
+          
+          addBotMessage("Do you want on-property dine-arounds for all your guests? If so, which night(s)?", {
+            options: nightOptions
           });
         }
         break;
+        
+      case CHAT_STEPS.DINE_AROUNDS:
+        if (userInput) {
+          if (userInput === 'No dine-arounds') {
+            setChatState(prev => ({
+              ...prev,
+              currentStep: CHAT_STEPS.OTHER_EVENTS
+            }));
+          } else if (userInput === 'Multiple nights') {
+            addBotMessage("Please specify which nights (e.g., 'Night 2 and Night 3' or '2,3')", {
+              inputType: 'text'
+            });
+            return;
+          } else if (userInput.includes('Night')) {
+            const night = parseInt(userInput.replace('Night ', ''));
+            setChatState(prev => ({
+              ...prev,
+              formData: { ...prev.formData, dineArounds: { nights: [night] } },
+              currentStep: CHAT_STEPS.OTHER_EVENTS
+            }));
+          } else {
+            // Parse multiple nights from text input
+            const nights = userInput.match(/\d+/g)?.map(n => parseInt(n)) || [];
+            setChatState(prev => ({
+              ...prev,
+              formData: { ...prev.formData, dineArounds: { nights } },
+              currentStep: CHAT_STEPS.OTHER_EVENTS
+            }));
+          }
+          
+          addBotMessage("Any other events for the program? If yes, please describe them and which day(s).", {
+            options: ['No other events', 'Yes, I have other events']
+          });
+        }
+        break;
+        
+      case CHAT_STEPS.OTHER_EVENTS:
+        if (userInput) {
+          if (userInput === 'No other events') {
+            setChatState(prev => ({
+              ...prev,
+              currentStep: CHAT_STEPS.REVIEW
+            }));
+            showReview();
+          } else if (userInput === 'Yes, I have other events') {
+            addBotMessage("Please describe the events and their days (e.g., 'Team building on Day 2, CSR activity on Day 3')", {
+              inputType: 'text'
+            });
+          } else {
+            // Parse other events from text
+            // Simple parsing - in production would be more sophisticated
+            const events: { day: number; description: string }[] = [];
+            const eventPattern = /(?:day\s*(\d+)[:\s-]*([^,]+))|(?:([^,]+)\s*on\s*day\s*(\d+))/gi;
+            let match;
+            while ((match = eventPattern.exec(userInput)) !== null) {
+              const day = parseInt(match[1] || match[4]);
+              const description = (match[2] || match[3]).trim();
+              if (day && description) {
+                events.push({ day, description });
+              }
+            }
+            
+            setChatState(prev => ({
+              ...prev,
+              formData: { ...prev.formData, otherEvents: events },
+              currentStep: CHAT_STEPS.REVIEW
+            }));
+            showReview();
+          }
+        }
+        break;
+        
         
       case CHAT_STEPS.CLIENT_INFO:
         if (userInput) {
@@ -408,15 +601,22 @@ function ChatbotProposal() {
               clientCompany: userInput.split(',')[1]?.trim(),
               clientEmail: userInput.split(',')[2]?.trim()
             },
-            currentStep: CHAT_STEPS.REVIEW
+            currentStep: CHAT_STEPS.COMPLETE
           }));
-          showReview();
+          createProposal();
         }
         break;
         
       case CHAT_STEPS.REVIEW:
-        if (userInput === 'Generate Proposal') {
-          await createProposal();
+        if (userInput === 'Continue to Venue Selection') {
+          // Now we need to gather client info before proceeding
+          setChatState(prev => ({
+            ...prev,
+            currentStep: CHAT_STEPS.CLIENT_INFO
+          }));
+          addBotMessage("Before we find the perfect venue, I need some contact information. Please provide your name, company, and email (comma separated).", {
+            inputType: 'text'
+          });
         } else if (userInput === 'Make Changes') {
           addBotMessage("What would you like to change? You can tell me, and I'll help you update it.");
           // TODO: Implement change flow
@@ -438,40 +638,52 @@ function ChatbotProposal() {
     setIsTyping(false);
   };
 
-  const showProgramElements = () => {
-    const eventType = chatState.formData.eventPurpose;
-    const defaultSelections = PROGRAM_OPTIONS
-      .filter(opt => {
-        if (eventType === 'corporate' && opt.id === 'businessMeeting') return true;
-        return opt.defaultChecked;
-      })
-      .map(opt => opt.id);
-    
-    setSelectedOptions(defaultSelections);
-    
-    addBotMessage("Which of these would you like included in your program? (Check all that apply)", {
-      inputType: 'multiselect'
-    });
-  };
 
   const showReview = () => {
     const { formData } = chatState;
+    
+    // Format business sessions
+    const businessSessionsText = formData.businessSessions?.length 
+      ? formData.businessSessions.map(s => `Day ${s.day}`).join(', ')
+      : 'None';
+    
+    // Format dine-arounds
+    const dineAroundsText = formData.dineArounds?.nights?.length
+      ? `Night(s) ${formData.dineArounds.nights.join(', ')}`
+      : 'None';
+    
+    // Format other events
+    const otherEventsText = formData.otherEvents?.length
+      ? formData.otherEvents.map(e => `${e.description} (Day ${e.day})`).join(', ')
+      : 'None';
+    
     const summary = `
       <div class="proposal-summary">
-        <h3>Here's what I've put together:</h3>
+        <h3>Here's what I've captured for your program:</h3>
         <ul>
-          <li><strong>Event:</strong> ${formData.eventName}</li>
-          <li><strong>Type:</strong> ${formData.eventPurpose}</li>
-          <li><strong>Dates:</strong> ${formData.startDate} to ${formData.endDate}</li>
-          <li><strong>Attendees:</strong> ${formData.attendeeCount}</li>
-          <li><strong>Rooms:</strong> ${formData.roomsNeeded}</li>
-          <li><strong>Program Includes:</strong> ${formData.programInclusions?.join(', ')}</li>
+          <li><strong>Event Type:</strong> ${formData.eventType}</li>
+          <li><strong>Preferred Dates:</strong> ${formData.preferredDates}${formData.datesFlexible ? ' (Flexible)' : ''}</li>
+          ${formData.flexibleDateRange ? `<li><strong>Date Range:</strong> ${formData.flexibleDateRange}</li>` : ''}
+          <li><strong>Number of Nights:</strong> ${formData.numberOfNights}</li>
+          <li><strong>Days Pattern:</strong> ${formData.daysPattern}</li>
+          <li><strong>Total Attendees:</strong> ${formData.attendeeCount}</li>
+          <li><strong>Room Breakdown:</strong> ${formData.attendeeRooms} attendee + ${formData.staffRooms} staff = ${formData.roomsNeeded} total</li>
+          <li><strong>Double Occupancy:</strong> ${formData.doubleOccupancy ? 'Yes' : 'No'}</li>
+          <li><strong>Room View:</strong> ${formData.roomView === 'ocean' ? 'All ocean view' : 'Run of house'}</li>
+          <li><strong>Suites Needed:</strong> ${formData.suiteCount}</li>
+          <li><strong>Private Check-in:</strong> ${formData.privateSatelliteCheckIn ? 'Yes' : 'No'}</li>
+          <li><strong>Welcome Reception:</strong> ${formData.welcomeReception ? 'Yes (First night)' : 'No'}</li>
+          <li><strong>Business Sessions:</strong> ${businessSessionsText}</li>
+          <li><strong>Awards Dinner:</strong> ${formData.awardsDinner ? `Night ${formData.awardsDinner.night}` : 'No'}</li>
+          <li><strong>Dine-Arounds:</strong> ${dineAroundsText}</li>
+          <li><strong>Other Events:</strong> ${otherEventsText}</li>
         </ul>
+        <p>Ready to find the perfect venue for your program?</p>
       </div>
     `;
     
     addBotMessage(summary, {
-      options: ['Generate Proposal', 'Make Changes']
+      options: ['Continue to Venue Selection', 'Make Changes']
     });
   };
 
@@ -484,6 +696,19 @@ function ChatbotProposal() {
       const { formData } = chatState;
       
       // Build proposal payload matching the backend structure
+      // Calculate start and end dates from preferred dates and number of nights
+      let startDate = formData.startDate || '';
+      let endDate = formData.endDate || '';
+      
+      if (formData.preferredDates && formData.numberOfNights) {
+        // Simple date parsing - in production would be more sophisticated
+        const baseDate = new Date(formData.preferredDates.includes('2025') ? '2025-03-15' : '2025-06-01');
+        startDate = baseDate.toISOString().split('T')[0];
+        const endDateObj = new Date(baseDate);
+        endDateObj.setDate(endDateObj.getDate() + (formData.numberOfNights - 1));
+        endDate = endDateObj.toISOString().split('T')[0];
+      }
+
       const proposalPayload = {
         client: {
           name: formData.clientName || '',
@@ -491,29 +716,60 @@ function ChatbotProposal() {
           email: formData.clientEmail || ''
         },
         eventDetails: {
-          name: formData.eventName || '',
-          purpose: formData.eventPurpose || '',
-          startDate: formData.startDate || '',
-          endDate: formData.endDate || '',
+          name: `${formData.eventType || 'Corporate Event'} - ${formData.clientCompany || 'Company'}`,
+          purpose: formData.eventType === 'Corporate Meeting' ? 'corporate' : 
+                  formData.eventType === 'Incentive Trip' ? 'incentive' :
+                  formData.eventType === 'Conference' ? 'conference' : 'retreat',
+          startDate: startDate,
+          endDate: endDate,
           attendeeCount: formData.attendeeCount || 0,
           roomsNeeded: formData.roomsNeeded || 0,
-          hotelRating: formData.hotelRating || ''
+          hotelRating: '5-star', // Default to 5-star for now
+          // Extended fields
+          preferredDates: formData.preferredDates,
+          datesFlexible: formData.datesFlexible,
+          flexibleDateRange: formData.flexibleDateRange,
+          numberOfNights: formData.numberOfNights,
+          daysPattern: formData.daysPattern,
+          attendeeRooms: formData.attendeeRooms,
+          staffRooms: formData.staffRooms,
+          doubleOccupancy: formData.doubleOccupancy,
+          roomView: formData.roomView,
+          suiteCount: formData.suiteCount,
+          privateSatelliteCheckIn: formData.privateSatelliteCheckIn,
+          businessSessions: formData.businessSessions,
+          awardsDinner: formData.awardsDinner,
+          dineArounds: formData.dineArounds,
+          otherEvents: formData.otherEvents
         },
-        destinationId: formData.destinationId || destinations[0]?.id,
-        resortId: formData.resortId || hotels[0]?.id,
-        roomTypeIds: formData.roomTypeIds || [],
-        eventSpaceIds: formData.eventSpaceIds || [],
-        diningIds: formData.diningIds || [],
+        // For now, we'll auto-select destination and resort based on availability
+        destinationId: destinations[0]?.id || 'los-cabos',
+        resortId: hotels[0]?.id || 'grand-velas',
+        roomTypeIds: [], // Will be selected in the next phase
+        eventSpaceIds: [], // Will be selected based on business sessions
+        diningIds: [], // Will be selected based on dine-arounds
         flightRouteIds: [],
         spaceSetups: {
-          banquet: formData.setupPreferences?.includes('Banquet') || false,
-          theater: formData.setupPreferences?.includes('Theater') || false,
-          reception: formData.setupPreferences?.includes('Reception') || false
+          banquet: formData.awardsDinner !== undefined,
+          theater: formData.businessSessions?.length > 0,
+          reception: formData.welcomeReception || false
         },
-        programInclusions: formData.programInclusions?.reduce((acc: any, inc: string) => {
-          acc[inc] = true;
-          return acc;
-        }, {}) || {},
+        programInclusions: {
+          airportTransfers: true, // Default to true
+          welcomeReception: formData.welcomeReception || false,
+          businessMeeting: formData.businessSessions?.length > 0,
+          awardDinner: formData.awardsDinner !== undefined,
+          dineArounds: formData.dineArounds?.nights?.length > 0,
+          finalNightDinner: true, // Default to true
+          teamBuilding: formData.otherEvents?.some(e => e.description.toLowerCase().includes('team')) || false,
+          offSiteVenues: formData.otherEvents?.some(e => e.description.toLowerCase().includes('off-site')) || false,
+          csrOptions: formData.otherEvents?.some(e => e.description.toLowerCase().includes('csr')) || false,
+          giftingIdeas: false,
+          danceBand: false,
+          decorIdeas: false,
+          activityOptions: false,
+          offSiteRestaurants: false
+        },
         branding: {
           primaryColor: formData.primaryColor || '#0066FF',
           secondaryColor: formData.secondaryColor || '#00B8D4',
