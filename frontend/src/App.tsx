@@ -7,6 +7,7 @@ import Dashboard from './pages/Dashboard';
 import ProposalBuilder from './pages/ProposalBuilder';
 import ProposalView from './pages/ProposalView';
 import PublicProposal from './pages/PublicProposal';
+import PublicProposalModern from './pages/PublicProposalModern';
 import ChatbotProposal from './pages/ChatbotProposal';
 import './App.css';
 
@@ -95,7 +96,7 @@ function App() {
         />
         <Route 
           path="/proposal/share/:shareId" 
-          element={<PublicProposal />} 
+          element={<PublicProposalModern />} 
         />
         <Route 
           path="/proposal/:id" 
