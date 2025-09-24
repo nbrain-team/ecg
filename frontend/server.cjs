@@ -5,6 +5,51 @@ const fs = require('fs');
 const app = express();
 const PORT = process.env.PORT || 3000;
 
+// Debug route to check file structure
+app.get('/debug-files', (req, res) => {
+  const distPath = path.join(__dirname, 'dist');
+  const files = fs.readdirSync(distPath);
+  res.json({
+    distPath,
+    files,
+    proposalExists: fs.existsSync(path.join(distPath, 'proposal-static.html')),
+    cssExists: fs.existsSync(path.join(distPath, 'proposal-design.css'))
+  });
+});
+
+// Explicitly serve the proposal static files before other static files
+app.get('/proposal-static.html', (req, res) => {
+  const filePath = path.join(__dirname, 'dist', 'proposal-static.html');
+  if (fs.existsSync(filePath)) {
+    res.sendFile(filePath);
+  } else {
+    // Also check in the public folder during development
+    const publicPath = path.join(__dirname, 'public', 'proposal-static.html');
+    if (fs.existsSync(publicPath)) {
+      res.sendFile(publicPath);
+    } else {
+      res.status(404).send(`Proposal page not found. Checked: ${filePath} and ${publicPath}`);
+    }
+  }
+});
+
+app.get('/proposal-design.css', (req, res) => {
+  const filePath = path.join(__dirname, 'dist', 'proposal-design.css');
+  if (fs.existsSync(filePath)) {
+    res.type('text/css');
+    res.sendFile(filePath);
+  } else {
+    // Also check in the public folder during development
+    const publicPath = path.join(__dirname, 'public', 'proposal-design.css');
+    if (fs.existsSync(publicPath)) {
+      res.type('text/css');
+      res.sendFile(publicPath);
+    } else {
+      res.status(404).send(`CSS file not found. Checked: ${filePath} and ${publicPath}`);
+    }
+  }
+});
+
 // Serve static files from the dist directory
 app.use(express.static(path.join(__dirname, 'dist')));
 
@@ -23,4 +68,5 @@ app.get('*', (req, res) => {
 
 app.listen(PORT, () => {
   console.log(`Frontend server running on port ${PORT}`);
+  console.log(`Serving static files from: ${path.join(__dirname, 'dist')}`);
 }); 
