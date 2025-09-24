@@ -8,6 +8,7 @@ import ProposalBuilder from './pages/ProposalBuilder';
 import ProposalView from './pages/ProposalView';
 import PublicProposal from './pages/PublicProposal';
 import PublicProposalModern from './pages/PublicProposalModern';
+import BudgetEditor from './pages/BudgetEditor';
 import ChatbotProposal from './pages/ChatbotProposal';
 import './App.css';
 
@@ -97,6 +98,10 @@ function App() {
         <Route 
           path="/proposal/share/:shareId" 
           element={<PublicProposalModern />} 
+        />
+        <Route 
+          path="/budget-editor" 
+          element={<BudgetEditor />} 
         />
         <Route 
           path="/proposal/:id" 
