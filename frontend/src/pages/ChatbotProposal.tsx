@@ -80,6 +80,8 @@ const CHAT_STEPS = {
   AWARDS_DINNER: 'awards_dinner',
   DINE_AROUNDS: 'dine_arounds',
   OTHER_EVENTS: 'other_events',
+  DESTINATION: 'destination',
+  RESORT: 'resort',
   REVIEW: 'review',
   CLIENT_INFO: 'client_info',
   COMPLETE: 'complete'
@@ -609,17 +611,46 @@ function ChatbotProposal() {
         
       case CHAT_STEPS.REVIEW:
         if (userInput === 'Continue to Venue Selection') {
-          // Now we need to gather client info before proceeding
           setChatState(prev => ({
             ...prev,
-            currentStep: CHAT_STEPS.CLIENT_INFO
+            currentStep: CHAT_STEPS.DESTINATION
           }));
-          addBotMessage("Before we find the perfect venue, I need some contact information. Please provide your name, company, and email (comma separated).", {
-            inputType: 'text'
+          const destOptions = destinations.map((d: any) => d.name);
+          addBotMessage("Great. First, please select a destination:", {
+            options: destOptions.length ? destOptions : ['Los Cabos']
           });
         } else if (userInput === 'Make Changes') {
           addBotMessage("What would you like to change? You can tell me, and I'll help you update it.");
-          // TODO: Implement change flow
+        }
+        break;
+
+      case CHAT_STEPS.DESTINATION:
+        if (userInput) {
+          const selected = destinations.find((d: any) => d.name === userInput) || destinations[0];
+          setChatState(prev => ({
+            ...prev,
+            formData: { ...prev.formData, destinationId: selected?.id || 'los-cabos' },
+            currentStep: CHAT_STEPS.RESORT
+          }));
+          // Build resort options: prefer hotels list for now
+          const resortOptions = hotels.map((h: any) => h.name);
+          addBotMessage("Now select a resort:", {
+            options: resortOptions.length ? resortOptions : ['Grand Velas Los Cabos']
+          });
+        }
+        break;
+
+      case CHAT_STEPS.RESORT:
+        if (userInput) {
+          const selectedHotel = hotels.find((h: any) => h.name === userInput) || hotels[0];
+          setChatState(prev => ({
+            ...prev,
+            formData: { ...prev.formData, resortId: selectedHotel?.id || 'grand-velas' },
+            currentStep: CHAT_STEPS.CLIENT_INFO
+          }));
+          addBotMessage("Almost done — who should I address this proposal to? Please provide your name, company, and email (comma separated).", {
+            inputType: 'text'
+          });
         }
         break;
         
@@ -742,9 +773,9 @@ function ChatbotProposal() {
           dineArounds: formData.dineArounds,
           otherEvents: formData.otherEvents
         },
-        // For now, we'll auto-select destination and resort based on availability
-        destinationId: destinations[0]?.id || 'los-cabos',
-        resortId: hotels[0]?.id || 'grand-velas',
+        // Use user selections (fallback to defaults if missing)
+        destinationId: formData.destinationId || destinations[0]?.id || 'los-cabos',
+        resortId: formData.resortId || hotels[0]?.id || 'grand-velas',
         roomTypeIds: [], // Will be selected in the next phase
         eventSpaceIds: [], // Will be selected based on business sessions
         diningIds: [], // Will be selected based on dine-arounds
