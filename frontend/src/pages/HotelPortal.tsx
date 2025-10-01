@@ -400,6 +400,14 @@ function HotelPortal() {
             <span className="hotel-sidebar-icon">📞</span>
             Contact
           </button>
+          <a 
+            className="hotel-sidebar-nav-item" 
+            href="/hotel/ai-quote"
+            style={{ textDecoration: 'none' }}
+          >
+            <span className="hotel-sidebar-icon">✨</span>
+            AI Quote Assistant
+          </a>
         </nav>
       </div>
 
@@ -503,6 +511,14 @@ function HotelPortal() {
         
         <div className="hotel-info-grid">
           <div>
+            {/* Quick Action to Start AI Quote */}
+            <div className="hotel-section" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '1rem' }}>
+              <div>
+                <h3>AI Quote Assistant</h3>
+                <p style={{ margin: 0, color: '#555' }}>Generate a draft quote from your program details in minutes.</p>
+              </div>
+              <a className="btn btn-primary" href="/hotel/ai-quote">Start AI Quote</a>
+            </div>
             {/* About Section */}
             <div className="hotel-section">
               <h3>About {hotel?.name}</h3>
