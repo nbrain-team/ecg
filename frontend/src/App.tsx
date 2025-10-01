@@ -124,9 +124,9 @@ function App() {
         <Route 
           path="/proposal/:id" 
           element={
-            isAuthenticated ? 
+            (isAuthenticated || isHotelAuthenticated) ? 
               <ProposalView /> : 
-              <Navigate to="/login" />
+              <Navigate to={isHotelAuthenticated ? "/hotel/login" : "/login"} />
           } 
         />
         <Route 

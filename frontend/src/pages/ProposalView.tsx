@@ -21,14 +21,15 @@ function ProposalView() {
       if (!apiUrl) {
         throw new Error('API URL not configured. Please check environment variables.');
       }
-      const token = localStorage.getItem('token');
+      // Support both admin/user token and hotel token
+      const token = localStorage.getItem('token') || localStorage.getItem('hotelToken');
       
       console.log('Fetching proposal with ID:', id);
       console.log('API URL:', apiUrl);
       console.log('Token exists:', !!token);
       
       const response = await axios.get(`${apiUrl}/api/proposals/${id}`, {
-        headers: { Authorization: `Bearer ${token}` }
+        headers: token ? { Authorization: `Bearer ${token}` } : {}
       });
       
       console.log('Proposal fetched successfully:', response.data);
@@ -42,8 +43,14 @@ function ProposalView() {
       if (error.response?.status === 404) {
         console.error('Proposal not found with ID:', id);
       } else if (error.response?.status === 401) {
-        console.error('Authentication failed - redirecting to login');
-        navigate('/login');
+        console.error('Authentication failed - attempting hotel login context');
+        const hotelToken = localStorage.getItem('hotelToken');
+        if (hotelToken) {
+          // If hotel token exists but 401 occurred, prompt re-login to hotel portal
+          navigate('/hotel/login');
+        } else {
+          navigate('/login');
+        }
       } else {
         console.error('Unexpected error:', error.message);
       }
@@ -58,10 +65,10 @@ function ProposalView() {
       if (!apiUrl) {
         throw new Error('API URL not configured. Please check environment variables.');
       }
-      const token = localStorage.getItem('token');
+      const token = localStorage.getItem('token') || localStorage.getItem('hotelToken');
       
       await axios.post(`${apiUrl}/api/proposals/${id}/publish`, {}, {
-        headers: { Authorization: `Bearer ${token}` }
+        headers: token ? { Authorization: `Bearer ${token}` } : {}
       });
       
       // Refresh proposal data
