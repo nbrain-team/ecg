@@ -422,6 +422,9 @@ function HotelPortal() {
               {activeTab === 'venues' && 'Venue Management'}
               {activeTab === 'dining' && 'Dining Management'}
             </h1>
+            <div className="hotel-header-actions" style={{ marginTop: '0.5rem' }}>
+              <a className="btn btn-primary" href="/hotel/ai-quote">Start AI Quote</a>
+            </div>
             
             {/* Top Tab Navigation */}
           <div className="hotel-tab-nav">
