@@ -19,6 +19,13 @@ const users = [
     password: '$2a$10$7lVAHwgroaoihBjwLA5RpO3DWiwbCukPMfm.VTpILxQBBbmAGHB06', // password: admin123
     name: 'Demo User',
     role: 'admin' as const
+  },
+  {
+    id: '3',
+    email: 'viewer@eventconnectionsgroup.com',
+    password: '$2a$10$7lVAHwgroaoihBjwLA5RpO3DWiwbCukPMfm.VTpILxQBBbmAGHB06', // password: admin123
+    name: 'Viewer User',
+    role: 'viewer' as const
   }
 ];
 

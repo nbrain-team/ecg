@@ -8,6 +8,7 @@ export interface AuthenticatedRequest extends Request {
     role: 'admin' | 'hotel' | 'viewer';
     hotelId?: string;
   };
+  userId?: string; // For backward compatibility
 }
 
 export function requireAuth(roles?: Array<'admin' | 'hotel' | 'viewer'>) {
@@ -27,8 +28,12 @@ export function requireAuth(roles?: Array<'admin' | 'hotel' | 'viewer'>) {
         role: decoded.role,
         hotelId: decoded.hotelId
       };
+      // Also set userId for backward compatibility
+      req.userId = decoded.id;
+      
       if (roles && roles.length > 0 && !roles.includes(req.user.role)) {
-        return res.status(403).json({ message: 'Forbidden' });
+        console.log('Role check failed:', { userRole: req.user.role, requiredRoles: roles });
+        return res.status(403).json({ message: 'Forbidden - insufficient permissions' });
       }
       next();
     } catch (err) {
