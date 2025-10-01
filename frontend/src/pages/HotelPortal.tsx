@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import './HotelPortal.css';
 import Modal from '../components/Modal';
+import ProposalsList from './components/ProposalsList';
 
 const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:3001';
 
@@ -41,7 +42,7 @@ function HotelPortal() {
   const [dining, setDining] = useState<any[]>([]);
   const [error, setError] = useState('');
   const [schema, setSchema] = useState<any>({});
-  const [activeTab, setActiveTab] = useState<'overview'|'profile'|'contact'|'location'|'images'|'policies'|'financials'|'amenities'|'workflow'|'rooms'|'venues'|'dining'>('overview');
+  const [activeTab, setActiveTab] = useState<'overview'|'profile'|'contact'|'location'|'images'|'policies'|'financials'|'amenities'|'workflow'|'rooms'|'venues'|'dining'|'proposals'>('overview');
   const [sidebarTab, setSidebarTab] = useState<'overview'|'profile'|'contact'>('overview');
   const [saving, setSaving] = useState(false);
   const [schemaDraft, setSchemaDraft] = useState<any>({});
@@ -403,6 +404,13 @@ function HotelPortal() {
             Contact
           </button>
           <button 
+            className={`hotel-sidebar-nav-item ${activeTab==='proposals' ? 'active' : ''}`}
+            onClick={() => setActiveTab('proposals')}
+          >
+            <span className="hotel-sidebar-icon">📄</span>
+            Proposals
+          </button>
+          <button 
             className="hotel-sidebar-nav-item" 
             onClick={() => navigate('/hotel/ai-quote')}
           >
@@ -430,6 +438,7 @@ function HotelPortal() {
               {activeTab === 'rooms' && 'Room Management'}
               {activeTab === 'venues' && 'Venue Management'}
               {activeTab === 'dining' && 'Dining Management'}
+              {activeTab === 'proposals' && 'Proposals'}
             </h1>
             
             
@@ -713,6 +722,13 @@ function HotelPortal() {
           <div className="builder-actions mt-2">
             <button className="btn btn-primary" onClick={()=>saveSection('contact')} disabled={saving}>{saving?'Saving...':'Save Contact'}</button>
           </div>
+        </section>
+      )}
+
+      {activeTab==='proposals' && (
+        <section className="card">
+          <h2>Your Proposals</h2>
+          <ProposalsList />
         </section>
       )}
 

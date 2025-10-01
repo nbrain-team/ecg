@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import axios from 'axios';
 
 interface GridRow {
   date: string;
@@ -20,6 +21,7 @@ function HotelQuoteGrid() {
   const navigate = useNavigate();
   const [rows, setRows] = useState<GridRow[]>([]);
   const [meta, setMeta] = useState<any>(null);
+  const apiUrl = (import.meta as any).env?.VITE_API_URL || '';
 
   useEffect(() => {
     const draftRaw = localStorage.getItem('hotel_quote_draft');
@@ -79,13 +81,103 @@ function HotelQuoteGrid() {
 
   const totalRoomNights = useMemo(() => rows.reduce((acc, r) => acc + r.roomNights, 0), [rows]);
 
-  const saveAndProceed = () => {
+  const saveAndProceed = async () => {
     const draftRaw = localStorage.getItem('hotel_quote_draft') || '{}';
     const draft = JSON.parse(draftRaw);
     draft.grid = { rows, totalRoomNights };
     localStorage.setItem('hotel_quote_draft', JSON.stringify(draft));
-    // For now navigate back to portal; later could generate visual
-    navigate('/hotel/portal');
+
+    try {
+      const hotelToken = localStorage.getItem('hotelToken');
+      const headers = { Authorization: `Bearer ${hotelToken}` };
+
+      // Attempt to enrich resort/destination from hotel profile
+      let resortId = 'hotel-portal';
+      let destinationId = 'on-site';
+      try {
+        const me = await axios.get(`${apiUrl}/api/hotels/me`, { headers });
+        resortId = me.data?.id || resortId;
+        const city = me.data?.city || '';
+        destinationId = (city || 'on-site').toLowerCase().replace(/\s+/g, '-');
+      } catch (_) {}
+
+      // Build start/end dates
+      let startDate = draft?.program?.start_date;
+      let endDate = draft?.program?.end_date;
+      if (!startDate) startDate = draft?.program?.flex_start || new Date().toISOString().slice(0, 10);
+      if (!endDate) {
+        const start = new Date(startDate);
+        const nights = Number(draft?.program?.nights || rows.length || 3);
+        const end = new Date(start);
+        end.setDate(start.getDate() + Math.max(0, nights - 1));
+        endDate = end.toISOString().slice(0, 10);
+      }
+
+      const attendeeCount = Number(draft?.attendees?.count || 0);
+      const maxRooms = rows.reduce((m, r) => Math.max(m, r.roomNights), 0);
+
+      // Prepare payload similar to ChatbotProposal
+      const payload = {
+        client: {
+          name: 'Hotel Coordinator',
+          company: draft?.company || '',
+          email: ''
+        },
+        eventDetails: {
+          name: `Group Program - ${destinationId}`,
+          purpose: 'corporate',
+          startDate,
+          endDate,
+          attendeeCount,
+          roomsNeeded: maxRooms,
+          preferredDates: `${startDate} to ${endDate}`,
+          datesFlexible: !!draft?.program?.is_flexible,
+          numberOfNights: draft?.program?.nights || rows.length,
+          daysPattern: draft?.program?.dow_pattern || 'Any',
+          doubleOccupancy: !!draft?.occupancy?.is_double_majority,
+          privateSatelliteCheckIn: !!draft?.arrival?.satellite_checkin?.enabled,
+          businessSessions: (draft?.events?.business?.days || []).map((d:number)=>({ day: d })),
+          awardsDinner: draft?.events?.awards_dinner?.enabled ? { night: draft?.events?.awards_dinner?.night } : undefined,
+          otherEvents: draft?.events?.custom || []
+        },
+        destinationId,
+        resortId,
+        roomTypeIds: [],
+        eventSpaceIds: [],
+        diningIds: [],
+        spaceSetups: {
+          theater: (draft?.events?.business?.days || []).length > 0,
+          reception: !!draft?.events?.welcome_reception?.enabled,
+          banquet: !!draft?.events?.awards_dinner?.enabled
+        },
+        programInclusions: {
+          welcomeReception: !!draft?.events?.welcome_reception?.enabled,
+          businessMeeting: (draft?.events?.business?.days || []).length > 0,
+          awardDinner: !!draft?.events?.awards_dinner?.enabled,
+          dineArounds: (draft?.events?.dine_arounds?.nights || []).length > 0
+        },
+        branding: {
+          theme: 'modern'
+        },
+        // Attach grid summary for backend pricing if needed
+        metadata: { grid: { rows, totalRoomNights } }
+      } as any;
+
+      const resp = await axios.post(`${apiUrl}/api/proposals`, payload, { headers });
+      const data = resp.data || {};
+      const shareId = data.shareId || data.share_id || data.publicId || data.public_id;
+      if (shareId) {
+        navigate(`/proposal/share/${shareId}`);
+      } else if (data.id) {
+        // Fallback to portal if no public share id
+        navigate('/hotel/portal');
+      } else {
+        navigate('/hotel/portal');
+      }
+    } catch (error) {
+      // On failure, keep draft and return to portal
+      navigate('/hotel/portal');
+    }
   };
 
   return (
