@@ -8,7 +8,24 @@ const router = Router();
 // Get all proposals for authenticated user
 router.get('/', requireAuth(['admin', 'viewer', 'hotel']), async (req, res) => {
   try {
-    const userId = (req as any).userId;
+    const authReq = req as any;
+    let userId = authReq.userId;
+    
+    // For hotel users, find the corresponding user entry
+    if (authReq.user?.role === 'hotel') {
+      const { rows: userRows } = await pool.query(
+        'SELECT id FROM users WHERE email = $1',
+        [authReq.user.email]
+      );
+      
+      if (userRows.length > 0) {
+        userId = userRows[0].id;
+      } else {
+        // No proposals yet for this hotel user
+        return res.json([]);
+      }
+    }
+    
     const { rows } = await pool.query(
       'SELECT * FROM proposals WHERE user_id = $1 ORDER BY created_at DESC',
       [userId]
@@ -23,7 +40,23 @@ router.get('/', requireAuth(['admin', 'viewer', 'hotel']), async (req, res) => {
 // Get proposal by ID
 router.get('/:id', requireAuth(['admin', 'viewer', 'hotel']), async (req, res) => {
   try {
-    const userId = (req as any).userId;
+    const authReq = req as any;
+    let userId = authReq.userId;
+    
+    // For hotel users, find the corresponding user entry
+    if (authReq.user?.role === 'hotel') {
+      const { rows: userRows } = await pool.query(
+        'SELECT id FROM users WHERE email = $1',
+        [authReq.user.email]
+      );
+      
+      if (userRows.length > 0) {
+        userId = userRows[0].id;
+      } else {
+        return res.status(404).json({ message: 'Proposal not found' });
+      }
+    }
+    
     const { rows } = await pool.query(
       'SELECT * FROM proposals WHERE id = $1 AND user_id = $2',
       [req.params.id, userId]
@@ -67,7 +100,30 @@ router.get('/share/:shareId', async (req, res) => {
 // Create new proposal
 router.post('/', requireAuth(['admin', 'viewer', 'hotel']), async (req, res) => {
   try {
-    const userId = (req as any).userId;
+    const authReq = req as any;
+    let userId = authReq.userId;
+    
+    // For hotel users, we need to create or find a corresponding user entry
+    if (authReq.user?.role === 'hotel') {
+      // Check if we already have a user entry for this hotel user
+      const { rows: existingUser } = await pool.query(
+        'SELECT id FROM users WHERE email = $1',
+        [authReq.user.email]
+      );
+      
+      if (existingUser.length > 0) {
+        userId = existingUser[0].id;
+      } else {
+        // Create a new user entry for the hotel user
+        const { rows: newUser } = await pool.query(
+          `INSERT INTO users (email, password, name, role) 
+           VALUES ($1, 'hotel-user', $2, 'hotel') 
+           RETURNING id`,
+          [authReq.user.email, authReq.user.email.split('@')[0]]
+        );
+        userId = newUser[0].id;
+      }
+    }
     
     const {
       client,
