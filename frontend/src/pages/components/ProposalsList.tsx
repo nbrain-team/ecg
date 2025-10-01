@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 
 interface ProposalRow {
@@ -13,6 +14,7 @@ function ProposalsList() {
   const [rows, setRows] = useState<ProposalRow[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchAll = async () => {
@@ -48,9 +50,9 @@ function ProposalsList() {
             <p className="description">{p.createdAt ? new Date(p.createdAt).toLocaleString() : ''}</p>
             <div className="card-actions">
               {p.shareId && (
-                <a className="btn btn-primary" href={`/proposal/share/${p.shareId}`} target="_blank" rel="noreferrer">View</a>
+                <Link className="btn btn-primary" to={`/proposal/share/${p.shareId}`} target="_blank" rel="noreferrer">View</Link>
               )}
-              <a className="btn btn-outline" href={`/proposal/${p.id}`}>Open</a>
+              <button className="btn btn-outline" onClick={() => navigate(`/proposal/${p.id}`)}>Open</button>
             </div>
           </div>
         </div>
