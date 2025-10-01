@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import './HotelPortal.css';
 import Modal from '../components/Modal';
@@ -29,6 +30,7 @@ interface Hotel {
 }
 
 function HotelPortal() {
+  const navigate = useNavigate();
   const hotelToken = localStorage.getItem('hotelToken');
   const auth = { headers: { Authorization: `Bearer ${hotelToken}` } };
   
@@ -400,14 +402,13 @@ function HotelPortal() {
             <span className="hotel-sidebar-icon">📞</span>
             Contact
           </button>
-          <a 
+          <button 
             className="hotel-sidebar-nav-item" 
-            href="/hotel/ai-quote"
-            style={{ textDecoration: 'none' }}
+            onClick={() => navigate('/hotel/ai-quote')}
           >
             <span className="hotel-sidebar-icon">✨</span>
             AI Quote Assistant
-          </a>
+          </button>
         </nav>
       </div>
 
@@ -430,9 +431,7 @@ function HotelPortal() {
               {activeTab === 'venues' && 'Venue Management'}
               {activeTab === 'dining' && 'Dining Management'}
             </h1>
-            <div className="hotel-header-actions" style={{ marginTop: '0.5rem' }}>
-              <a className="btn btn-primary" href="/hotel/ai-quote">Start AI Quote</a>
-            </div>
+            
             
             {/* Top Tab Navigation */}
           <div className="hotel-tab-nav">
@@ -472,10 +471,7 @@ function HotelPortal() {
                 className={`hotel-tab-btn ${activeTab==='dining' ? 'active' : ''}`} 
                 onClick={() => setActiveTab('dining')}
               >Dining</button>
-              <button 
-                className="hotel-tab-btn" 
-                onClick={() => window.location.assign('/hotel/ai-quote')}
-              >AI Quote Assistant</button>
+              
             </div>
           </div>
         </div>
@@ -511,14 +507,7 @@ function HotelPortal() {
         
         <div className="hotel-info-grid">
           <div>
-            {/* Quick Action to Start AI Quote */}
-            <div className="hotel-section" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '1rem' }}>
-              <div>
-                <h3>AI Quote Assistant</h3>
-                <p style={{ margin: 0, color: '#555' }}>Generate a draft quote from your program details in minutes.</p>
-              </div>
-              <a className="btn btn-primary" href="/hotel/ai-quote">Start AI Quote</a>
-            </div>
+            
             {/* About Section */}
             <div className="hotel-section">
               <h3>About {hotel?.name}</h3>
