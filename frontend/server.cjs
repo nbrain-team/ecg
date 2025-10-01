@@ -5,6 +5,24 @@ const fs = require('fs');
 const app = express();
 const PORT = process.env.PORT || 3000;
 
+// Add simple version endpoint to confirm live commit and build time
+app.get('/version', (req, res) => {
+  res.json({
+    commit: process.env.RENDER_GIT_COMMIT || process.env.COMMIT || 'unknown',
+    builtAt: process.env.RENDER_GIT_COMMIT_TIMESTAMP || new Date().toISOString()
+  });
+});
+
+// Caching strategy: cache-bust SPA shell, cache assets aggressively
+app.use((req, res, next) => {
+  if (req.path.startsWith('/assets/')) {
+    res.setHeader('Cache-Control', 'public, max-age=31536000, immutable');
+  } else if (req.method === 'GET') {
+    res.setHeader('Cache-Control', 'no-store');
+  }
+  next();
+});
+
 // Debug route to check file structure
 app.get('/debug-files', (req, res) => {
   const distPath = path.join(__dirname, 'dist');
