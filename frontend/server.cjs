@@ -12,6 +12,7 @@ app.get('/version', (req, res) => {
     builtAt: process.env.RENDER_GIT_COMMIT_TIMESTAMP || new Date().toISOString()
   });
 });
+// marker: deploy-refresh
 
 // Caching strategy: cache-bust SPA shell, cache assets aggressively
 app.use((req, res, next) => {
