@@ -594,14 +594,21 @@ function ChatbotProposal() {
         
       case CHAT_STEPS.CLIENT_INFO:
         if (userInput) {
+          console.log('📝 Processing client info:', userInput);
           // Simple parsing - in production would use a form
+          const clientName = userInput.split(',')[0]?.trim() || 'Test Client';
+          const clientCompany = userInput.split(',')[1]?.trim() || 'Test Company';
+          const clientEmail = userInput.split(',')[2]?.trim() || 'test@example.com';
+          
+          console.log('👤 Parsed client info:', { clientName, clientCompany, clientEmail });
+          
           setChatState(prev => ({
             ...prev,
             formData: { 
               ...prev.formData, 
-              clientName: userInput.split(',')[0]?.trim(),
-              clientCompany: userInput.split(',')[1]?.trim(),
-              clientEmail: userInput.split(',')[2]?.trim()
+              clientName,
+              clientCompany,
+              clientEmail
             },
             currentStep: CHAT_STEPS.COMPLETE
           }));
@@ -729,11 +736,19 @@ function ChatbotProposal() {
 
   const createProposal = async () => {
     try {
+      console.log('🚀 Starting proposal creation...');
       setIsTyping(true);
       addBotMessage("Creating your proposal now...");
       
       const token = localStorage.getItem('token');
+      console.log('🔑 Token exists:', !!token);
+      
+      if (!token) {
+        throw new Error('No authentication token found. Please log in again.');
+      }
+      
       const { formData } = chatState;
+      console.log('📋 Form data:', formData);
       
       // Build proposal payload matching the backend structure
       // Calculate start and end dates from preferred dates and number of nights
@@ -853,6 +868,10 @@ function ChatbotProposal() {
         console.error('No proposal ID in response:', response.data);
         throw new Error('Proposal created but no ID returned');
       }
+      
+      // Log success for debugging
+      console.log('✅ Proposal created successfully with ID:', proposalId);
+      console.log('✅ Full response:', response.data);
       
       addBotMessage(`🎉 Your proposal has been created successfully! (ID: ${proposalId})`, {
         options: ['View Proposal', 'Create Another']
