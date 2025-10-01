@@ -14,7 +14,7 @@ const upload = multer({
 });
 
 // Get all hotels (for chatbot)
-router.get('/all', requireAuth(['admin', 'viewer']), async (req, res) => {
+router.get('/all', requireAuth(['admin', 'viewer', 'hotel']), async (req, res) => {
   try {
     const { rows } = await pool.query('SELECT * FROM hotels ORDER BY name');
     res.json(rows);
@@ -25,7 +25,7 @@ router.get('/all', requireAuth(['admin', 'viewer']), async (req, res) => {
 });
 
 // Get all rooms across all hotels (for chatbot)
-router.get('/rooms/all', requireAuth(['admin', 'viewer']), async (req, res) => {
+router.get('/rooms/all', requireAuth(['admin', 'viewer', 'hotel']), async (req, res) => {
   try {
     const { rows } = await pool.query(`
       SELECT r.*, h.name as hotel_name 
@@ -41,7 +41,7 @@ router.get('/rooms/all', requireAuth(['admin', 'viewer']), async (req, res) => {
 });
 
 // Get all venues across all hotels (for chatbot)
-router.get('/venues/all', requireAuth(['admin', 'viewer']), async (req, res) => {
+router.get('/venues/all', requireAuth(['admin', 'viewer', 'hotel']), async (req, res) => {
   try {
     const { rows } = await pool.query(`
       SELECT v.*, h.name as hotel_name 
@@ -57,7 +57,7 @@ router.get('/venues/all', requireAuth(['admin', 'viewer']), async (req, res) => 
 });
 
 // Get all dining options across all hotels (for chatbot)
-router.get('/dining/all', requireAuth(['admin', 'viewer']), async (req, res) => {
+router.get('/dining/all', requireAuth(['admin', 'viewer', 'hotel']), async (req, res) => {
   try {
     const { rows } = await pool.query(`
       SELECT d.*, h.name as hotel_name 

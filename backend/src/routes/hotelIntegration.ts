@@ -5,7 +5,7 @@ import { requireAuth } from '../middleware/auth';
 const router = Router();
 
 // Get hotels as resorts for proposal builder
-router.get('/resorts', requireAuth(['admin', 'viewer']), async (req, res) => {
+router.get('/resorts', requireAuth(['admin', 'viewer', 'hotel']), async (req, res) => {
   try {
     const { rows: hotels } = await pool.query(`
       SELECT 
@@ -52,7 +52,7 @@ router.get('/resorts', requireAuth(['admin', 'viewer']), async (req, res) => {
 });
 
 // Get rooms for a hotel (as resort)
-router.get('/resorts/:hotelId/rooms', requireAuth(['admin', 'viewer']), async (req, res) => {
+router.get('/resorts/:hotelId/rooms', requireAuth(['admin', 'viewer', 'hotel']), async (req, res) => {
   try {
     const hotelId = req.params.hotelId.replace('hotel-', ''); // Remove prefix
     const { rows: rooms } = await pool.query(`
@@ -92,7 +92,7 @@ router.get('/resorts/:hotelId/rooms', requireAuth(['admin', 'viewer']), async (r
 });
 
 // Get event spaces for a hotel (as resort)
-router.get('/resorts/:hotelId/spaces', requireAuth(['admin', 'viewer']), async (req, res) => {
+router.get('/resorts/:hotelId/spaces', requireAuth(['admin', 'viewer', 'hotel']), async (req, res) => {
   try {
     const hotelId = req.params.hotelId.replace('hotel-', '');
     const { rows: venues } = await pool.query(`
@@ -147,7 +147,7 @@ router.get('/resorts/:hotelId/spaces', requireAuth(['admin', 'viewer']), async (
 });
 
 // Get dining options for a hotel (as resort)
-router.get('/resorts/:hotelId/dining', requireAuth(['admin', 'viewer']), async (req, res) => {
+router.get('/resorts/:hotelId/dining', requireAuth(['admin', 'viewer', 'hotel']), async (req, res) => {
   try {
     const hotelId = req.params.hotelId.replace('hotel-', '');
     const { rows: dining } = await pool.query(`

@@ -6,7 +6,7 @@ import { requireAuth } from '../middleware/auth';
 const router = Router();
 
 // Get all proposals for authenticated user
-router.get('/', requireAuth(['admin', 'viewer']), async (req, res) => {
+router.get('/', requireAuth(['admin', 'viewer', 'hotel']), async (req, res) => {
   try {
     const userId = (req as any).userId;
     const { rows } = await pool.query(
@@ -21,7 +21,7 @@ router.get('/', requireAuth(['admin', 'viewer']), async (req, res) => {
 });
 
 // Get proposal by ID
-router.get('/:id', requireAuth(['admin', 'viewer']), async (req, res) => {
+router.get('/:id', requireAuth(['admin', 'viewer', 'hotel']), async (req, res) => {
   try {
     const userId = (req as any).userId;
     const { rows } = await pool.query(
@@ -65,7 +65,7 @@ router.get('/share/:shareId', async (req, res) => {
 });
 
 // Create new proposal
-router.post('/', requireAuth(['admin', 'viewer']), async (req, res) => {
+router.post('/', requireAuth(['admin', 'viewer', 'hotel']), async (req, res) => {
   try {
     const userId = (req as any).userId;
     
@@ -116,7 +116,7 @@ router.post('/', requireAuth(['admin', 'viewer']), async (req, res) => {
 });
 
 // Update proposal
-router.put('/:id', requireAuth(['admin', 'viewer']), async (req, res) => {
+router.put('/:id', requireAuth(['admin', 'viewer', 'hotel']), async (req, res) => {
   try {
     const userId = (req as any).userId;
     
@@ -185,7 +185,7 @@ router.put('/:id', requireAuth(['admin', 'viewer']), async (req, res) => {
 });
 
 // Publish proposal
-router.post('/:id/publish', requireAuth(['admin', 'viewer']), async (req, res) => {
+router.post('/:id/publish', requireAuth(['admin', 'viewer', 'hotel']), async (req, res) => {
   try {
     const userId = (req as any).userId;
     
@@ -212,7 +212,7 @@ router.post('/:id/publish', requireAuth(['admin', 'viewer']), async (req, res) =
 });
 
 // Delete proposal
-router.delete('/:id', requireAuth(['admin', 'viewer']), async (req, res) => {
+router.delete('/:id', requireAuth(['admin', 'viewer', 'hotel']), async (req, res) => {
   try {
     const userId = (req as any).userId;
     
