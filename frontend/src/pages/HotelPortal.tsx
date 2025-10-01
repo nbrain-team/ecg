@@ -4,6 +4,7 @@ import axios from 'axios';
 import './HotelPortal.css';
 import Modal from '../components/Modal';
 import ProposalsList from './components/ProposalsList';
+import { LayoutDashboard, Building2, Phone, FileText, Wand2 } from 'lucide-react';
 
 const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:3001';
 
@@ -386,35 +387,35 @@ function HotelPortal() {
             className={`hotel-sidebar-nav-item ${activeTab==='overview' ? 'active' : ''}`}
             onClick={() => setActiveTab('overview')}
           >
-            <span className="hotel-sidebar-icon">📊</span>
+            <span className="hotel-sidebar-icon"><LayoutDashboard size={18} /></span>
             Overview
           </button>
           <button 
             className={`hotel-sidebar-nav-item ${activeTab==='profile' ? 'active' : ''}`}
             onClick={() => setActiveTab('profile')}
           >
-            <span className="hotel-sidebar-icon">🏨</span>
+            <span className="hotel-sidebar-icon"><Building2 size={18} /></span>
             Profile
           </button>
           <button 
             className={`hotel-sidebar-nav-item ${activeTab==='contact' ? 'active' : ''}`}
             onClick={() => setActiveTab('contact')}
           >
-            <span className="hotel-sidebar-icon">📞</span>
+            <span className="hotel-sidebar-icon"><Phone size={18} /></span>
             Contact
           </button>
           <button 
             className={`hotel-sidebar-nav-item ${activeTab==='proposals' ? 'active' : ''}`}
             onClick={() => setActiveTab('proposals')}
           >
-            <span className="hotel-sidebar-icon">📄</span>
+            <span className="hotel-sidebar-icon"><FileText size={18} /></span>
             Proposals
           </button>
           <button 
             className="hotel-sidebar-nav-item" 
             onClick={() => navigate('/hotel/ai-quote')}
           >
-            <span className="hotel-sidebar-icon">✨</span>
+            <span className="hotel-sidebar-icon"><Wand2 size={18} /></span>
             AI Quote Assistant
           </button>
         </nav>
