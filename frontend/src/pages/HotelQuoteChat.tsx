@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Bot, RefreshCw, Send, User } from 'lucide-react';
+import axios from 'axios';
 import './ChatbotProposal.css';
 
 type MessageType = 'bot' | 'user';
@@ -151,10 +152,126 @@ function HotelQuoteChat() {
     return true;
   };
 
-  const saveDraftAndOpenGrid = () => {
-    const draft = { ...state, program: { ...state.program, nights } };
-    localStorage.setItem('hotel_quote_draft', JSON.stringify(draft));
-    navigate('/hotel/ai-quote/grid');
+  const saveDraftAndOpenGrid = async () => {
+    try {
+      setIsTyping(true);
+      addBotMessage("Saving your quote and creating proposal...");
+      
+      const token = localStorage.getItem('hotelToken');
+      if (!token) {
+        throw new Error('No hotel authentication token found. Please log in again.');
+      }
+      
+      const draft = { ...state, program: { ...state.program, nights } };
+      localStorage.setItem('hotel_quote_draft', JSON.stringify(draft));
+      
+      // Create proposal in database
+      const proposalPayload = {
+        client: {
+          name: 'Hotel Quote Client',
+          company: 'Grand Velas Los Cabos',
+          email: 'quote@grandvelasloscabos.com'
+        },
+        eventDetails: {
+          name: `Hotel Quote - ${new Date().toLocaleDateString()}`,
+          purpose: 'hotel_quote',
+          startDate: state.program.start_date || state.program.flex_start || '',
+          endDate: state.program.end_date || state.program.flex_end || '',
+          attendeeCount: state.attendees.count || 0,
+          roomsNeeded: Math.ceil((state.attendees.count || 0) * (1 - (state.occupancy.double_pct || 0) / 100)),
+          numberOfNights: nights,
+          daysPattern: state.program.dow_pattern,
+          doubleOccupancy: state.occupancy.is_double_majority,
+          roomView: state.rooms.view_pref,
+          suiteCount: state.rooms.suites?.count || 0,
+          privateSatelliteCheckIn: state.arrival.satellite_checkin?.enabled,
+          businessSessions: state.events.business?.days?.map(d => ({ day: d, description: state.events.business?.details || '' })),
+          awardsDinner: state.events.awards_dinner?.enabled ? { night: state.events.awards_dinner.night } : undefined,
+          dineArounds: state.events.dine_arounds?.enabled ? { nights: state.events.dine_arounds.nights || [] } : undefined,
+          otherEvents: state.events.custom
+        },
+        destination: {
+          id: 'los-cabos',
+          name: 'Los Cabos'
+        },
+        resort: {
+          id: 'grand-velas',
+          name: 'Grand Velas Los Cabos'
+        },
+        selectedRooms: [],
+        selectedSpaces: [],
+        selectedDining: [],
+        flightRoutes: [],
+        programFlow: {
+          spaceSetups: {
+            banquet: state.events.awards_dinner?.enabled || false,
+            theater: (state.events.business?.days?.length ?? 0) > 0,
+            reception: state.events.welcome_reception?.enabled || false
+          },
+          programInclusions: {
+            airportTransfers: true,
+            welcomeReception: state.events.welcome_reception?.enabled || false,
+            businessMeeting: (state.events.business?.days?.length ?? 0) > 0,
+            awardDinner: state.events.awards_dinner?.enabled || false,
+            dineArounds: state.events.dine_arounds?.enabled || false,
+            finalNightDinner: false,
+            teamBuilding: false,
+            offSiteVenues: false,
+            csrOptions: false,
+            giftingIdeas: false,
+            danceBand: false,
+            decorIdeas: false,
+            activityOptions: false,
+            offSiteRestaurants: false
+          }
+        },
+        branding: {
+          primaryColor: '#0066FF',
+          secondaryColor: '#00B8D4',
+          theme: 'modern'
+        },
+        generatedContent: null
+      };
+      
+      const apiUrl = import.meta.env.VITE_API_URL;
+      if (!apiUrl) {
+        throw new Error('API URL not configured. Please check environment variables.');
+      }
+      
+      console.log('Creating hotel quote proposal:', proposalPayload);
+      
+      const response = await axios.post(
+        `${apiUrl}/api/proposals`,
+        proposalPayload,
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+      
+      console.log('Proposal created successfully:', response.data);
+      
+      if (response.data.id) {
+        addBotMessage(`✅ Proposal saved successfully! (ID: ${response.data.id}). Opening grid editor...`);
+        localStorage.setItem('lastHotelProposalId', response.data.id);
+        
+        // Wait a moment then navigate to grid
+        setTimeout(() => {
+          navigate('/hotel/ai-quote/grid');
+        }, 1500);
+      } else {
+        throw new Error('Proposal created but no ID returned');
+      }
+      
+    } catch (error: any) {
+      console.error('Error saving proposal:', error);
+      const errorMessage = error.response?.data?.message || error.message || 'Unknown error';
+      addBotMessage(`❌ Error saving proposal: ${errorMessage}`);
+      
+      // Still navigate to grid even if save failed
+      setTimeout(() => {
+        navigate('/hotel/ai-quote/grid');
+      }, 2000);
+    } finally {
+      setIsTyping(false);
+    }
   };
 
   const handleNext = async (userInput: string) => {
