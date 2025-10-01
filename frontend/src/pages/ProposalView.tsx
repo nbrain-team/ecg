@@ -17,16 +17,36 @@ function ProposalView() {
 
   const fetchProposal = async () => {
     try {
-      const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+      const apiUrl = import.meta.env.VITE_API_URL;
+      if (!apiUrl) {
+        throw new Error('API URL not configured. Please check environment variables.');
+      }
       const token = localStorage.getItem('token');
+      
+      console.log('Fetching proposal with ID:', id);
+      console.log('API URL:', apiUrl);
+      console.log('Token exists:', !!token);
       
       const response = await axios.get(`${apiUrl}/api/proposals/${id}`, {
         headers: { Authorization: `Bearer ${token}` }
       });
       
+      console.log('Proposal fetched successfully:', response.data);
       setProposal(response.data);
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error fetching proposal:', error);
+      console.error('Error response:', error.response?.data);
+      console.error('Error status:', error.response?.status);
+      
+      // Show more detailed error in the UI
+      if (error.response?.status === 404) {
+        console.error('Proposal not found with ID:', id);
+      } else if (error.response?.status === 401) {
+        console.error('Authentication failed - redirecting to login');
+        navigate('/login');
+      } else {
+        console.error('Unexpected error:', error.message);
+      }
     } finally {
       setLoading(false);
     }
@@ -34,7 +54,10 @@ function ProposalView() {
 
   const handlePublish = async () => {
     try {
-      const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+      const apiUrl = import.meta.env.VITE_API_URL;
+      if (!apiUrl) {
+        throw new Error('API URL not configured. Please check environment variables.');
+      }
       const token = localStorage.getItem('token');
       
       await axios.post(`${apiUrl}/api/proposals/${id}/publish`, {}, {

@@ -14,6 +14,7 @@ import updateDiningImagesLocalRoutes from './routes/updateDiningImagesLocal';
 import seedRoomsLocalRoutes from './routes/seedRoomsLocal';
 import updateAllDiningImagesLocalRoutes from './routes/updateAllDiningImagesLocal';
 import seedVenuesRoutes from './routes/seedVenues';
+import updateVenueImagesLocalRoutes from './routes/updateVenueImagesLocal';
 import grandVelasPublicRoutes from './routes/grandVelasPublic';
 import fixGrandVelasDataRoutes from './routes/fixGrandVelasData';
 import seedDiningCompleteRoutes from './routes/seedDiningComplete';
@@ -42,6 +43,16 @@ app.get('/health', (req, res) => {
   res.status(200).json({ status: 'OK', timestamp: new Date().toISOString() });
 });
 
+// Test endpoint for debugging
+app.get('/api/test', (req, res) => {
+  res.json({ 
+    message: 'Backend is running',
+    timestamp: new Date().toISOString(),
+    environment: process.env.NODE_ENV || 'development',
+    port: process.env.PORT || 5000
+  });
+});
+
 // API Routes
 app.use('/api/auth', authRoutes);
 app.use('/api/proposals', proposalRoutes);
@@ -56,6 +67,7 @@ app.use('/api/update', updateDiningImagesLocalRoutes);
 app.use('/api/seed', seedRoomsLocalRoutes);
 app.use('/api/update', updateAllDiningImagesLocalRoutes);
 app.use('/api/seed', seedVenuesRoutes);
+app.use('/api/update', updateVenueImagesLocalRoutes);
 app.use('/api', grandVelasPublicRoutes);
 app.use('/api/fix', fixGrandVelasDataRoutes);
 app.use('/api/seed', seedDiningCompleteRoutes);

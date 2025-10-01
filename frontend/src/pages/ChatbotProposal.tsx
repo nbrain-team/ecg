@@ -657,10 +657,19 @@ function ChatbotProposal() {
       case CHAT_STEPS.COMPLETE:
         if (userInput === 'View Proposal') {
           const proposalId = localStorage.getItem('lastProposalId');
+          console.log('Attempting to view proposal with ID:', proposalId);
           if (proposalId) {
+            // Navigate to the proposal view page
             navigate(`/proposal/${proposalId}`);
+          } else {
+            console.error('No proposal ID found in localStorage');
+            addBotMessage("Sorry, couldn't find the proposal ID. Please try creating the proposal again.");
           }
         } else if (userInput === 'Create Another') {
+          // Clear the session and start fresh
+          localStorage.removeItem('lastProposalId');
+          localStorage.removeItem('activeChatId');
+          localStorage.removeItem(`chat_${chatId.current}`);
           startNewChat();
         }
         break;
@@ -773,46 +782,65 @@ function ChatbotProposal() {
           dineArounds: formData.dineArounds,
           otherEvents: formData.otherEvents
         },
-        // Use user selections (fallback to defaults if missing)
-        destinationId: formData.destinationId || destinations[0]?.id || 'los-cabos',
-        resortId: formData.resortId || hotels[0]?.id || 'grand-velas',
-        roomTypeIds: [], // Will be selected in the next phase
-        eventSpaceIds: [], // Will be selected based on business sessions
-        diningIds: [], // Will be selected based on dine-arounds
-        flightRouteIds: [],
-        spaceSetups: {
-          banquet: formData.awardsDinner !== undefined,
-          theater: ((formData.businessSessions?.length ?? 0) > 0),
-          reception: formData.welcomeReception || false
+        // These fields are required by backend
+        destination: {
+          id: formData.destinationId || 'los-cabos',
+          name: 'Los Cabos'
         },
-        programInclusions: {
-          airportTransfers: true, // Default to true
-          welcomeReception: formData.welcomeReception || false,
-          businessMeeting: ((formData.businessSessions?.length ?? 0) > 0),
-          awardDinner: formData.awardsDinner !== undefined,
-          dineArounds: ((formData.dineArounds?.nights?.length ?? 0) > 0),
-          finalNightDinner: true, // Default to true
-          teamBuilding: formData.otherEvents?.some(e => e.description.toLowerCase().includes('team')) || false,
-          offSiteVenues: formData.otherEvents?.some(e => e.description.toLowerCase().includes('off-site')) || false,
-          csrOptions: formData.otherEvents?.some(e => e.description.toLowerCase().includes('csr')) || false,
-          giftingIdeas: false,
-          danceBand: false,
-          decorIdeas: false,
-          activityOptions: false,
-          offSiteRestaurants: false
+        resort: {
+          id: formData.resortId || 'grand-velas',
+          name: 'Grand Velas Los Cabos'
+        },
+        selectedRooms: [],
+        selectedSpaces: [],
+        selectedDining: [],
+        flightRoutes: [],
+        programFlow: {
+          spaceSetups: {
+            banquet: formData.awardsDinner !== undefined,
+            theater: ((formData.businessSessions?.length ?? 0) > 0),
+            reception: formData.welcomeReception || false
+          },
+          programInclusions: {
+            airportTransfers: true, // Default to true
+            welcomeReception: formData.welcomeReception || false,
+            businessMeeting: ((formData.businessSessions?.length ?? 0) > 0),
+            awardDinner: formData.awardsDinner !== undefined,
+            dineArounds: ((formData.dineArounds?.nights?.length ?? 0) > 0),
+            finalNightDinner: true, // Default to true
+            teamBuilding: formData.otherEvents?.some(e => e.description.toLowerCase().includes('team')) || false,
+            offSiteVenues: formData.otherEvents?.some(e => e.description.toLowerCase().includes('off-site')) || false,
+            csrOptions: formData.otherEvents?.some(e => e.description.toLowerCase().includes('csr')) || false,
+            giftingIdeas: false,
+            danceBand: false,
+            decorIdeas: false,
+            activityOptions: false,
+            offSiteRestaurants: false
+          }
         },
         branding: {
           primaryColor: formData.primaryColor || '#0066FF',
           secondaryColor: formData.secondaryColor || '#00B8D4',
           theme: formData.theme || 'modern'
-        }
+        },
+        generatedContent: null // Will be populated by AI later
       };
       
+      // Use API URL from environment
+      const apiUrl = import.meta.env.VITE_API_URL;
+      if (!apiUrl) {
+        throw new Error('API URL not configured. Please check environment variables.');
+      }
+      console.log('Creating proposal with payload:', proposalPayload);
+      console.log('API URL:', apiUrl);
+      
       const response = await axios.post(
-        `${import.meta.env.VITE_API_URL}/api/proposals`,
+        `${apiUrl}/api/proposals`,
         proposalPayload,
         { headers: { Authorization: `Bearer ${token}` } }
       );
+      
+      console.log('Proposal created successfully:', response.data);
       
       setChatState(prev => ({
         ...prev,
@@ -821,20 +849,25 @@ function ChatbotProposal() {
       
       const proposalId = response.data.id;
       
-      addBotMessage("🎉 Your proposal has been created successfully!", {
+      if (!proposalId) {
+        console.error('No proposal ID in response:', response.data);
+        throw new Error('Proposal created but no ID returned');
+      }
+      
+      addBotMessage(`🎉 Your proposal has been created successfully! (ID: ${proposalId})`, {
         options: ['View Proposal', 'Create Another']
       });
       
       // Store proposal ID for viewing
       localStorage.setItem('lastProposalId', proposalId);
       
-      // Clear chat session
-      localStorage.removeItem('activeChatId');
-      localStorage.removeItem(`chat_${chatId.current}`);
+      // Don't clear the chat session immediately - wait for user action
+      // This prevents loss of context if there's an issue
       
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error creating proposal:', error);
-      addBotMessage("Sorry, there was an error creating your proposal. Please try again.");
+      const errorMessage = error.response?.data?.message || error.message || 'Unknown error';
+      addBotMessage(`Sorry, there was an error creating your proposal: ${errorMessage}. Please check the console for details.`);
     } finally {
       setIsTyping(false);
     }
