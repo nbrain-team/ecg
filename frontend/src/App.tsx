@@ -10,6 +10,8 @@ import PublicProposal from './pages/PublicProposal';
 import PublicProposalModern from './pages/PublicProposalModern';
 import BudgetEditor from './pages/BudgetEditor';
 import ChatbotProposal from './pages/ChatbotProposal';
+import HotelQuoteChat from './pages/HotelQuoteChat';
+import HotelQuoteGrid from './pages/HotelQuoteGrid';
 import './App.css';
 
 function App() {
@@ -78,6 +80,22 @@ function App() {
               <HotelPortal /> : 
               <Navigate to="/hotel/login" />
           } 
+        />
+        <Route 
+          path="/hotel/ai-quote" 
+          element={
+            isHotelAuthenticated ? 
+              <HotelQuoteChat /> : 
+              <Navigate to="/hotel/login" />
+          }
+        />
+        <Route 
+          path="/hotel/ai-quote/grid" 
+          element={
+            isHotelAuthenticated ? 
+              <HotelQuoteGrid /> : 
+              <Navigate to="/hotel/login" />
+          }
         />
                 <Route 
           path="/proposal/new" 

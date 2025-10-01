@@ -782,15 +782,15 @@ function ChatbotProposal() {
         flightRouteIds: [],
         spaceSetups: {
           banquet: formData.awardsDinner !== undefined,
-          theater: formData.businessSessions?.length > 0,
+          theater: ((formData.businessSessions?.length ?? 0) > 0),
           reception: formData.welcomeReception || false
         },
         programInclusions: {
           airportTransfers: true, // Default to true
           welcomeReception: formData.welcomeReception || false,
-          businessMeeting: formData.businessSessions?.length > 0,
+          businessMeeting: ((formData.businessSessions?.length ?? 0) > 0),
           awardDinner: formData.awardsDinner !== undefined,
-          dineArounds: formData.dineArounds?.nights?.length > 0,
+          dineArounds: ((formData.dineArounds?.nights?.length ?? 0) > 0),
           finalNightDinner: true, // Default to true
           teamBuilding: formData.otherEvents?.some(e => e.description.toLowerCase().includes('team')) || false,
           offSiteVenues: formData.otherEvents?.some(e => e.description.toLowerCase().includes('off-site')) || false,

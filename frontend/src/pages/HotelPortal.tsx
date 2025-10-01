@@ -424,7 +424,7 @@ function HotelPortal() {
             </h1>
             
             {/* Top Tab Navigation */}
-            <div className="hotel-tab-nav">
+          <div className="hotel-tab-nav">
               <button 
                 className={`hotel-tab-btn ${activeTab==='location' ? 'active' : ''}`} 
                 onClick={() => setActiveTab('location')}
@@ -461,6 +461,10 @@ function HotelPortal() {
                 className={`hotel-tab-btn ${activeTab==='dining' ? 'active' : ''}`} 
                 onClick={() => setActiveTab('dining')}
               >Dining</button>
+              <button 
+                className="hotel-tab-btn" 
+                onClick={() => window.location.assign('/hotel/ai-quote')}
+              >AI Quote Assistant</button>
             </div>
           </div>
         </div>

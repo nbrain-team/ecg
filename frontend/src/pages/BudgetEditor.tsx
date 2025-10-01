@@ -19,13 +19,14 @@ function BudgetEditor() {
         setError('');
         // Try to fetch default XLSX from public folder
         const res = await fetch(defaultUrl, { cache: 'no-cache' });
-        if (!res.ok) {
-          throw new Error('Default XLSX not found. Please upload the file.');
+        const ctype = (res.headers.get('content-type') || '').toLowerCase();
+        if (!res.ok || ctype.includes('text/html')) {
+          throw new Error('Default budget file not found. Please upload an XLSX or CSV.');
         }
         const buf = await res.arrayBuffer();
         parseWorkbook(buf);
       } catch (e: any) {
-        setError(e.message || 'Unable to load default file. Please upload.');
+        setError(e.message || 'Unable to load default file. Please upload an XLSX or CSV.');
         setLoading(false);
       }
     };
@@ -48,21 +49,58 @@ function BudgetEditor() {
     setLoading(false);
   };
 
+  const parseCsvText = (text: string) => {
+    const wb = XLSX.read(text, { type: 'string' });
+    const sheets = wb.SheetNames || [];
+    setSheetNames(sheets);
+    const first = sheets[0];
+    setActiveSheet(first || '');
+    if (first) {
+      const ws = wb.Sheets[first];
+      const aoa: Cell[][] = XLSX.utils.sheet_to_json(ws, { header: 1, raw: true }) as Cell[][];
+      setData(aoa);
+    } else {
+      setData([]);
+    }
+    setLoading(false);
+  };
+
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
     setLoading(true);
     setError('');
+    const name = (file.name || '').toLowerCase();
+    const isCsv = name.endsWith('.csv') || file.type === 'text/csv';
     const reader = new FileReader();
     reader.onload = () => {
-      const buf = reader.result as ArrayBuffer;
-      parseWorkbook(buf);
+      try {
+        if (isCsv) {
+          const text = reader.result as string;
+          parseCsvText(text);
+        } else {
+          const buf = reader.result as ArrayBuffer;
+          parseWorkbook(buf);
+        }
+      } catch (err: any) {
+        const msg = (err?.message || '').toLowerCase();
+        if (msg.includes('invalid html') || msg.includes('could not find <table')) {
+          setError('That looks like an HTML file. Please upload an XLSX or CSV.');
+        } else {
+          setError('Unsupported file. Please upload an XLSX or CSV.');
+        }
+        setLoading(false);
+      }
     };
     reader.onerror = () => {
       setError('Failed to read file');
       setLoading(false);
     };
-    reader.readAsArrayBuffer(file);
+    if (isCsv) {
+      reader.readAsText(file);
+    } else {
+      reader.readAsArrayBuffer(file);
+    }
   };
 
   const headers: string[] = useMemo(() => {
@@ -102,7 +140,7 @@ function BudgetEditor() {
     <div style={{ minHeight: '100vh', background: '#fff' }}>
       <div style={{ position: 'sticky', top: 0, zIndex: 10, background: '#0f172a', color: '#fff', padding: '12px 16px', display: 'flex', alignItems: 'center', gap: 12 }}>
         <div style={{ fontWeight: 600 }}>Budget Editor</div>
-        <input type="file" accept=".xlsx,.xls" onChange={handleFileChange} style={{ background: '#fff', color: '#0f172a', borderRadius: 6, padding: '6px 8px' }} />
+        <input type="file" accept=".xlsx,.xls,.csv" onChange={handleFileChange} style={{ background: '#fff', color: '#0f172a', borderRadius: 6, padding: '6px 8px' }} />
         {sheetNames.length > 0 && (
           <select
             value={activeSheet}
