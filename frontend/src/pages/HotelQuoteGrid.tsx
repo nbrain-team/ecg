@@ -179,14 +179,14 @@ function HotelQuoteGrid() {
       } else {
         navigate('/hotel/portal');
       }
-    } catch (error) {
-      // On failure, keep draft and return to portal
-      const existingId = localStorage.getItem('lastHotelProposalId');
-      if (existingId) {
-        navigate(`/hotel/proposal/${existingId}`);
-      } else {
-        navigate('/hotel/portal');
+    } catch (error:any) {
+      if (error?.response?.status === 401) {
+        try { localStorage.removeItem('hotelToken'); } catch {}
+        navigate('/hotel/login');
+        return;
       }
+      const existingId = localStorage.getItem('lastHotelProposalId');
+      if (existingId) navigate(`/hotel/proposal/${existingId}`); else navigate('/hotel/portal');
     }
   };
 

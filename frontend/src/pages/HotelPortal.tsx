@@ -185,6 +185,11 @@ function HotelPortal() {
       setDining(absDining);
     } catch (err: any) {
       console.error('fetchAll error:', err);
+      if (err?.response?.status === 401) {
+        try { localStorage.removeItem('hotelToken'); } catch {}
+        navigate('/hotel/login');
+        return;
+      }
       setError(err.response?.data?.message || 'Failed to load');
     }
   };

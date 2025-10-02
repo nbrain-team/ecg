@@ -49,7 +49,9 @@ function HotelProposalView() {
       setProposal(normalizeProposal(response.data));
     } catch (error: any) {
       if (error.response?.status === 401) {
+        try { localStorage.removeItem('hotelToken'); } catch {}
         navigate('/hotel/login');
+        return;
       }
     } finally {
       setLoading(false);
