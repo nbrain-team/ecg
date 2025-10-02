@@ -15,6 +15,24 @@ function ProposalView() {
     fetchProposal();
   }, [id]);
 
+  const normalizeProposal = (raw: any) => {
+    if (!raw || typeof raw !== 'object') return null;
+    return {
+      id: raw.id,
+      status: raw.status,
+      shareableLink: raw.shareableLink || raw.shareable_link,
+      viewCount: raw.viewCount ?? raw.view_count ?? 0,
+      lastViewedAt: raw.lastViewedAt || raw.last_viewed_at,
+      createdAt: raw.createdAt || raw.created_at,
+      updatedAt: raw.updatedAt || raw.updated_at,
+      client: raw.client || {},
+      eventDetails: raw.eventDetails || raw.event_details || {},
+      destination: raw.destination || {},
+      resort: raw.resort || {},
+      branding: raw.branding || {}
+    } as any;
+  };
+
   const fetchProposal = async () => {
     try {
       const apiUrl = import.meta.env.VITE_API_URL;
@@ -33,7 +51,7 @@ function ProposalView() {
       });
       
       console.log('Proposal fetched successfully:', response.data);
-      setProposal(response.data);
+      setProposal(normalizeProposal(response.data));
     } catch (error: any) {
       console.error('Error fetching proposal:', error);
       console.error('Error response:', error.response?.data);
@@ -79,7 +97,8 @@ function ProposalView() {
   };
 
   const copyShareLink = () => {
-    const shareUrl = `${window.location.origin}/proposal/share/${proposal.shareableLink}`;
+    const shareId = proposal?.shareableLink;
+    const shareUrl = `${window.location.origin}/proposal/share/${shareId}`;
     navigator.clipboard.writeText(shareUrl);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
@@ -114,7 +133,7 @@ function ProposalView() {
     );
   }
 
-  const shareUrl = `${window.location.origin}/proposal/share/${proposal.shareableLink}`;
+  const shareUrl = proposal?.shareableLink ? `${window.location.origin}/proposal/share/${proposal.shareableLink}` : '';
 
   return (
     <div className="proposal-view">
@@ -136,7 +155,7 @@ function ProposalView() {
                 <Edit size={20} />
                 Edit
               </button>
-              {proposal.status === 'draft' && (
+              {proposal?.status === 'draft' && (
                 <button 
                   className="btn btn-primary"
                   onClick={handlePublish}
@@ -152,9 +171,9 @@ function ProposalView() {
       <main className="view-main">
         <div className="container">
           <div className="proposal-header">
-            <h1>{proposal.eventDetails.name}</h1>
-            <span className={`status-badge ${proposal.status}`}>
-              {proposal.status}
+            <h1>{proposal?.eventDetails?.name || 'Untitled Proposal'}</h1>
+            <span className={`status-badge ${proposal?.status || 'draft'}`}>
+              {proposal?.status || 'draft'}
             </span>
           </div>
 
@@ -165,19 +184,19 @@ function ProposalView() {
                 <div className="detail-grid">
                   <div className="detail-item">
                     <label>Company</label>
-                    <p>{proposal.client.company}</p>
+                    <p>{proposal?.client?.company || 'N/A'}</p>
                   </div>
                   <div className="detail-item">
                     <label>Contact</label>
-                    <p>{proposal.client.name}</p>
+                    <p>{proposal?.client?.name || 'N/A'}</p>
                   </div>
                   <div className="detail-item">
                     <label>Email</label>
-                    <p>{proposal.client.email}</p>
+                    <p>{proposal?.client?.email || 'N/A'}</p>
                   </div>
                   <div className="detail-item">
                     <label>Phone</label>
-                    <p>{proposal.client.phone || 'N/A'}</p>
+                    <p>{proposal?.client?.phone || 'N/A'}</p>
                   </div>
                 </div>
               </section>
@@ -187,47 +206,47 @@ function ProposalView() {
                 <div className="detail-grid">
                   <div className="detail-item">
                     <label>Event Type</label>
-                    <p>{proposal.eventDetails.purpose}</p>
+                    <p>{proposal?.eventDetails?.purpose || '—'}</p>
                   </div>
                   <div className="detail-item">
                     <label>Attendees</label>
-                    <p>{proposal.eventDetails.attendeeCount}</p>
+                    <p>{proposal?.eventDetails?.attendeeCount ?? '—'}</p>
                   </div>
-                  {proposal.eventDetails.roomsNeeded && (
+                  {proposal?.eventDetails?.roomsNeeded && (
                     <div className="detail-item">
                       <label>Rooms Needed</label>
-                      <p>{proposal.eventDetails.roomsNeeded}</p>
+                      <p>{proposal?.eventDetails?.roomsNeeded}</p>
                     </div>
                   )}
                   <div className="detail-item">
                     <label>Start Date</label>
-                    <p>{formatDate(proposal.eventDetails.startDate)}</p>
+                    <p>{proposal?.eventDetails?.startDate ? formatDate(proposal.eventDetails.startDate) : '—'}</p>
                   </div>
                   <div className="detail-item">
                     <label>End Date</label>
-                    <p>{formatDate(proposal.eventDetails.endDate)}</p>
+                    <p>{proposal?.eventDetails?.endDate ? formatDate(proposal.eventDetails.endDate) : '—'}</p>
                   </div>
-                  {proposal.eventDetails.programLengthDays && (
+                  {proposal?.eventDetails?.programLengthDays && (
                     <div className="detail-item">
                       <label>Program Length</label>
-                      <p>{proposal.eventDetails.programLengthDays} days</p>
+                      <p>{proposal?.eventDetails?.programLengthDays} days</p>
                     </div>
                   )}
-                  {(proposal.eventDetails.hotelRating || proposal.eventDetails.ratingStandard) && (
+                  {(proposal?.eventDetails?.hotelRating || proposal?.eventDetails?.ratingStandard) && (
                     <div className="detail-item">
                       <label>Hotel Rating</label>
                       <p>
-                        {proposal.eventDetails.hotelRating || 'N/A'}
-                        {proposal.eventDetails.ratingStandard ? ` (${proposal.eventDetails.ratingStandard === 'aaa' ? 'AAA' : 'Forbes'})` : ''}
+                        {proposal?.eventDetails?.hotelRating || 'N/A'}
+                        {proposal?.eventDetails?.ratingStandard ? ` (${proposal.eventDetails.ratingStandard === 'aaa' ? 'AAA' : 'Forbes'})` : ''}
                       </p>
                     </div>
                   )}
-                  {proposal.eventDetails.roomPreferences && (
+                  {proposal?.eventDetails?.roomPreferences && (
                     <div className="detail-item">
                       <label>Room Preferences</label>
                       <p>
-                        {proposal.eventDetails.roomPreferences.kingRooms} King, {proposal.eventDetails.roomPreferences.doubleRooms} Double/Queen
-                        {proposal.eventDetails.roomPreferences.suitesNotes ? ` — ${proposal.eventDetails.roomPreferences.suitesNotes}` : ''}
+                        {proposal?.eventDetails?.roomPreferences?.kingRooms} King, {proposal?.eventDetails?.roomPreferences?.doubleRooms} Double/Queen
+                        {proposal?.eventDetails?.roomPreferences?.suitesNotes ? ` — ${proposal.eventDetails.roomPreferences.suitesNotes}` : ''}
                       </p>
                     </div>
                   )}
@@ -239,11 +258,11 @@ function ProposalView() {
                 <div className="detail-grid">
                   <div className="detail-item">
                     <label>Destination</label>
-                    <p>{proposal.destination.name}, {proposal.destination.country}</p>
+                    <p>{proposal?.destination?.name || '—'}{proposal?.destination?.country ? `, ${proposal.destination.country}` : ''}</p>
                   </div>
                   <div className="detail-item">
                     <label>Resort</label>
-                    <p>{proposal.resort.name}</p>
+                    <p>{proposal?.resort?.name || '—'}</p>
                   </div>
                 </div>
               </section>
@@ -253,19 +272,19 @@ function ProposalView() {
                 <div className="detail-grid">
                   <div className="detail-item">
                     <label>View Count</label>
-                    <p>{proposal.viewCount || 0} views</p>
+                    <p>{proposal?.viewCount || 0} views</p>
                   </div>
                   <div className="detail-item">
                     <label>Last Viewed</label>
-                    <p>{proposal.lastViewedAt ? formatDate(proposal.lastViewedAt) : 'Never'}</p>
+                    <p>{proposal?.lastViewedAt ? formatDate(proposal.lastViewedAt) : 'Never'}</p>
                   </div>
                   <div className="detail-item">
                     <label>Created</label>
-                    <p>{formatDate(proposal.createdAt)}</p>
+                    <p>{proposal?.createdAt ? formatDate(proposal.createdAt) : '—'}</p>
                   </div>
                   <div className="detail-item">
                     <label>Updated</label>
-                    <p>{formatDate(proposal.updatedAt)}</p>
+                    <p>{proposal?.updatedAt ? formatDate(proposal.updatedAt) : '—'}</p>
                   </div>
                 </div>
               </section>
@@ -274,7 +293,7 @@ function ProposalView() {
             <div className="proposal-sidebar">
               <div className="share-section">
                 <h3>Share Proposal</h3>
-                {proposal.status === 'published' || proposal.status === 'viewed' ? (
+                {proposal?.status === 'published' || proposal?.status === 'viewed' ? (
                   <>
                     <div className="share-url">
                       <input 
@@ -291,7 +310,7 @@ function ProposalView() {
                       </button>
                     </div>
                     <a 
-                      href={shareUrl} 
+                      href={shareUrl || '#'} 
                       target="_blank" 
                       rel="noopener noreferrer"
                       className="btn btn-primary btn-block"
@@ -307,7 +326,7 @@ function ProposalView() {
                 )}
               </div>
 
-              {proposal.branding?.logoUrl && (
+              {proposal?.branding?.logoUrl && (
                 <div className="branding-preview">
                   <h3>Client Logo</h3>
                   <img src={proposal.branding.logoUrl} alt="Client Logo" />
@@ -319,14 +338,14 @@ function ProposalView() {
                 <div className="color-preview">
                   <div 
                     className="color-swatch"
-                    style={{ backgroundColor: proposal.branding?.primaryColor || '#1e40af' }}
+                    style={{ backgroundColor: proposal?.branding?.primaryColor || '#1e40af' }}
                   />
                   <div 
                     className="color-swatch"
-                    style={{ backgroundColor: proposal.branding?.secondaryColor || '#06b6d4' }}
+                    style={{ backgroundColor: proposal?.branding?.secondaryColor || '#06b6d4' }}
                   />
                 </div>
-                <p className="theme-name">Theme: {proposal.branding?.theme || 'modern'}</p>
+                <p className="theme-name">Theme: {proposal?.branding?.theme || 'modern'}</p>
               </div>
             </div>
           </div>

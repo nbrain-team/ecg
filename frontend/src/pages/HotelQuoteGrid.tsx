@@ -163,20 +163,30 @@ function HotelQuoteGrid() {
         metadata: { grid: { rows, totalRoomNights } }
       } as any;
 
+      // If we already created a proposal from chat, update it; otherwise create a new one
+      const existingId = localStorage.getItem('lastHotelProposalId');
+      if (existingId) {
+        await axios.put(`${apiUrl}/api/proposals/${existingId}`, payload, { headers });
+        navigate(`/proposal/${existingId}`);
+        return;
+      }
+
       const resp = await axios.post(`${apiUrl}/api/proposals`, payload, { headers });
       const data = resp.data || {};
-      const shareId = data.shareId || data.share_id || data.publicId || data.public_id;
-      if (shareId) {
-        navigate(`/proposal/share/${shareId}`);
-      } else if (data.id) {
-        // Fallback to portal if no public share id
-        navigate('/hotel/portal');
+      if (data.id) {
+        localStorage.setItem('lastHotelProposalId', data.id);
+        navigate(`/proposal/${data.id}`);
       } else {
         navigate('/hotel/portal');
       }
     } catch (error) {
       // On failure, keep draft and return to portal
-      navigate('/hotel/portal');
+      const existingId = localStorage.getItem('lastHotelProposalId');
+      if (existingId) {
+        navigate(`/proposal/${existingId}`);
+      } else {
+        navigate('/hotel/portal');
+      }
     }
   };
 
