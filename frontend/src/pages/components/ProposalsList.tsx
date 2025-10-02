@@ -26,7 +26,12 @@ function ProposalsList() {
         // If there's an API endpoint for hotel proposals, use it; fallback to proposals list
         const resp = await axios.get(`${apiUrl}/api/proposals`, { headers }).catch(() => ({ data: [] }));
         const list = Array.isArray(resp.data) ? resp.data : [];
-        setRows(list.map((p:any) => ({ id: p.id, name: p.eventDetails?.name || p.name || `Proposal ${p.id}`, createdAt: p.createdAt, shareId: p.shareId || p.share_id })));
+        setRows(list.map((p:any) => ({
+          id: p.id,
+          name: p.eventDetails?.name || p.name || `Proposal ${p.id}`,
+          createdAt: p.createdAt || p.created_at,
+          shareId: p.shareableLink || p.shareable_link || p.shareId || p.share_id
+        })));
       } catch (e:any) {
         setError(e.response?.data?.message || 'Failed to load proposals');
       } finally {
