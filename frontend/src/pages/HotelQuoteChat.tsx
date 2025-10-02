@@ -17,6 +17,9 @@ interface Message {
 }
 
 interface ProgramState {
+  client?: {
+    company?: string;
+  };
   program: {
     start_date?: string;
     end_date?: string;
@@ -57,6 +60,7 @@ interface ProgramState {
 }
 
 type StepId =
+  | 'S0_COMPANY'
   | 'S1_CHOICE' | 'S1_FIXED' | 'S1_FLEX'
   | 'S2' | 'S3' | 'S4' | 'S4_CONF' | 'S5' | 'S5_PCT' | 'S6' | 'S6_BLEND_PCT'
   | 'S7' | 'S8' | 'S8_DETAILS' | 'S9' | 'S9_DETAILS' | 'S10' | 'S10_MULTI' | 'S10_DETAILS'
@@ -64,7 +68,7 @@ type StepId =
 
 function HotelQuoteChat() {
   const navigate = useNavigate();
-  const [currentStep, setCurrentStep] = useState<StepId>('S1_CHOICE');
+  const [currentStep, setCurrentStep] = useState<StepId>('S0_COMPANY');
   const [messages, setMessages] = useState<Message[]>([]);
   const [inputValue, setInputValue] = useState('');
   const [isTyping, setIsTyping] = useState(false);
@@ -90,10 +94,8 @@ function HotelQuoteChat() {
   }, [state.program.start_date, state.program.end_date, state.program.nights]);
 
   useEffect(() => {
-    // Boot message
-    addBotMessage("Let's build your hotel quote. What are your preferred program dates? Are your dates flexible?", {
-      options: ['Fixed dates', 'Flexible range']
-    });
+    // First ask for company name
+    addBotMessage('What is the name of the company?');
   }, []);
 
   useEffect(() => {
@@ -166,16 +168,22 @@ function HotelQuoteChat() {
       localStorage.setItem('hotel_quote_draft', JSON.stringify(draft));
       
       // Create proposal in database
+      const startDate = state.program.start_date || state.program.flex_start || '';
+      const computedEventName = (state.events.business?.days?.length ?? 0) > 0
+        ? 'Business Program'
+        : (state.events.awards_dinner?.enabled ? 'Awards Dinner' : (state.events.welcome_reception?.enabled ? 'Welcome Reception' : 'Group Program'));
+      const proposalTitle = `${computedEventName}${startDate ? ` - ${startDate}` : ''}`;
+
       const proposalPayload = {
         client: {
           name: 'Hotel Quote Client',
-          company: 'Grand Velas Los Cabos',
+          company: state.client?.company || 'Unknown Company',
           email: 'quote@grandvelasloscabos.com'
         },
         eventDetails: {
-          name: `Hotel Quote - ${new Date().toLocaleDateString()}`,
+          name: proposalTitle,
           purpose: 'hotel_quote',
-          startDate: state.program.start_date || state.program.flex_start || '',
+          startDate,
           endDate: state.program.end_date || state.program.flex_end || '',
           attendeeCount: state.attendees.count || 0,
           roomsNeeded: Math.ceil((state.attendees.count || 0) * (1 - (state.occupancy.double_pct || 0) / 100)),
@@ -278,6 +286,14 @@ function HotelQuoteChat() {
     setIsTyping(true);
     await new Promise(r => setTimeout(r, 400));
     switch (currentStep) {
+      case 'S0_COMPANY': {
+        setState(prev => ({ ...prev, client: { ...(prev.client || {}), company: userInput.trim() } }));
+        setCurrentStep('S1_CHOICE');
+        addBotMessage("Let's build your hotel quote. What are your preferred program dates? Are your dates flexible?", {
+          options: ['Fixed dates', 'Flexible range']
+        });
+        break;
+      }
       case 'S1_CHOICE': {
         const isFlexible = userInput.startsWith('Flexible');
         setState(prev => ({
