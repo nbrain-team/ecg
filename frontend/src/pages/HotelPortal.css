@@ -520,9 +520,36 @@
 
 .card-actions {
   display: flex;
-  gap: 8px;
-  padding-top: 12px;
+  gap: 6px;
+  padding-top: 8px;
   border-top: 1px solid #f5f7fa;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+/* Sleeker, smaller buttons inside cards */
+.card-actions .btn {
+  padding: 6px 10px;
+  font-size: 12px;
+  border-radius: 5px;
+  gap: 6px;
+  line-height: 1.2;
+  box-shadow: none;
+}
+
+.card-actions .btn:hover {
+  transform: none;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+}
+
+.card-actions .btn-outline {
+  border-color: #e5e7eb;
+  color: #4b5563;
+}
+
+.card-actions .btn-outline:hover {
+  background: #f1f5f9;
+  color: #1f2937;
 }
 
 /* Checkbox List */
