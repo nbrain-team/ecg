@@ -30,7 +30,6 @@ function HotelProposalGridEditor() {
         if (Array.isArray(metaRows) && metaRows.length > 0) {
           setRows(metaRows);
         } else {
-          // Try to build from the draft if available (fallback)
           const draftRaw = localStorage.getItem('hotel_quote_draft');
           if (draftRaw) {
             const draft = JSON.parse(draftRaw);
@@ -51,21 +50,35 @@ function HotelProposalGridEditor() {
             setRows(initial);
           }
         }
+      } catch (error: any) {
+        if (error?.response?.status === 401) {
+          try { localStorage.removeItem('hotelToken'); } catch {}
+          navigate('/hotel/login');
+          return;
+        }
       } finally {
         setLoading(false);
       }
     };
     load();
-  }, [apiUrl, id]);
+  }, [apiUrl, id, navigate]);
 
   const totalRoomNights = useMemo(() => rows.reduce((acc, r) => acc + r.roomNights, 0), [rows]);
 
   const saveGrid = async () => {
-    const token = localStorage.getItem('hotelToken') || localStorage.getItem('token');
-    const headers = token ? { Authorization: `Bearer ${token}` } : {};
-    const payload = { metadata: { grid: { rows, totalRoomNights } } } as any;
-    await axios.put(`${apiUrl}/api/proposals/${id}`, payload, { headers });
-    navigate(`/hotel/proposal/${id}`);
+    try {
+      const token = localStorage.getItem('hotelToken') || localStorage.getItem('token');
+      const headers = token ? { Authorization: `Bearer ${token}` } : {};
+      const payload = { metadata: { grid: { rows, totalRoomNights } } } as any;
+      await axios.put(`${apiUrl}/api/proposals/${id}`, payload, { headers });
+      navigate(`/hotel/proposal/${id}`);
+    } catch (error: any) {
+      if (error?.response?.status === 401) {
+        try { localStorage.removeItem('hotelToken'); } catch {}
+        navigate('/hotel/login');
+        return;
+      }
+    }
   };
 
   if (loading) return <div className="container">Loading grid...</div>;

@@ -25,6 +25,13 @@
   gap: 1rem;
 }
 
+/* Make header action buttons compact for hotel proposal view */
+.header-actions .btn {
+  padding: 6px 10px;
+  font-size: 12px;
+  border-radius: 5px;
+}
+
 .view-main {
   padding: 2rem 0;
 }
@@ -134,6 +141,15 @@
   font-size: 1.1rem;
   margin-bottom: 1rem;
   color: var(--color-text);
+}
+
+/* Compact buttons in share and sidebar cards */
+.share-section .btn,
+.branding-preview .btn,
+.branding-colors .btn {
+  padding: 6px 10px;
+  font-size: 12px;
+  border-radius: 5px;
 }
 
 .share-url {
