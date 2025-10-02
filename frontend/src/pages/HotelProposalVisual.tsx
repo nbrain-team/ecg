@@ -110,6 +110,46 @@ function HotelProposalVisual() {
             )}
           </div>
         )}
+        {/* Program Details derived from chat */}
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(220px,1fr))', gap: 12, marginTop: 12 }}>
+          <div><div style={{ color: '#6b7280' }}>Double Occupancy</div><div style={{ fontWeight: 600 }}>{String(event?.doubleOccupancy ?? '')} {event?.doubleOccupancy === true || event?.doubleOccupancy === false ? '' : ''}</div></div>
+          {typeof event?.roomsNeeded === 'number' && (
+            <div><div style={{ color: '#6b7280' }}>Rooms Needed (peak)</div><div style={{ fontWeight: 600 }}>{event.roomsNeeded}</div></div>
+          )}
+          {event?.roomView && (
+            <div><div style={{ color: '#6b7280' }}>Preferred Room View</div><div style={{ fontWeight: 600 }}>{String(event.roomView).replaceAll('_',' ')}</div></div>
+          )}
+          {typeof event?.suiteCount === 'number' && (
+            <div><div style={{ color: '#6b7280' }}>Suites Requested</div><div style={{ fontWeight: 600 }}>{event.suiteCount}</div></div>
+          )}
+          {event?.daysPattern && (
+            <div><div style={{ color: '#6b7280' }}>DOW Pattern</div><div style={{ fontWeight: 600 }}>{event.daysPattern}</div></div>
+          )}
+          {event?.privateSatelliteCheckIn !== undefined && (
+            <div><div style={{ color: '#6b7280' }}>Private Satellite Check-in</div><div style={{ fontWeight: 600 }}>{event.privateSatelliteCheckIn ? 'Yes' : 'No'}</div></div>
+          )}
+        </div>
+        {/* Event schedule details */}
+        <div style={{ marginTop: 12 }}>
+          <h3 style={{ color: primary, marginBottom: 8, fontSize: 16 }}>Event Schedule</h3>
+          <ul style={{ margin: 0, paddingLeft: 18, color: '#374151' }}>
+            {event?.welcomeReception && (event.welcomeReception.enabled === true || event.welcomeReception?.night !== undefined) && (
+              <li>Welcome Reception{event.welcomeReception.night ? ` on Night ${event.welcomeReception.night}` : ''}</li>
+            )}
+            {Array.isArray(event?.businessSessions) && event.businessSessions.length > 0 && (
+              <li>Business Sessions on day(s): {event.businessSessions.map((b:any)=>b.day).join(', ')}{event.businessSessions.some((b:any)=>b.description) ? ' • details provided' : ''}</li>
+            )}
+            {event?.awardsDinner && event.awardsDinner.night && (
+              <li>Awards Dinner on Night {event.awardsDinner.night}</li>
+            )}
+            {event?.dineArounds && Array.isArray(event.dineArounds.nights) && event.dineArounds.nights.length > 0 && (
+              <li>Dine-arounds on night(s): {event.dineArounds.nights.join(', ')}</li>
+            )}
+            {Array.isArray(event?.otherEvents) && event.otherEvents.length > 0 && (
+              <li>Other Events: {event.otherEvents.map((e:any)=>`${e.description} (Day ${e.day})`).join('; ')}</li>
+            )}
+          </ul>
+        </div>
       </section>
 
       {/* Rooms Section */}
