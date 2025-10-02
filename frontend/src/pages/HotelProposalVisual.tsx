@@ -51,19 +51,28 @@ function HotelProposalVisual() {
   const primary = proposal?.branding?.primaryColor || '#1e40af';
   const secondary = proposal?.branding?.secondaryColor || '#06b6d4';
 
+  // Helper to make API-relative URLs absolute
+  const toAbsolute = (u?: string) => (u && !u.startsWith('http') ? `${apiUrl}${u}` : u || '');
+
   // Header hero background
-  const heroUrl = hotel?.images_media?.primary_image?.url || '/images/hotel-overview.webp';
+  const heroUrl = toAbsolute(hotel?.images_media?.primary_image?.url) || '/images/hotel-overview.webp';
 
   // Use selected lists if available, else fallback to hotel datasets
-  const selectedRooms = Array.isArray(proposal?.selected_rooms || proposal?.selectedRooms) && (proposal?.selected_rooms || proposal?.selectedRooms).length
+  const selectedRooms = (Array.isArray(proposal?.selected_rooms || proposal?.selectedRooms) && (proposal?.selected_rooms || proposal?.selectedRooms).length
     ? (proposal?.selected_rooms || proposal?.selectedRooms)
-    : rooms.slice(0, 4);
-  const selectedVenues = Array.isArray(proposal?.selected_spaces || proposal?.selectedSpaces) && (proposal?.selected_spaces || proposal?.selectedSpaces).length
+    : rooms.slice(0, 4))
+    .map((r: any) => ({
+      ...r,
+      images: Array.isArray(r.images) ? r.images.map((u: string) => toAbsolute(u)) : []
+    }));
+  const selectedVenues = (Array.isArray(proposal?.selected_spaces || proposal?.selectedSpaces) && (proposal?.selected_spaces || proposal?.selectedSpaces).length
     ? (proposal?.selected_spaces || proposal?.selectedSpaces)
-    : venues.slice(0, 6);
-  const selectedDining = Array.isArray(proposal?.selected_dining || proposal?.selectedDining) && (proposal?.selected_dining || proposal?.selectedDining).length
+    : venues.slice(0, 6))
+    .map((v: any) => ({ ...v, images: Array.isArray(v.images) ? v.images.map((u: string) => toAbsolute(u)) : [] }));
+  const selectedDining = (Array.isArray(proposal?.selected_dining || proposal?.selectedDining) && (proposal?.selected_dining || proposal?.selectedDining).length
     ? (proposal?.selected_dining || proposal?.selectedDining)
-    : dining.slice(0, 8);
+    : dining.slice(0, 8))
+    .map((d: any) => ({ ...d, images: Array.isArray(d.images) ? d.images.map((u: string) => toAbsolute(u)) : [] }));
 
   return (
     <div className="container" style={{ padding: '1rem' }}>
@@ -106,19 +115,34 @@ function HotelProposalVisual() {
       {/* Rooms Section */}
       <section className="card">
         <h2 className="section-title" style={{ margin: 0, marginBottom: 8 }}>Accommodations</h2>
-        <div className="selection-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(260px, 1fr))', gap: 12 }}>
-          {(selectedRooms || []).map((r: any, idx: number) => (
-            <div key={idx} className="selection-card">
-              {Array.isArray(r.images) && r.images[0] && (
-                <img src={r.images[0]} alt={r.name || r.title || `Room ${idx+1}`} />
-              )}
-              <div className="card-content">
-                <h4>{r.name || r.title || 'Suite'}</h4>
-                <p className="description">{r.description || 'Luxury suite with premium amenities.'}</p>
-                <p className="room-info">{r.attributes?.size_label || r.size_sqft ? `${r.attributes?.size_label || `${r.size_sqft} sq ft`}` : ''}</p>
+        <div className="selection-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: 16 }}>
+          {(selectedRooms || []).map((r: any, idx: number) => {
+            const images: string[] = Array.isArray(r.images) ? r.images : [];
+            const main = images[0];
+            const thumbs = images.slice(1, 3);
+            return (
+              <div key={idx} className="selection-card">
+                {main && (
+                  <img src={main} alt={r.name || r.title || `Room ${idx+1}`} />
+                )}
+                {thumbs.length > 0 && (
+                  <div style={{ display: 'grid', gridTemplateColumns: `repeat(${thumbs.length}, 1fr)`, gap: 6, marginTop: 6 }}>
+                    {thumbs.map((t, i) => (
+                      <img key={i} src={t} alt={(r.name || 'Room') + ' thumb'} style={{ width: '100%', height: 60, objectFit: 'cover', borderRadius: 4 }} />
+                    ))}
+                  </div>
+                )}
+                <div className="card-content">
+                  <h4>{r.name || r.title || 'Suite'}</h4>
+                  <p className="description">{r.description || 'Luxury suite with premium amenities.'}</p>
+                  <p className="room-info">
+                    {r.attributes?.size_label || r.size_sqft ? `${r.attributes?.size_label || `${r.size_sqft} sq ft`}` : ''}
+                    {r.attributes?.occupancy ? ` • ${r.attributes.occupancy}` : ''}
+                  </p>
+                </div>
               </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
       </section>
 
