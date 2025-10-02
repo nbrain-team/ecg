@@ -145,6 +145,20 @@ export interface Proposal {
     logoUrl?: string;
     theme: 'modern' | 'classic' | 'vibrant' | 'minimal';
   };
+  metadata?: {
+    grid?: {
+      rows: Array<{
+        date: string;
+        day: number;
+        roomNights: number;
+        doublePct: number;
+        suites: number;
+        events: string[];
+      }>;
+      totalRoomNights: number;
+    };
+    [key: string]: any;
+  };
   generatedContent: {
     heroTitle: string;
     heroSubtitle: string;

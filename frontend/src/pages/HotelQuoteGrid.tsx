@@ -167,7 +167,7 @@ function HotelQuoteGrid() {
       const existingId = localStorage.getItem('lastHotelProposalId');
       if (existingId) {
         await axios.put(`${apiUrl}/api/proposals/${existingId}`, payload, { headers });
-        navigate(`/proposal/${existingId}`);
+        navigate(`/hotel/proposal/${existingId}`);
         return;
       }
 
@@ -175,7 +175,7 @@ function HotelQuoteGrid() {
       const data = resp.data || {};
       if (data.id) {
         localStorage.setItem('lastHotelProposalId', data.id);
-        navigate(`/proposal/${data.id}`);
+        navigate(`/hotel/proposal/${data.id}`);
       } else {
         navigate('/hotel/portal');
       }
@@ -183,7 +183,7 @@ function HotelQuoteGrid() {
       // On failure, keep draft and return to portal
       const existingId = localStorage.getItem('lastHotelProposalId');
       if (existingId) {
-        navigate(`/proposal/${existingId}`);
+        navigate(`/hotel/proposal/${existingId}`);
       } else {
         navigate('/hotel/portal');
       }

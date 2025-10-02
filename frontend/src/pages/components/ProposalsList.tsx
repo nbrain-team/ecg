@@ -55,9 +55,10 @@ function ProposalsList() {
             <p className="description">{p.createdAt ? new Date(p.createdAt).toLocaleString() : ''}</p>
             <div className="card-actions">
               {p.shareId && (
-                <Link className="btn btn-primary" to={`/proposal/share/${p.shareId}`} target="_blank" rel="noreferrer">View</Link>
+                <Link className="btn btn-primary" to={`/proposal/share/${p.shareId}`} target="_blank" rel="noreferrer">View (Public)</Link>
               )}
-              <button className="btn btn-outline" onClick={() => navigate(`/proposal/${p.id}`)}>Open</button>
+              <button className="btn btn-outline" onClick={() => navigate(`/hotel/proposal/${p.id}`)}>Open</button>
+              <button className="btn btn-outline" onClick={() => navigate(`/hotel/proposal/${p.id}/grid`)}>Edit Grid</button>
             </div>
           </div>
         </div>

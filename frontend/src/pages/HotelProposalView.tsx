@@ -1,10 +1,10 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { ArrowLeft, ExternalLink, Copy, Check, Edit, Trash2 } from 'lucide-react';
+import { ArrowLeft, ExternalLink, Copy, Check, Edit, Grid as GridIcon } from 'lucide-react';
 import axios from 'axios';
 import './ProposalView.css';
 
-function ProposalView() {
+function HotelProposalView() {
   const { id } = useParams();
   const navigate = useNavigate();
   const [proposal, setProposal] = useState<any>(null);
@@ -13,6 +13,8 @@ function ProposalView() {
 
   useEffect(() => {
     fetchProposal();
+    // Persist last viewed id for grid editor reopen
+    if (id) localStorage.setItem('lastHotelProposalId', id);
   }, [id]);
 
   const normalizeProposal = (raw: any) => {
@@ -29,7 +31,8 @@ function ProposalView() {
       eventDetails: raw.eventDetails || raw.event_details || {},
       destination: raw.destination || {},
       resort: raw.resort || {},
-      branding: raw.branding || {}
+      branding: raw.branding || {},
+      metadata: raw.metadata || {}
     } as any;
   };
 
@@ -39,60 +42,33 @@ function ProposalView() {
       if (!apiUrl) {
         throw new Error('API URL not configured. Please check environment variables.');
       }
-      // Support both admin/user token and hotel token
-      const token = localStorage.getItem('token') || localStorage.getItem('hotelToken');
-      
-      console.log('Fetching proposal with ID:', id);
-      console.log('API URL:', apiUrl);
-      console.log('Token exists:', !!token);
-      
+      const token = localStorage.getItem('hotelToken') || localStorage.getItem('token');
       const response = await axios.get(`${apiUrl}/api/proposals/${id}`, {
         headers: token ? { Authorization: `Bearer ${token}` } : {}
       });
-      
-      console.log('Proposal fetched successfully:', response.data);
       setProposal(normalizeProposal(response.data));
     } catch (error: any) {
-      console.error('Error fetching proposal:', error);
-      console.error('Error response:', error.response?.data);
-      console.error('Error status:', error.response?.status);
-      
-      // Show more detailed error in the UI
-      if (error.response?.status === 404) {
-        console.error('Proposal not found with ID:', id);
-      } else if (error.response?.status === 401) {
-        console.error('Authentication failed - attempting hotel login context');
-        const hotelToken = localStorage.getItem('hotelToken');
-        if (hotelToken) {
-          // If hotel token exists but 401 occurred, prompt re-login to hotel portal
-          navigate('/hotel/login');
-        } else {
-          navigate('/login');
-        }
-      } else {
-        console.error('Unexpected error:', error.message);
+      if (error.response?.status === 401) {
+        navigate('/hotel/login');
       }
     } finally {
       setLoading(false);
     }
   };
 
-  const handlePublish = async () => {
+  const handlePublishAndOpenVisual = async () => {
     try {
       const apiUrl = import.meta.env.VITE_API_URL;
       if (!apiUrl) {
-        throw new Error('API URL not configured. Please check environment variables.');
+        throw new Error('API URL not configured.');
       }
-      const token = localStorage.getItem('token') || localStorage.getItem('hotelToken');
-      
+      const token = localStorage.getItem('hotelToken') || localStorage.getItem('token');
       await axios.post(`${apiUrl}/api/proposals/${id}/publish`, {}, {
         headers: token ? { Authorization: `Bearer ${token}` } : {}
       });
-      
-      // Refresh proposal data
-      fetchProposal();
+      navigate(`/hotel/proposal/${id}/visual`);
     } catch (error) {
-      console.error('Error publishing proposal:', error);
+      // Stay on page; could add toast
     }
   };
 
@@ -126,8 +102,8 @@ function ProposalView() {
       <div className="error-container">
         <h2>Proposal Not Found</h2>
         <p>The proposal you're looking for doesn't exist.</p>
-        <button className="btn btn-primary" onClick={() => navigate('/dashboard')}>
-          Back to Dashboard
+        <button className="btn btn-primary" onClick={() => navigate('/hotel/portal')}>
+          Back to Hotel Portal
         </button>
       </div>
     );
@@ -142,30 +118,36 @@ function ProposalView() {
           <div className="header-content">
             <button 
               className="btn btn-outline"
-              onClick={() => {
-                const hotelToken = localStorage.getItem('hotelToken');
-                navigate(hotelToken ? '/hotel/portal' : '/dashboard');
-              }}
+              onClick={() => navigate('/hotel/portal')}
             >
               <ArrowLeft size={20} />
-              Back
+              Back to Hotel Portal
             </button>
             <div className="header-actions">
               <button 
                 className="btn btn-outline"
-                onClick={() => navigate(`/proposal/${id}/edit`)}
+                onClick={() => navigate(`/hotel/proposal/${id}/grid`)}
+                title="Edit Grid"
               >
-                <Edit size={20} />
-                Edit
+                <GridIcon size={18} />
+                Edit Grid
               </button>
               {proposal?.status === 'draft' ? (
                 <button 
                   className="btn btn-primary"
-                  onClick={handlePublish}
+                  onClick={handlePublishAndOpenVisual}
                 >
-                  Publish Proposal
+                  Publish & Open Visual
                 </button>
-              ) : null}
+              ) : (
+                <button 
+                  className="btn btn-primary"
+                  onClick={() => navigate(`/hotel/proposal/${id}/visual`)}
+                >
+                  <ExternalLink size={18} />
+                  Open Visual
+                </button>
+              )}
             </div>
           </div>
         </div>
@@ -229,44 +211,6 @@ function ProposalView() {
                     <label>End Date</label>
                     <p>{proposal?.eventDetails?.endDate ? formatDate(proposal.eventDetails.endDate) : '—'}</p>
                   </div>
-                  {proposal?.eventDetails?.programLengthDays && (
-                    <div className="detail-item">
-                      <label>Program Length</label>
-                      <p>{proposal?.eventDetails?.programLengthDays} days</p>
-                    </div>
-                  )}
-                  {(proposal?.eventDetails?.hotelRating || proposal?.eventDetails?.ratingStandard) && (
-                    <div className="detail-item">
-                      <label>Hotel Rating</label>
-                      <p>
-                        {proposal?.eventDetails?.hotelRating || 'N/A'}
-                        {proposal?.eventDetails?.ratingStandard ? ` (${proposal.eventDetails.ratingStandard === 'aaa' ? 'AAA' : 'Forbes'})` : ''}
-                      </p>
-                    </div>
-                  )}
-                  {proposal?.eventDetails?.roomPreferences && (
-                    <div className="detail-item">
-                      <label>Room Preferences</label>
-                      <p>
-                        {proposal?.eventDetails?.roomPreferences?.kingRooms} King, {proposal?.eventDetails?.roomPreferences?.doubleRooms} Double/Queen
-                        {proposal?.eventDetails?.roomPreferences?.suitesNotes ? ` — ${proposal.eventDetails.roomPreferences.suitesNotes}` : ''}
-                      </p>
-                    </div>
-                  )}
-                </div>
-              </section>
-
-              <section className="detail-section">
-                <h2>Location & Venue</h2>
-                <div className="detail-grid">
-                  <div className="detail-item">
-                    <label>Destination</label>
-                    <p>{proposal?.destination?.name || '—'}{proposal?.destination?.country ? `, ${proposal.destination.country}` : ''}</p>
-                  </div>
-                  <div className="detail-item">
-                    <label>Resort</label>
-                    <p>{proposal?.resort?.name || '—'}</p>
-                  </div>
                 </div>
               </section>
 
@@ -296,7 +240,7 @@ function ProposalView() {
             <div className="proposal-sidebar">
               <div className="share-section">
                 <h3>Share Proposal</h3>
-                {proposal?.status === 'published' || proposal?.status === 'viewed' ? (
+                {proposal?.status !== 'draft' && proposal?.shareableLink ? (
                   <>
                     <div className="share-url">
                       <input 
@@ -324,31 +268,9 @@ function ProposalView() {
                   </>
                 ) : (
                   <p className="share-note">
-                    Publish this proposal to generate a shareable link for your client.
+                    Publish to generate a shareable client link.
                   </p>
                 )}
-              </div>
-
-              {proposal?.branding?.logoUrl && (
-                <div className="branding-preview">
-                  <h3>Client Logo</h3>
-                  <img src={proposal.branding.logoUrl} alt="Client Logo" />
-                </div>
-              )}
-
-              <div className="branding-colors">
-                <h3>Brand Colors</h3>
-                <div className="color-preview">
-                  <div 
-                    className="color-swatch"
-                    style={{ backgroundColor: proposal?.branding?.primaryColor || '#1e40af' }}
-                  />
-                  <div 
-                    className="color-swatch"
-                    style={{ backgroundColor: proposal?.branding?.secondaryColor || '#06b6d4' }}
-                  />
-                </div>
-                <p className="theme-name">Theme: {proposal?.branding?.theme || 'modern'}</p>
               </div>
             </div>
           </div>
@@ -358,4 +280,6 @@ function ProposalView() {
   );
 }
 
-export default ProposalView; 
+export default HotelProposalView;
+
+
