@@ -136,16 +136,17 @@ router.post('/', requireAuth(['admin', 'viewer', 'hotel']), async (req, res) => 
       flightRoutes,
       programFlow,
       branding,
-      generatedContent
+      generatedContent,
+      metadata
     } = req.body;
     
     const { rows } = await pool.query(
       `INSERT INTO proposals (
         user_id, client, event_details, destination, resort,
         selected_rooms, selected_spaces, selected_dining,
-        flight_routes, program_flow, branding, generated_content,
+        flight_routes, program_flow, branding, metadata, generated_content,
         status
-      ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13)
+      ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14)
       RETURNING *`,
       [
         userId,
@@ -159,6 +160,7 @@ router.post('/', requireAuth(['admin', 'viewer', 'hotel']), async (req, res) => 
         JSON.stringify(flightRoutes),
         JSON.stringify(programFlow),
         JSON.stringify(branding),
+        JSON.stringify(metadata),
         JSON.stringify(generatedContent),
         'draft'
       ]
@@ -174,11 +176,30 @@ router.post('/', requireAuth(['admin', 'viewer', 'hotel']), async (req, res) => 
 // Update proposal
 router.put('/:id', requireAuth(['admin', 'viewer', 'hotel']), async (req, res) => {
   try {
-    const userId = (req as any).userId;
+    const authReq = req as any;
+    let userId = authReq.userId;
+    // Map hotel role to corresponding users.id (email-based), creating if needed
+    if (authReq.user?.role === 'hotel') {
+      const { rows: existingUser } = await pool.query(
+        'SELECT id FROM users WHERE email = $1',
+        [authReq.user.email]
+      );
+      if (existingUser.length > 0) {
+        userId = existingUser[0].id;
+      } else {
+        const { rows: newUser } = await pool.query(
+          `INSERT INTO users (email, password, name, role)
+           VALUES ($1, 'hotel-user', $2, 'hotel')
+           RETURNING id`,
+          [authReq.user.email, authReq.user.email.split('@')[0]]
+        );
+        userId = newUser[0].id;
+      }
+    }
     
-    // First check if the proposal belongs to the user
+    // First check if the proposal belongs to the user and load existing row
     const { rows: existing } = await pool.query(
-      'SELECT id FROM proposals WHERE id = $1 AND user_id = $2',
+      'SELECT * FROM proposals WHERE id = $1 AND user_id = $2',
       [req.params.id, userId]
     );
     
@@ -197,8 +218,23 @@ router.put('/:id', requireAuth(['admin', 'viewer', 'hotel']), async (req, res) =
       flightRoutes,
       programFlow,
       branding,
-      generatedContent
+      generatedContent,
+      metadata
     } = req.body;
+
+    const current = existing[0];
+    const nextClient = client ?? current.client;
+    const nextEventDetails = eventDetails ?? current.event_details;
+    const nextDestination = destination ?? current.destination;
+    const nextResort = resort ?? current.resort;
+    const nextSelectedRooms = selectedRooms ?? current.selected_rooms;
+    const nextSelectedSpaces = selectedSpaces ?? current.selected_spaces;
+    const nextSelectedDining = selectedDining ?? current.selected_dining;
+    const nextFlightRoutes = flightRoutes ?? current.flight_routes;
+    const nextProgramFlow = programFlow ?? current.program_flow;
+    const nextBranding = branding ?? current.branding;
+    const nextGeneratedContent = generatedContent ?? current.generated_content;
+    const nextMetadata = metadata ?? current.metadata;
     
     const { rows } = await pool.query(
       `UPDATE proposals SET
@@ -213,23 +249,25 @@ router.put('/:id', requireAuth(['admin', 'viewer', 'hotel']), async (req, res) =
         program_flow = $11,
         branding = $12,
         generated_content = $13,
+        metadata = $14,
         updated_at = CURRENT_TIMESTAMP
       WHERE id = $1 AND user_id = $2
       RETURNING *`,
       [
         req.params.id,
         userId,
-        JSON.stringify(client),
-        JSON.stringify(eventDetails),
-        JSON.stringify(destination),
-        JSON.stringify(resort),
-        JSON.stringify(selectedRooms),
-        JSON.stringify(selectedSpaces),
-        JSON.stringify(selectedDining),
-        JSON.stringify(flightRoutes),
-        JSON.stringify(programFlow),
-        JSON.stringify(branding),
-        JSON.stringify(generatedContent)
+        JSON.stringify(nextClient),
+        JSON.stringify(nextEventDetails),
+        JSON.stringify(nextDestination),
+        JSON.stringify(nextResort),
+        JSON.stringify(nextSelectedRooms),
+        JSON.stringify(nextSelectedSpaces),
+        JSON.stringify(nextSelectedDining),
+        JSON.stringify(nextFlightRoutes),
+        JSON.stringify(nextProgramFlow),
+        JSON.stringify(nextBranding),
+        JSON.stringify(nextGeneratedContent),
+        JSON.stringify(nextMetadata)
       ]
     );
     
@@ -243,7 +281,25 @@ router.put('/:id', requireAuth(['admin', 'viewer', 'hotel']), async (req, res) =
 // Publish proposal
 router.post('/:id/publish', requireAuth(['admin', 'viewer', 'hotel']), async (req, res) => {
   try {
-    const userId = (req as any).userId;
+    const authReq = req as any;
+    let userId = authReq.userId;
+    if (authReq.user?.role === 'hotel') {
+      const { rows: existingUser } = await pool.query(
+        'SELECT id FROM users WHERE email = $1',
+        [authReq.user.email]
+      );
+      if (existingUser.length > 0) {
+        userId = existingUser[0].id;
+      } else {
+        const { rows: newUser } = await pool.query(
+          `INSERT INTO users (email, password, name, role)
+           VALUES ($1, 'hotel-user', $2, 'hotel')
+           RETURNING id`,
+          [authReq.user.email, authReq.user.email.split('@')[0]]
+        );
+        userId = newUser[0].id;
+      }
+    }
     
     const { rows } = await pool.query(
       `UPDATE proposals 

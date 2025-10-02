@@ -102,10 +102,13 @@ export async function applySchema(): Promise<void> {
       flight_routes JSONB[],
       program_flow JSONB,
       branding JSONB,
+      metadata JSONB,
       generated_content JSONB,
       created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
       updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
     )`,
+    // Ensure metadata column exists for older databases
+    `ALTER TABLE proposals ADD COLUMN IF NOT EXISTS metadata JSONB;`,
     // Triggers idempotent
     `DO $$ BEGIN IF NOT EXISTS (SELECT 1 FROM pg_trigger WHERE tgname = 'update_users_updated_at') THEN CREATE TRIGGER update_users_updated_at BEFORE UPDATE ON users FOR EACH ROW EXECUTE FUNCTION update_updated_at_column(); END IF; END$$;`,
     `DO $$ BEGIN IF NOT EXISTS (SELECT 1 FROM pg_trigger WHERE tgname = 'update_hotels_updated_at') THEN CREATE TRIGGER update_hotels_updated_at BEFORE UPDATE ON hotels FOR EACH ROW EXECUTE FUNCTION update_updated_at_column(); END IF; END$$;`,

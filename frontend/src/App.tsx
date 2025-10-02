@@ -12,6 +12,9 @@ import BudgetEditor from './pages/BudgetEditor';
 import ChatbotProposal from './pages/ChatbotProposal';
 import HotelQuoteChat from './pages/HotelQuoteChat';
 import HotelQuoteGrid from './pages/HotelQuoteGrid';
+import HotelProposalView from './pages/HotelProposalView';
+import HotelProposalGridEditor from './pages/HotelProposalGridEditor';
+import HotelProposalVisual from './pages/HotelProposalVisual';
 import './App.css';
 
 function App() {
@@ -94,6 +97,30 @@ function App() {
           element={
             isHotelAuthenticated ? 
               <HotelQuoteGrid /> : 
+              <Navigate to="/hotel/login" />
+          }
+        />
+        <Route 
+          path="/hotel/proposal/:id" 
+          element={
+            isHotelAuthenticated ? 
+              <HotelProposalView /> : 
+              <Navigate to="/hotel/login" />
+          }
+        />
+        <Route 
+          path="/hotel/proposal/:id/grid" 
+          element={
+            isHotelAuthenticated ? 
+              <HotelProposalGridEditor /> : 
+              <Navigate to="/hotel/login" />
+          }
+        />
+        <Route 
+          path="/hotel/proposal/:id/visual" 
+          element={
+            isHotelAuthenticated ? 
+              <HotelProposalVisual /> : 
               <Navigate to="/hotel/login" />
           }
         />
