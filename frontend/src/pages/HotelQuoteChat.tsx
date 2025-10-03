@@ -19,6 +19,9 @@ interface Message {
 interface ProgramState {
   client?: {
     company?: string;
+    name?: string;
+    email?: string;
+    phone?: string;
   };
   program: {
     start_date?: string;
