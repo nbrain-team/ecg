@@ -171,11 +171,10 @@ function HotelQuoteChat() {
       localStorage.setItem('hotel_quote_draft', JSON.stringify(draft));
       
       // Create proposal in database
-      const startDate = state.program.start_date || state.program.flex_start || '';
-      const computedEventName = (state.events.business?.days?.length ?? 0) > 0
-        ? 'Business Program'
-        : (state.events.awards_dinner?.enabled ? 'Awards Dinner' : (state.events.welcome_reception?.enabled ? 'Welcome Reception' : 'Group Program'));
-      const proposalTitle = `${computedEventName}${startDate ? ` - ${startDate}` : ''}`;
+      const startDate = state.program.start_date || state.program.flex_start || new Date().toISOString().slice(0,10);
+      const companyName = (state.client?.company || 'Company').toString();
+      const normalize = (s: string) => s.trim().replace(/\s+/g, '-').replace(/[^a-zA-Z0-9\-]/g, '');
+      const proposalTitle = `${normalize(companyName)}-${startDate}`;
 
       const proposalPayload = {
         client: {
