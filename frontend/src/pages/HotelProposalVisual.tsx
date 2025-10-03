@@ -112,9 +112,12 @@ function HotelProposalVisual() {
         )}
         {/* Program Details derived from chat */}
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(220px,1fr))', gap: 12, marginTop: 12 }}>
-          <div><div style={{ color: '#6b7280' }}>Double Occupancy</div><div style={{ fontWeight: 600 }}>{String(event?.doubleOccupancy ?? '')} {event?.doubleOccupancy === true || event?.doubleOccupancy === false ? '' : ''}</div></div>
+          <div><div style={{ color: '#6b7280' }}>Double Occupancy</div><div style={{ fontWeight: 600 }}>{event?.doubleOccupancy ? 'Yes' : 'No'}</div></div>
+          {typeof event?.doublePct === 'number' && (
+            <div><div style={{ color: '#6b7280' }}>% Double</div><div style={{ fontWeight: 600 }}>{event.doublePct}%</div></div>
+          )}
           {typeof event?.roomsNeeded === 'number' && (
-            <div><div style={{ color: '#6b7280' }}>Rooms Needed (peak)</div><div style={{ fontWeight: 600 }}>{event.roomsNeeded}</div></div>
+            <div><div style={{ color: '#6b7280' }}>Peak Rooms Needed</div><div style={{ fontWeight: 600 }}>{event.roomsNeeded}</div></div>
           )}
           {event?.roomView && (
             <div><div style={{ color: '#6b7280' }}>Preferred Room View</div><div style={{ fontWeight: 600 }}>{String(event.roomView).replaceAll('_',' ')}</div></div>
@@ -123,10 +126,13 @@ function HotelProposalVisual() {
             <div><div style={{ color: '#6b7280' }}>Suites Requested</div><div style={{ fontWeight: 600 }}>{event.suiteCount}</div></div>
           )}
           {event?.daysPattern && (
-            <div><div style={{ color: '#6b7280' }}>DOW Pattern</div><div style={{ fontWeight: 600 }}>{event.daysPattern}</div></div>
+            <div><div style={{ color: '#6b7280' }}>Days Pattern</div><div style={{ fontWeight: 600 }}>{event.daysPattern}</div></div>
           )}
           {event?.privateSatelliteCheckIn !== undefined && (
             <div><div style={{ color: '#6b7280' }}>Private Satellite Check-in</div><div style={{ fontWeight: 600 }}>{event.privateSatelliteCheckIn ? 'Yes' : 'No'}</div></div>
+          )}
+          {event?.satelliteCheckInDetails && (
+            <div><div style={{ color: '#6b7280' }}>Check-in Details</div><div style={{ fontWeight: 600 }}>{event.satelliteCheckInDetails}</div></div>
           )}
         </div>
         {/* Event schedule details */}
@@ -149,6 +155,17 @@ function HotelProposalVisual() {
               <li>Other Events: {event.otherEvents.map((e:any)=>`${e.description} (Day ${e.day})`).join('; ')}</li>
             )}
           </ul>
+        </div>
+      </section>
+
+      {/* Contact Details */}
+      <section className="card">
+        <h2 className="section-title" style={{ margin: 0, marginBottom: 8 }}>Contact Information</h2>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(220px,1fr))', gap: 12 }}>
+          <div><div style={{ color: '#6b7280' }}>Company</div><div style={{ fontWeight: 600 }}>{proposal?.client?.company || '—'}</div></div>
+          <div><div style={{ color: '#6b7280' }}>Contact</div><div style={{ fontWeight: 600 }}>{proposal?.client?.name || '—'}</div></div>
+          <div><div style={{ color: '#6b7280' }}>Email</div><div style={{ fontWeight: 600 }}>{proposal?.client?.email || '—'}</div></div>
+          <div><div style={{ color: '#6b7280' }}>Phone</div><div style={{ fontWeight: 600 }}>{proposal?.client?.phone || '—'}</div></div>
         </div>
       </section>
 

@@ -61,6 +61,9 @@ interface ProgramState {
 
 type StepId =
   | 'S0_COMPANY'
+  | 'S0_CONTACT_NAME'
+  | 'S0_CONTACT_EMAIL'
+  | 'S0_CONTACT_PHONE'
   | 'S1_CHOICE' | 'S1_FIXED' | 'S1_FLEX'
   | 'S2' | 'S3' | 'S4' | 'S4_CONF' | 'S5' | 'S5_PCT' | 'S6' | 'S6_BLEND_PCT'
   | 'S7' | 'S8' | 'S8_DETAILS' | 'S9' | 'S9_DETAILS' | 'S10' | 'S10_MULTI' | 'S10_DETAILS'
@@ -176,9 +179,10 @@ function HotelQuoteChat() {
 
       const proposalPayload = {
         client: {
-          name: 'Hotel Quote Client',
+          name: state.client?.name || 'Hotel Quote Client',
           company: state.client?.company || 'Unknown Company',
-          email: 'quote@grandvelasloscabos.com'
+          email: state.client?.email || 'quote@grandvelasloscabos.com',
+          phone: state.client?.phone || ''
         },
         eventDetails: {
           name: proposalTitle,
@@ -190,9 +194,11 @@ function HotelQuoteChat() {
           numberOfNights: nights,
           daysPattern: state.program.dow_pattern,
           doubleOccupancy: state.occupancy.is_double_majority,
+          doublePct: state.occupancy.double_pct,
           roomView: state.rooms.view_pref,
           suiteCount: state.rooms.suites?.count || 0,
           privateSatelliteCheckIn: state.arrival.satellite_checkin?.enabled,
+          satelliteCheckInDetails: state.arrival.satellite_checkin?.details,
           businessSessions: state.events.business?.days?.map(d => ({ day: d, description: state.events.business?.details || '' })),
           awardsDinner: state.events.awards_dinner?.enabled ? { night: state.events.awards_dinner.night } : undefined,
           dineArounds: state.events.dine_arounds?.enabled ? { nights: state.events.dine_arounds.nights || [] } : undefined,
@@ -288,6 +294,24 @@ function HotelQuoteChat() {
     switch (currentStep) {
       case 'S0_COMPANY': {
         setState(prev => ({ ...prev, client: { ...(prev.client || {}), company: userInput.trim() } }));
+        setCurrentStep('S0_CONTACT_NAME');
+        addBotMessage('Who is the primary contact? (full name)');
+        break;
+      }
+      case 'S0_CONTACT_NAME': {
+        setState(prev => ({ ...prev, client: { ...(prev.client || {}), name: userInput.trim() } }));
+        setCurrentStep('S0_CONTACT_EMAIL');
+        addBotMessage('What is their email address?');
+        break;
+      }
+      case 'S0_CONTACT_EMAIL': {
+        setState(prev => ({ ...prev, client: { ...(prev.client || {}), email: userInput.trim() } }));
+        setCurrentStep('S0_CONTACT_PHONE');
+        addBotMessage('What is their phone number?');
+        break;
+      }
+      case 'S0_CONTACT_PHONE': {
+        setState(prev => ({ ...prev, client: { ...(prev.client || {}), phone: userInput.trim() } }));
         setCurrentStep('S1_CHOICE');
         addBotMessage("Let's build your hotel quote. What are your preferred program dates? Are your dates flexible?", {
           options: ['Fixed dates', 'Flexible range']
