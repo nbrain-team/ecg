@@ -77,8 +77,9 @@ function HotelProposalVisual() {
   // Build program customizations grid items (label/value)
   const start = (event as any).startDate || (event as any).start_date;
   const end = (event as any).endDate || (event as any).end_date;
+  const datesRange = (start || end) ? (String(start || '') + (end ? ' – ' + String(end) : '')) : '';
   const customizationItems: Array<{ label: string; value: string }> = [
-    { label: 'Dates', value: start || end ? `${start || ''}${end ? ` – ${end}` : ''}` : '' },
+    { label: 'Dates', value: datesRange },
     { label: 'Nights', value: String((event as any).numberOfNights || (proposal?.metadata?.grid?.rows?.length || '')) },
     { label: 'Attendees', value: (event as any).attendeeCount != null ? String((event as any).attendeeCount) : '' },
     { label: 'Attendee Confidence', value: (event as any).attendeeConfidence || '' },
