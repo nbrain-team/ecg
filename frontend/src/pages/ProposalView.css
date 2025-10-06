@@ -3,6 +3,7 @@
 .proposal-view {
   min-height: 100vh;
   background: var(--color-background);
+  color: #111111;
 }
 
 .view-header {
@@ -45,7 +46,7 @@
 
 .proposal-header h1 {
   font-size: 2rem;
-  color: var(--color-text);
+  color: #111111;
   margin: 0;
 }
 
@@ -54,23 +55,16 @@
   border-radius: 20px;
   font-size: 0.9rem;
   font-weight: 500;
-  text-transform: uppercase;
+  text-transform: none;
+  color: #111111;
+  background: #f5f5f5;
 }
 
-.status-badge.draft {
-  background: #fef3c7;
-  color: #92400e;
-}
+.status-badge.draft { background: #f5f5f5; }
 
-.status-badge.published {
-  background: #d1fae5;
-  color: #065f46;
-}
+.status-badge.published { background: #f5f5f5; }
 
-.status-badge.viewed {
-  background: #dbeafe;
-  color: #1e40af;
-}
+.status-badge.viewed { background: #f5f5f5; }
 
 .proposal-grid {
   display: grid;
@@ -99,29 +93,31 @@
 
 .detail-section h2 {
   font-size: 1.25rem;
-  color: var(--color-text);
-  margin-bottom: 1.5rem;
+  color: #111111;
+  margin-bottom: 1.25rem;
 }
 
 .detail-grid {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
-  gap: 1.5rem;
+  gap: 1rem 2rem;
 }
 
 .detail-item label {
   display: block;
-  font-size: 0.85rem;
-  color: var(--color-text-light);
-  margin-bottom: 0.5rem;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
+  font-size: 0.95rem;
+  color: #111111;
+  margin-bottom: 0.25rem;
+  font-weight: 600;
+  text-transform: none;
+  letter-spacing: 0;
 }
 
 .detail-item p {
   font-size: 1rem;
-  color: var(--color-text);
+  color: #111111;
   margin: 0;
+  font-weight: 400;
 }
 
 .proposal-sidebar {
@@ -140,7 +136,7 @@
 .share-section h3 {
   font-size: 1.1rem;
   margin-bottom: 1rem;
-  color: var(--color-text);
+  color: #111111;
 }
 
 /* Compact buttons in share and sidebar cards */
@@ -165,6 +161,7 @@
   border-radius: 6px;
   font-size: 0.9rem;
   background: var(--color-background);
+  color: #111111;
 }
 
 .copy-btn {
