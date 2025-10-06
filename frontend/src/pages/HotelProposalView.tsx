@@ -145,15 +145,7 @@ function HotelProposalView() {
                 >
                   Publish & Open Visual
                 </button>
-              ) : (
-                <button 
-                  className="btn btn-primary"
-                  onClick={() => navigate(`/hotel/proposal/${id}/visual`)}
-                >
-                  <ExternalLink size={18} />
-                  Open Visual
-                </button>
-              )}
+              ) : null}
             </div>
           </div>
         </div>
@@ -162,7 +154,7 @@ function HotelProposalView() {
       <main className="view-main">
         <div className="container">
           <div className="proposal-header">
-            <h1>{proposal?.eventDetails?.name || 'Untitled Proposal'}</h1>
+            <h1>{(proposal?.eventDetails?.name || 'Untitled Proposal').replace(' + ', ' ')}</h1>
             <span className={`status-badge ${proposal?.status || 'draft'}`}>
               {proposal?.status || 'draft'}
             </span>

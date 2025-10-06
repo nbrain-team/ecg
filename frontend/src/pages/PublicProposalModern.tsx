@@ -127,7 +127,7 @@ function PublicProposalModern() {
             {proposal?.client?.company || 'Your Company'}
             <span className="company-subtitle"></span>
           </h1>
-          <h2 className="event-name">{proposal?.eventDetails?.name || 'Event Proposal'}</h2>
+          <h2 className="event-name">{(proposal?.eventDetails?.name || 'Event Proposal').replace(' + ', ' ')}</h2>
           <p className="event-subtitle">{eventSubtitle}</p>
           <div className="header-ecg-logo">
             <img src="/images/ecg-logo.avif" alt="ECG" />
