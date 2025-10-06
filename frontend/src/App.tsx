@@ -8,6 +8,7 @@ import ProposalBuilder from './pages/ProposalBuilder';
 import ProposalView from './pages/ProposalView';
 import PublicProposal from './pages/PublicProposal';
 import PublicProposalModern from './pages/PublicProposalModern';
+import PublicHotelProposalVisual from './pages/PublicHotelProposalVisual';
 import BudgetEditor from './pages/BudgetEditor';
 import ChatbotProposal from './pages/ChatbotProposal';
 import HotelQuoteChat from './pages/HotelQuoteChat';
@@ -142,7 +143,7 @@ function App() {
         />
         <Route 
           path="/proposal/share/:shareId" 
-          element={<PublicProposalModern />} 
+          element={<PublicHotelProposalVisual />} 
         />
         <Route 
           path="/budget-editor" 
