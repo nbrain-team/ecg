@@ -37,6 +37,17 @@ router.get('/', requireAuth(['admin', 'viewer', 'hotel']), async (req, res) => {
   }
 });
 
+// Admin: delete all proposals (must be registered before /:id route)
+router.delete('/all', requireAuth(['admin']), async (req, res) => {
+  try {
+    await pool.query('DELETE FROM proposals');
+    res.json({ message: 'All proposals deleted' });
+  } catch (error) {
+    console.error('Error deleting all proposals:', error);
+    res.status(500).json({ message: 'Failed to delete proposals' });
+  }
+});
+
 // Get proposal by ID
 router.get('/:id', requireAuth(['admin', 'viewer', 'hotel']), async (req, res) => {
   try {
