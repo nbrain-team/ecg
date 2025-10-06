@@ -74,8 +74,37 @@ function HotelProposalVisual() {
     : dining.slice(0, 8))
     .map((d: any) => ({ ...d, images: Array.isArray(d.images) ? d.images.map((u: string) => toAbsolute(u)) : [] }));
 
+  // Build program customizations grid items (label/value)
+  const fmt = (d?: string) => d ? new Date(d).toISOString().slice(0,10) : '';
+  const start = (event as any).startDate || (event as any).start_date;
+  const end = (event as any).endDate || (event as any).end_date;
+  const customizationItems: Array<{ label: string; value: string }> = [
+    { label: 'Dates', value: start || end ? `${start || ''}${end ? ` – ${end}` : ''}` : '' },
+    { label: 'Nights', value: String((event as any).numberOfNights || (proposal?.metadata?.grid?.rows?.length || '')) },
+    { label: 'Attendees', value: (event as any).attendeeCount != null ? String((event as any).attendeeCount) : '' },
+    { label: 'Attendee Confidence', value: (event as any).attendeeConfidence || '' },
+    { label: 'Rooms Needed', value: (event as any).roomsNeeded != null ? String((event as any).roomsNeeded) : '' },
+    { label: 'Day-of-Week Pattern', value: (event as any).daysPattern || '' },
+    { label: 'Double Occupancy', value: (event as any).doubleOccupancy != null ? ((event as any).doubleOccupancy ? 'Yes' : 'No') : '' },
+    { label: '% Double', value: (event as any).doublePct != null ? `${(event as any).doublePct}%` : '' },
+    { label: 'Room View', value: (event as any).roomView ? String((event as any).roomView).replaceAll('_',' ') : '' },
+    { label: 'Ocean View %', value: (event as any).roomViewPct != null ? `${(event as any).roomViewPct}%` : '' },
+    { label: 'Suites', value: (event as any).suiteCount != null ? String((event as any).suiteCount) : '' },
+    { label: 'Private Satellite Check-in', value: (event as any).privateSatelliteCheckIn != null ? ((event as any).privateSatelliteCheckIn ? 'Yes' : 'No') : '' },
+    { label: 'Check-in Details', value: (event as any).satelliteCheckInDetails || '' },
+    { label: 'Welcome Reception', value: (event as any).welcomeReception != null ? ((event as any).welcomeReception ? 'Yes' : 'No') : '' },
+    { label: 'Welcome Reception Details', value: (event as any).welcomeReceptionDetails || '' },
+    { label: 'Business Sessions', value: Array.isArray((event as any).businessSessions) && (event as any).businessSessions.length ? `Days ${(event as any).businessSessions.map((b:any)=>b.day).join(', ')}` : '' },
+    { label: 'Business Details', value: Array.isArray((event as any).businessSessions) && (event as any).businessSessions.some((b:any)=>b.description) ? (event as any).businessSessions.find((b:any)=>b.description)?.description || '' : '' },
+    { label: 'Awards Dinner', value: (event as any).awardsDinner?.night ? `Night ${(event as any).awardsDinner.night}` : '' },
+    { label: 'Dine-arounds', value: (event as any).dineArounds?.nights?.length ? (event as any).dineArounds.nights.join(', ') : '' },
+    { label: 'Other Events', value: Array.isArray((event as any).otherEvents) && (event as any).otherEvents.length ? (event as any).otherEvents.map((e:any)=>`${e.description} (Day ${e.day})`).join('; ') : '' },
+  ].filter(i => i.value);
+
+  const gen = proposal?.generated_content || proposal?.generatedContent || {};
+
   return (
-    <div className="container" style={{ padding: '1rem' }}>
+    <div className="container" style={{ padding: '1rem', overflow: 'visible' }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <h2 style={{ margin: 0 }}>Visual Proposal</h2>
         <div className="header-actions" style={{ display: 'flex', gap: 8 }}>
@@ -86,13 +115,28 @@ function HotelProposalVisual() {
 
       {/* Header Hero */}
       <header style={{ position: 'relative', borderRadius: 8, overflow: 'hidden', marginTop: 12, border: '1px solid #e5e7eb' }}>
-        <div style={{ backgroundImage: `url(${heroUrl})`, backgroundSize: 'cover', backgroundPosition: 'center', height: 260 }} />
+        <div style={{ backgroundImage: `url(${heroUrl})`, backgroundSize: 'cover', backgroundPosition: 'center', minHeight: 260 }} />
         <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to top, rgba(0,0,0,0.65), transparent)' }} />
         <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, color: 'white', padding: 16 }}>
           <h1 style={{ margin: 0 }}>{event?.name || 'Group Program'}</h1>
-          <p style={{ margin: 0, opacity: 0.95 }}>{clientCompany}</p>
+          <p style={{ margin: 0, opacity: 0.95 }}>{clientCompany}{(start||end) ? ` • ${start || ''}${end ? ` – ${end}` : ''}` : ''}{(event as any).attendeeCount ? ` • ${(event as any).attendeeCount} Attendees` : ''}</p>
         </div>
       </header>
+
+      {/* Program Customizations */}
+      {customizationItems.length > 0 && (
+        <section className="card" style={{ marginTop: 12 }}>
+          <h2 className="section-title" style={{ margin: 0, marginBottom: 8, color: primary }}>Program Customizations</h2>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(220px,1fr))', gap: 12 }}>
+            {customizationItems.map((it, idx) => (
+              <div key={idx} style={{ display: 'grid', gap: 4 }}>
+                <div style={{ fontSize: 12, fontWeight: 600, color: '#111' }}>{it.label}</div>
+                <div style={{ fontSize: 16, fontWeight: 500, color: '#111' }}>{it.value}</div>
+              </div>
+            ))}
+          </div>
+        </section>
+      )}
 
       {/* Program Overview */}
       <section className="card" style={{ marginTop: 12 }}>
@@ -157,6 +201,38 @@ function HotelProposalVisual() {
           </ul>
         </div>
       </section>
+
+      {/* Destination Overview */}
+      {(gen.destinationOverview || proposal?.destination?.description) && (
+        <section className="card" style={{ marginTop: 12 }}>
+          <h2 className="section-title" style={{ margin: 0, marginBottom: 8 }}>Destination Overview</h2>
+          <p style={{ color: '#374151', lineHeight: 1.6 }}>{gen.destinationOverview || proposal?.destination?.description}</p>
+        </section>
+      })}
+
+      {/* Resort Highlight */}
+      {(gen.resortHighlight || proposal?.resort?.description) && (
+        <section className="card" style={{ marginTop: 12 }}>
+          <h2 className="section-title" style={{ margin: 0, marginBottom: 8 }}>Resort Highlight</h2>
+          <p style={{ color: '#374151', lineHeight: 1.6 }}>{gen.resortHighlight || proposal?.resort?.description}</p>
+        </section>
+      })}
+
+      {/* Dining Description */}
+      {gen.diningDescription && (
+        <section className="card" style={{ marginTop: 12 }}>
+          <h2 className="section-title" style={{ margin: 0, marginBottom: 8 }}>Dining</h2>
+          <p style={{ color: '#374151', lineHeight: 1.6 }}>{gen.diningDescription}</p>
+        </section>
+      )}
+
+      {/* Travel Info */}
+      {gen.travelInfo && (
+        <section className="card" style={{ marginTop: 12 }}>
+          <h2 className="section-title" style={{ margin: 0, marginBottom: 8 }}>Travel Information</h2>
+          <p style={{ color: '#374151', lineHeight: 1.6 }}>{gen.travelInfo}</p>
+        </section>
+      )}
 
       {/* Contact Details */}
       <section className="card">
