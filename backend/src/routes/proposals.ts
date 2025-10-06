@@ -146,6 +146,13 @@ router.post('/', requireAuth(['admin', 'viewer', 'hotel']), async (req, res) => 
     const selectedSpacesParam = Array.isArray(selectedSpaces) && selectedSpaces.length > 0 ? selectedSpaces : null;
     const selectedDiningParam = Array.isArray(selectedDining) && selectedDining.length > 0 ? selectedDining : null;
     const flightRoutesParam = Array.isArray(flightRoutes) && flightRoutes.length > 0 ? flightRoutes : null;
+
+    // Enforce proposal naming convention: "Company Name + YYYY-MM-DD" based on chat inputs
+    const companyName: string = (client?.company || '').toString().trim();
+    const startDateRaw: string = (eventDetails?.startDate || (eventDetails as any)?.start_date || '').toString().slice(0, 10);
+    const today = new Date().toISOString().slice(0, 10);
+    const computedName = `${companyName || 'Proposal'} + ${startDateRaw || today}`;
+    const eventDetailsToSave = { ...(eventDetails || {}), name: computedName };
     
     const { rows } = await pool.query(
       `INSERT INTO proposals (
@@ -173,7 +180,7 @@ router.post('/', requireAuth(['admin', 'viewer', 'hotel']), async (req, res) => 
       [
         userId,
         JSON.stringify(client),
-        JSON.stringify(eventDetails),
+        JSON.stringify(eventDetailsToSave),
         JSON.stringify(destination),
         JSON.stringify(resort),
         selectedRoomsParam ? JSON.stringify(selectedRoomsParam) : null,
@@ -363,6 +370,16 @@ router.delete('/:id', requireAuth(['admin', 'viewer', 'hotel']), async (req, res
   } catch (error) {
     console.error('Error deleting proposal:', error);
     res.status(500).json({ message: 'Failed to delete proposal' });
+  }
+});
+
+router.delete('/all', requireAuth(['admin']), async (req, res) => {
+  try {
+    await pool.query('DELETE FROM proposals');
+    res.json({ message: 'All proposals deleted' });
+  } catch (error) {
+    console.error('Error deleting all proposals:', error);
+    res.status(500).json({ message: 'Failed to delete proposals' });
   }
 });
 
