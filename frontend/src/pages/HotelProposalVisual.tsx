@@ -102,6 +102,15 @@ function HotelProposalVisual() {
 
   const gen = proposal?.generated_content || proposal?.generatedContent || {};
 
+  // Build hero subtitle parts safely (avoid nested template strings)
+  const heroParts: string[] = [];
+  if (start || end) {
+    heroParts.push(`${start || ''}${end ? ' – ' + end : ''}`);
+  }
+  if ((event as any).attendeeCount) {
+    heroParts.push(`${(event as any).attendeeCount} Attendees`);
+  }
+
   return (
     <div className="container" style={{ padding: '1rem', overflow: 'visible' }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
@@ -118,7 +127,10 @@ function HotelProposalVisual() {
         <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to top, rgba(0,0,0,0.65), transparent)' }} />
         <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, color: 'white', padding: 16 }}>
           <h1 style={{ margin: 0 }}>{event?.name || 'Group Program'}</h1>
-          <p style={{ margin: 0, opacity: 0.95 }}>{clientCompany}{(start||end) ? ` • ${start || ''}${end ? ` – ${end}` : ''}` : ''}{(event as any).attendeeCount ? ` • ${(event as any).attendeeCount} Attendees` : ''}</p>
+          <p style={{ margin: 0, opacity: 0.95 }}>
+            {clientCompany}
+            {heroParts.length ? ` • ${heroParts.join(' • ')}` : ''}
+          </p>
         </div>
       </header>
 
