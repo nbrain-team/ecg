@@ -175,9 +175,8 @@ function HotelQuoteChat() {
       
       // Create proposal in database
       const startDate = state.program.start_date || state.program.flex_start || new Date().toISOString().slice(0,10);
-      const companyName = (state.client?.company || 'Company').toString();
-      const normalize = (s: string) => s.trim().replace(/\s+/g, '-').replace(/[^a-zA-Z0-9\-]/g, '');
-      const proposalTitle = `${normalize(companyName)}-${startDate}`;
+      const companyName = (state.client?.company || 'Company').toString().trim();
+      const proposalTitle = `${companyName} + ${startDate}`;
 
       const proposalPayload = {
         client: {
