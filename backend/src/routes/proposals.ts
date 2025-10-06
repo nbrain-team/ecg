@@ -153,7 +153,22 @@ router.post('/', requireAuth(['admin', 'viewer', 'hotel']), async (req, res) => 
         selected_rooms, selected_spaces, selected_dining,
         flight_routes, program_flow, branding, metadata, generated_content,
         status
-      ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14)
+      ) VALUES (
+        $1,
+        $2::jsonb,
+        $3::jsonb,
+        $4::jsonb,
+        $5::jsonb,
+        CASE WHEN $6::text IS NULL OR $6 = 'null' THEN NULL ELSE (SELECT array_agg(elem) FROM jsonb_array_elements($6::jsonb) AS elem) END,
+        CASE WHEN $7::text IS NULL OR $7 = 'null' THEN NULL ELSE (SELECT array_agg(elem) FROM jsonb_array_elements($7::jsonb) AS elem) END,
+        CASE WHEN $8::text IS NULL OR $8 = 'null' THEN NULL ELSE (SELECT array_agg(elem) FROM jsonb_array_elements($8::jsonb) AS elem) END,
+        CASE WHEN $9::text IS NULL OR $9 = 'null' THEN NULL ELSE (SELECT array_agg(elem) FROM jsonb_array_elements($9::jsonb) AS elem) END,
+        $10::jsonb,
+        $11::jsonb,
+        $12::jsonb,
+        $13::jsonb,
+        $14
+      )
       RETURNING *`,
       [
         userId,
@@ -161,10 +176,10 @@ router.post('/', requireAuth(['admin', 'viewer', 'hotel']), async (req, res) => 
         JSON.stringify(eventDetails),
         JSON.stringify(destination),
         JSON.stringify(resort),
-        selectedRoomsParam,
-        selectedSpacesParam,
-        selectedDiningParam,
-        flightRoutesParam,
+        selectedRoomsParam ? JSON.stringify(selectedRoomsParam) : null,
+        selectedSpacesParam ? JSON.stringify(selectedSpacesParam) : null,
+        selectedDiningParam ? JSON.stringify(selectedDiningParam) : null,
+        flightRoutesParam ? JSON.stringify(flightRoutesParam) : null,
         JSON.stringify(programFlow),
         JSON.stringify(branding),
         JSON.stringify(metadata),
