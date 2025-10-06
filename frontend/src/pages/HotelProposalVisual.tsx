@@ -215,36 +215,36 @@ function HotelProposalVisual() {
       </section>
 
       {/* Destination Overview */}
-      {(gen.destinationOverview || proposal?.destination?.description) && (
+      {(gen.destinationOverview || proposal?.destination?.description) ? (
         <section className="card" style={{ marginTop: 12 }}>
           <h2 className="section-title" style={{ margin: 0, marginBottom: 8 }}>Destination Overview</h2>
           <p style={{ color: '#374151', lineHeight: 1.6 }}>{gen.destinationOverview || proposal?.destination?.description}</p>
         </section>
-      })}
+      ) : null}
 
       {/* Resort Highlight */}
-      {(gen.resortHighlight || proposal?.resort?.description) && (
+      {(gen.resortHighlight || proposal?.resort?.description) ? (
         <section className="card" style={{ marginTop: 12 }}>
           <h2 className="section-title" style={{ margin: 0, marginBottom: 8 }}>Resort Highlight</h2>
           <p style={{ color: '#374151', lineHeight: 1.6 }}>{gen.resortHighlight || proposal?.resort?.description}</p>
         </section>
-      })}
+      ) : null}
 
       {/* Dining Description */}
-      {gen.diningDescription && (
+      {gen.diningDescription ? (
         <section className="card" style={{ marginTop: 12 }}>
           <h2 className="section-title" style={{ margin: 0, marginBottom: 8 }}>Dining</h2>
           <p style={{ color: '#374151', lineHeight: 1.6 }}>{gen.diningDescription}</p>
         </section>
-      )}
+      ) : null}
 
       {/* Travel Info */}
-      {gen.travelInfo && (
+      {gen.travelInfo ? (
         <section className="card" style={{ marginTop: 12 }}>
           <h2 className="section-title" style={{ margin: 0, marginBottom: 8 }}>Travel Information</h2>
           <p style={{ color: '#374151', lineHeight: 1.6 }}>{gen.travelInfo}</p>
         </section>
-      )}
+      ) : null}
 
       {/* Contact Details */}
       <section className="card">
