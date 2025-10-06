@@ -139,6 +139,13 @@ router.post('/', requireAuth(['admin', 'viewer', 'hotel']), async (req, res) => 
       generatedContent,
       metadata
     } = req.body;
+
+    // Note: selected_* and flight_routes are jsonb[] columns in DB. Passing a JSON string like "[]" causes
+    // a malformed array literal error. When empty or unspecified, store NULL to avoid type issues.
+    const selectedRoomsParam = Array.isArray(selectedRooms) && selectedRooms.length > 0 ? selectedRooms : null;
+    const selectedSpacesParam = Array.isArray(selectedSpaces) && selectedSpaces.length > 0 ? selectedSpaces : null;
+    const selectedDiningParam = Array.isArray(selectedDining) && selectedDining.length > 0 ? selectedDining : null;
+    const flightRoutesParam = Array.isArray(flightRoutes) && flightRoutes.length > 0 ? flightRoutes : null;
     
     const { rows } = await pool.query(
       `INSERT INTO proposals (
@@ -154,10 +161,10 @@ router.post('/', requireAuth(['admin', 'viewer', 'hotel']), async (req, res) => 
         JSON.stringify(eventDetails),
         JSON.stringify(destination),
         JSON.stringify(resort),
-        JSON.stringify(selectedRooms),
-        JSON.stringify(selectedSpaces),
-        JSON.stringify(selectedDining),
-        JSON.stringify(flightRoutes),
+        selectedRoomsParam,
+        selectedSpacesParam,
+        selectedDiningParam,
+        flightRoutesParam,
         JSON.stringify(programFlow),
         JSON.stringify(branding),
         JSON.stringify(metadata),
