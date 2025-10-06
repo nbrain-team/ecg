@@ -32,6 +32,10 @@ function HotelProposalView() {
       destination: raw.destination || {},
       resort: raw.resort || {},
       branding: raw.branding || {},
+      programFlow: raw.programFlow || raw.program_flow || {},
+      selectedRooms: raw.selectedRooms || raw.selected_rooms || [],
+      selectedSpaces: raw.selectedSpaces || raw.selected_spaces || [],
+      selectedDining: raw.selectedDining || raw.selected_dining || [],
       metadata: raw.metadata || {}
     } as any;
   };
@@ -199,6 +203,12 @@ function HotelProposalView() {
                     <label>Attendees</label>
                     <p>{proposal?.eventDetails?.attendeeCount ?? '—'}</p>
                   </div>
+                  {proposal?.eventDetails?.attendeeConfidence && (
+                    <div className="detail-item">
+                      <label>Attendee Confidence</label>
+                      <p>{proposal?.eventDetails?.attendeeConfidence}</p>
+                    </div>
+                  )}
                   {proposal?.eventDetails?.roomsNeeded && (
                     <div className="detail-item">
                       <label>Rooms Needed</label>
@@ -212,6 +222,175 @@ function HotelProposalView() {
                   <div className="detail-item">
                     <label>End Date</label>
                     <p>{proposal?.eventDetails?.endDate ? formatDate(proposal.eventDetails.endDate) : '—'}</p>
+                  </div>
+                  {proposal?.eventDetails?.datesFlexible !== undefined && (
+                    <div className="detail-item">
+                      <label>Dates Flexible</label>
+                      <p>{proposal?.eventDetails?.datesFlexible ? 'Yes' : 'No'}</p>
+                    </div>
+                  )}
+                  {proposal?.eventDetails?.flexibleDateRange && (
+                    <div className="detail-item">
+                      <label>Flexible Date Range</label>
+                      <p>{proposal?.eventDetails?.flexibleDateRange}</p>
+                    </div>
+                  )}
+                  {proposal?.eventDetails?.numberOfNights !== undefined && (
+                    <div className="detail-item">
+                      <label>Nights</label>
+                      <p>{proposal?.eventDetails?.numberOfNights}</p>
+                    </div>
+                  )}
+                  {proposal?.eventDetails?.daysPattern && (
+                    <div className="detail-item">
+                      <label>Day-of-Week Pattern</label>
+                      <p>{proposal?.eventDetails?.daysPattern}</p>
+                    </div>
+                  )}
+                </div>
+              </section>
+
+              <section className="detail-section">
+                <h2>Lodging & Occupancy</h2>
+                <div className="detail-grid">
+                  {proposal?.eventDetails?.doubleOccupancy !== undefined && (
+                    <div className="detail-item">
+                      <label>Double Occupancy Majority</label>
+                      <p>{proposal?.eventDetails?.doubleOccupancy ? 'Yes' : 'No'}</p>
+                    </div>
+                  )}
+                  {proposal?.eventDetails?.doublePct !== undefined && (
+                    <div className="detail-item">
+                      <label>Double Occupancy %</label>
+                      <p>{proposal?.eventDetails?.doublePct}%</p>
+                    </div>
+                  )}
+                  {proposal?.eventDetails?.roomView && (
+                    <div className="detail-item">
+                      <label>Room View Preference</label>
+                      <p>{proposal?.eventDetails?.roomView}</p>
+                    </div>
+                  )}
+                  {proposal?.eventDetails?.roomViewPct !== undefined && (
+                    <div className="detail-item">
+                      <label>Ocean View %</label>
+                      <p>{proposal?.eventDetails?.roomViewPct}%</p>
+                    </div>
+                  )}
+                  {proposal?.eventDetails?.suiteCount !== undefined && (
+                    <div className="detail-item">
+                      <label>Suites Needed</label>
+                      <p>{proposal?.eventDetails?.suiteCount}</p>
+                    </div>
+                  )}
+                </div>
+              </section>
+
+              <section className="detail-section">
+                <h2>Arrival & Check-in</h2>
+                <div className="detail-grid">
+                  {proposal?.eventDetails?.privateSatelliteCheckIn !== undefined && (
+                    <div className="detail-item">
+                      <label>Private Satellite Check-in</label>
+                      <p>{proposal?.eventDetails?.privateSatelliteCheckIn ? 'Yes' : 'No'}</p>
+                    </div>
+                  )}
+                  {proposal?.eventDetails?.satelliteCheckInDetails && (
+                    <div className="detail-item">
+                      <label>Satellite Check-in Details</label>
+                      <p>{proposal?.eventDetails?.satelliteCheckInDetails}</p>
+                    </div>
+                  )}
+                </div>
+              </section>
+
+              <section className="detail-section">
+                <h2>Program Events</h2>
+                <div className="detail-grid">
+                  {proposal?.eventDetails?.welcomeReception !== undefined && (
+                    <div className="detail-item">
+                      <label>Welcome Reception</label>
+                      <p>{proposal?.eventDetails?.welcomeReception ? 'Yes' : 'No'}</p>
+                    </div>
+                  )}
+                  {proposal?.eventDetails?.welcomeReceptionDetails && (
+                    <div className="detail-item">
+                      <label>Welcome Reception Details</label>
+                      <p>{proposal?.eventDetails?.welcomeReceptionDetails}</p>
+                    </div>
+                  )}
+                  {proposal?.eventDetails?.businessSessions && proposal.eventDetails.businessSessions.length > 0 && (
+                    <div className="detail-item">
+                      <label>Business Sessions</label>
+                      <p>
+                        Days {proposal.eventDetails.businessSessions.map((s: any) => s.day).join(', ')}
+                        {proposal.eventDetails.businessSessions[0]?.description ? ` (${proposal.eventDetails.businessSessions[0].description})` : ''}
+                      </p>
+                    </div>
+                  )}
+                  {proposal?.eventDetails?.awardsDinner && (
+                    <div className="detail-item">
+                      <label>Awards Dinner</label>
+                      <p>{`Night ${proposal.eventDetails.awardsDinner.night}`}</p>
+                    </div>
+                  )}
+                  {proposal?.eventDetails?.dineArounds && proposal.eventDetails.dineArounds.nights?.length > 0 && (
+                    <div className="detail-item">
+                      <label>Dine-arounds</label>
+                      <p>Nights {proposal.eventDetails.dineArounds.nights.join(', ')}</p>
+                    </div>
+                  )}
+                  {proposal?.eventDetails?.otherEvents && proposal.eventDetails.otherEvents.length > 0 && (
+                    <div className="detail-item">
+                      <label>Other Events</label>
+                      <p>{proposal.eventDetails.otherEvents.map((e: any) => `${e.description} (Day ${e.day})`).join(', ')}</p>
+                    </div>
+                  )}
+                </div>
+              </section>
+
+              {proposal?.programFlow?.programInclusions && (
+                <section className="detail-section">
+                  <h2>Program Inclusions</h2>
+                  <div className="detail-grid">
+                    {Object.entries(proposal.programFlow.programInclusions).map(([key, val]: any) => (
+                      <div key={key} className="detail-item">
+                        <label>{key}</label>
+                        <p>{val ? 'Included' : '—'}</p>
+                      </div>
+                    ))}
+                  </div>
+                </section>
+              )}
+
+              <section className="detail-section">
+                <h2>Destination & Resort</h2>
+                <div className="detail-grid">
+                  <div className="detail-item">
+                    <label>Destination</label>
+                    <p>{proposal?.destination?.name || '—'}</p>
+                  </div>
+                  <div className="detail-item">
+                    <label>Resort</label>
+                    <p>{proposal?.resort?.name || '—'}</p>
+                  </div>
+                </div>
+              </section>
+
+              <section className="detail-section">
+                <h2>Branding</h2>
+                <div className="detail-grid">
+                  <div className="detail-item">
+                    <label>Primary Color</label>
+                    <p>{proposal?.branding?.primaryColor || '—'}</p>
+                  </div>
+                  <div className="detail-item">
+                    <label>Secondary Color</label>
+                    <p>{proposal?.branding?.secondaryColor || '—'}</p>
+                  </div>
+                  <div className="detail-item">
+                    <label>Theme</label>
+                    <p>{proposal?.branding?.theme || '—'}</p>
                   </div>
                 </div>
               </section>
