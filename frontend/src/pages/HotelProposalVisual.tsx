@@ -75,7 +75,6 @@ function HotelProposalVisual() {
     .map((d: any) => ({ ...d, images: Array.isArray(d.images) ? d.images.map((u: string) => toAbsolute(u)) : [] }));
 
   // Build program customizations grid items (label/value)
-  const fmt = (d?: string) => d ? new Date(d).toISOString().slice(0,10) : '';
   const start = (event as any).startDate || (event as any).start_date;
   const end = (event as any).endDate || (event as any).end_date;
   const customizationItems: Array<{ label: string; value: string }> = [
