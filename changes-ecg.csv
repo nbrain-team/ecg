@@ -1,0 +1,10 @@
+StepId,Order,Prompt/Message,EDIT / CHANGE REQUEST
+S4_CONF,6,How confident is this estimate? - ,DONT NEED THIS
+S5,7,How many double and single rooms will you need - ,best guess is fine
+S5_PCT,8,What % of guests will share double occupancy? (0–100) OR single% if ,No DONT NEED THIS
+S6,9,Do you want Run of House rooms or Ocean View? ,CHANGED
+S6_BLEND_PCT,10,What % should be Ocean View? (0–100) ,DONT NEED THIS. see above
+S8_DETAILS,13,Do you want our options for your private check in?,Provide venue options here - allow client to choose
+S9,14,Do you want a welcome reception on the first night?,If yes - Provide venue options here - allow client to choose
+S10,16,"Will there be business session(s)? If so, which day(s)?",If yes - provide venue options here
+S10_DETAILS,18,Provide seating style (theater/classroom/rounds) and times.,Can you show venue seating schematics based on choice?

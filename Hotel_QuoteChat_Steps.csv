@@ -1,0 +1,40 @@
+StepId,Order,Prompt/Message,Input Type,Options,Validation,State Keys Updated,Branching/Next,Notes (Grid/Output Impact)
+S1_CHOICE,1,"Let's build your hotel quote. What are your preferred program dates? Are your dates flexible?",select,"Fixed dates|Flexible range","Required option","program.is_flexible","Fixed → S1_FIXED; Flexible → S1_FLEX","Determines date entry path"
+S1_FIXED,2,"Select your exact start and end dates:",date,,"validateDateSpan(start<end, span<=18mo)","program.start_date|program.end_date","→ S2","Enables exact date window; drives nights calc"
+S1_FLEX,2,"Select your flexible date range:",date,,"validateDateSpan(start<end, span<=18mo)","program.flex_start|program.flex_end","→ S2","Used to propose best date within range later"
+S2,3,"How many nights is your program?",number,,">=1 integer","program.nights","→ S3","Feeds grid length and event placement slots"
+S3,4,"Do you have a preferred day-of-week pattern?",select,"Sun–Wed|Mon–Thu|Thu–Sun|Custom",,"program.dow_pattern","→ S4","Used for suggested availability/pricing later"
+S4,5,"What’s your best estimate of total attendees?",number,,">=1 integer","attendees.count","→ S5","Feeds room block sizing and F&B counts"
+S5,6,"How many double and single rooms will you need?",text,,"parse numbers","occupancy.double_pct|occupancy.is_double_majority","→ S6","Compute double% from doubles/singles; best guess is fine"
+S6,7,"Do you want Run of House rooms or Ocean View?",select,"Run of House|All Ocean View",,"rooms.view_pref","→ S7","Limit to ROH vs All OV (no blend)"
+S7,8,"How many suites will you need?",number,,">=0 integer","rooms.suites.count","→ S8","Adds suite line items per night"
+S8,9,"Do you want a private satellite check-in?",select,"Yes|No",,"arrival.satellite_checkin.enabled","Yes → S8_DETAILS; No → S9","Adds arrival logistics section"
+S8_DETAILS,10,"Select a venue for private check-in:",select,"<dynamic: venue list>",,"arrival.satellite_checkin.details","→ S9","Provide venue options; store choice"
+S9,11,"Do you want a welcome reception on the first night?",select,"Yes|No",,"events.welcome_reception.enabled","Yes → S9_DETAILS; No → S10","Adds function to night 1"
+S9_DETAILS,12,"Select a venue for your welcome reception:",select,"<dynamic: venue list>",,"events.welcome_reception.details","→ S10","Store selected venue; adds reception to night 1"
+S10,13,"Will there be business session(s)? If so, which day(s)?",select,"Day 1..N|Multiple days|No business sessions",,"events.business.days","Multiple → S10_MULTI; Day X → S10_VENUE; None → S11","Creates meeting blocks and sets venue/seating prompts"
+S10_MULTI,14,"Please specify which days (e.g., 1,3).",text,,"parse digits","events.business.days","→ S10_VENUE","Multiple day mapping in grid"
+S10_VENUE,15,"Select a venue for your business session(s):",select,"<dynamic: venue list>",,"events.business.venue","→ S10_DETAILS","Show seating schematic preview of chosen venue"
+S10_DETAILS,16,"Provide seating style (theater/classroom/rounds) and times.",text,,,"events.business.details","→ S11","Adds setup notes for BEO-style output"
+S11,17,"Will there be an awards dinner? If so, which night?",select,"Night 1..N|No awards dinner",,"events.awards_dinner.enabled|events.awards_dinner.night","→ S12","Populates dinner function night"
+S12,18,"Do you want on-property dine-arounds? If so, which night(s)?",select,"Night 1..N|Multiple nights|No dine-arounds",,"events.dine_arounds.enabled|events.dine_arounds.nights","Multiple → S12_MULTI; Else → S13","Adds dine-around items"
+S12_MULTI,19,"Specify which nights (e.g., 2,3).",text,,"parse digits","events.dine_arounds.nights","→ S13","Multi-night dine-around entries"
+S13,20,"Any other program events?",select,"No other events|Yes, I have other events",,"events.custom","Yes → S13_DETAILS; No → S14","Allows custom functions by day"
+S13_DETAILS,21,"Describe the events and days (e.g., Team building on Day 2).",text,,"regex day mapping","events.custom[{day,description}]","→ S14","Free-form items rendered as functions"
+S14,22,"Review your draft details:",summary+actions,"Open Editable Grid|Make Changes",,"n/a","Open Editable Grid → GRID_READY","Shows derived summary and CTAs"
+GRID_READY,23,"Persist draft and open grid",system,,,"localStorage: hotel_quote_draft","→ /hotel/ai-quote/grid","Grid used for edit before visual output"
+COMPLETE,24,"Completed",system,,,"n/a","End","Final state if needed"
+
+Column Notes:, , , , , , , ,
+Prompt/Message,Full text shown to the user at that step,,,,,,,
+Input Type,One of: text|date|number|select|multiselect|summary+actions|system,,,,,,,
+Options,Pipe-delimited options for select types; for dynamic ranges we note Day 1..N / Night 1..N,,,,,,,
+Validation,Plain description of key validations; exact logic in code (see HotelQuoteChat.tsx),,,,,,,
+State Keys Updated,State path(s) updated at step (dot or pipe separated for multiple),,,,,,,
+Branching/Next,Primary next-step logic summary,,,,,,,
+Notes (Grid/Output Impact),How this step affects the editable grid and final visual proposal,,,,,,,
+
+
+
+
+
