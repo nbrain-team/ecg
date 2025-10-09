@@ -68,8 +68,8 @@ type StepId =
   | 'S0_CONTACT_EMAIL'
   | 'S0_CONTACT_PHONE'
   | 'S1_CHOICE' | 'S1_FIXED' | 'S1_FLEX'
-  | 'S2' | 'S3' | 'S4' | 'S4_CONF' | 'S5' | 'S5_PCT' | 'S6' | 'S6_BLEND_PCT'
-  | 'S7' | 'S8' | 'S8_DETAILS' | 'S9' | 'S9_DETAILS' | 'S10' | 'S10_MULTI' | 'S10_DETAILS'
+  | 'S2' | 'S3' | 'S4' | 'S5' | 'S6'
+  | 'S7' | 'S8' | 'S8_DETAILS' | 'S9' | 'S9_DETAILS' | 'S10' | 'S10_MULTI' | 'S10_VENUE' | 'S10_DETAILS'
   | 'S11' | 'S12' | 'S12_MULTI' | 'S13' | 'S13_DETAILS' | 'S14' | 'GRID_READY' | 'COMPLETE';
 
 function HotelQuoteChat() {
@@ -79,6 +79,7 @@ function HotelQuoteChat() {
   const [inputValue, setInputValue] = useState('');
   const [isTyping, setIsTyping] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const [venues, setVenues] = useState<any[]>([]);
 
   const [state, setState] = useState<ProgramState>({
     program: {},
@@ -102,6 +103,46 @@ function HotelQuoteChat() {
   useEffect(() => {
     // First ask for company name
     addBotMessage('What is the name of the company?');
+  }, []);
+
+  useEffect(() => {
+    const loadVenues = async () => {
+      try {
+        const apiUrl = (import.meta as any).env?.VITE_API_URL;
+        const hotelToken = localStorage.getItem('hotelToken');
+        const headers: any = hotelToken ? { Authorization: `Bearer ${hotelToken}` } : undefined;
+        // Prefer hotel-specific venues if available
+        let list: any[] = [];
+        try {
+          const me = await (await fetch(`${apiUrl}/api/hotels/me`, { headers: headers || {} })).json();
+          if (Array.isArray(me?.venues)) list = me.venues;
+        } catch (_) {}
+        if (list.length === 0 && apiUrl) {
+          try {
+            const res = await (await fetch(`${apiUrl}/api/hotels/venues/all`, { headers: headers || {} })).json();
+            if (Array.isArray(res)) list = res;
+          } catch (_) {}
+        }
+        // Fallback sample list if APIs not available
+        if (list.length === 0) {
+          list = [
+            { id: 'diego-rivera', name: 'Diego Rivera' },
+            { id: 'gazebo', name: 'Gazebo' },
+            { id: 'ocean-garden', name: 'Ocean Garden' },
+            { id: 'mariana', name: 'Mariana' }
+          ];
+        }
+        setVenues(list);
+      } catch (_) {
+        setVenues([
+          { id: 'diego-rivera', name: 'Diego Rivera' },
+          { id: 'gazebo', name: 'Gazebo' },
+          { id: 'ocean-garden', name: 'Ocean Garden' },
+          { id: 'mariana', name: 'Mariana' }
+        ]);
+      }
+    };
+    loadVenues();
   }, []);
 
   useEffect(() => {
@@ -146,6 +187,35 @@ function HotelQuoteChat() {
     // expects "YYYY-MM-DD to YYYY-MM-DD" from date input UI
     const [start, end] = value.split(' to ').map(s => s?.trim());
     return { start, end };
+  };
+
+  const getVenueNames = (): string[] => {
+    const names = venues.map((v: any) => v?.name).filter(Boolean);
+    // Ensure unique, preserve order
+    return Array.from(new Set(names));
+  };
+
+  const findVenueByName = (name: string): any | undefined =>
+    venues.find((v: any) => (v?.name || '').toLowerCase() === name.toLowerCase());
+
+  const escapeHtml = (s: string) => s.replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c] as string));
+
+  const getVenueImageUrl = (venueName: string): string => {
+    // Try to map venue name to public images folder
+    const sanitized = venueName.replace(/\s+/g, ' ').trim();
+    const candidate = `/images/venues/${sanitized}.webp`;
+    return candidate;
+  };
+
+  const buildVenueSchematicHtml = (venueName: string): string => {
+    const img = getVenueImageUrl(venueName);
+    const safeName = escapeHtml(venueName);
+    return `
+      <div style="display:flex; flex-direction:column; gap:8px;">
+        <div style="font-weight:600;">Seating schematic preview: ${safeName}</div>
+        <img src="${img}" alt="${safeName}" style="max-width:100%; border-radius:8px; border:1px solid #eee;" />
+      </div>
+    `;
   };
 
   const validateDateSpan = (start?: string, end?: string) => {
@@ -382,53 +452,31 @@ function HotelQuoteChat() {
       case 'S4': {
         const count = Math.max(1, parseInt(userInput, 10) || 0);
         setState(prev => ({ ...prev, attendees: { ...prev.attendees, count } }));
-        setCurrentStep('S4_CONF');
-        addBotMessage('How confident is this estimate?', { options: ['Low', 'Med', 'High'] });
-        break;
-      }
-      case 'S4_CONF': {
-        const conf = (['Low', 'Med', 'High'] as const).includes(userInput as any) ? (userInput as 'Low' | 'Med' | 'High') : 'Low';
-        setState(prev => ({ ...prev, attendees: { ...prev.attendees, confidence: conf } }));
         setCurrentStep('S5');
-        addBotMessage('Will the majority of rooms be double occupancy?', { options: ['Yes', 'No'] });
+        addBotMessage('How many double and single rooms will you need? (e.g., 40 doubles, 20 singles)', { inputType: 'text' });
         break;
       }
       case 'S5': {
-        const isDouble = userInput === 'Yes';
-        setState(prev => ({ ...prev, occupancy: { ...prev.occupancy, is_double_majority: isDouble } }));
-        setCurrentStep('S5_PCT');
-        addBotMessage(isDouble ? 'What % of guests will share double occupancy? (0–100)' : 'What % will be single occupancy? (0–100)', { inputType: 'number' });
-        break;
-      }
-      case 'S5_PCT': {
-        let pct = Math.max(0, Math.min(100, parseInt(userInput, 10) || 0));
-        // Store as double % consistently
+        // Parse input like "40 doubles, 20 singles" or "40, 20"
+        const nums = (userInput.match(/\d+/g) || []).map(n => parseInt(n, 10)).filter(n => !isNaN(n));
+        const doubles = Math.max(0, nums[0] ?? 0);
+        const singles = Math.max(0, nums[1] ?? 0);
+        const totalGuests = Math.max(1, state.attendees.count || (doubles * 2 + singles) || 1);
+        const doubleGuestCount = doubles * 2;
+        const double_pct = Math.max(0, Math.min(100, Math.round((doubleGuestCount / totalGuests) * 100)));
+        const is_double_majority = double_pct >= 50;
         setState(prev => ({
           ...prev,
-          occupancy: {
-            ...prev.occupancy,
-            double_pct: prev.occupancy.is_double_majority ? pct : (100 - pct)
-          }
+          rooms: { ...prev.rooms, doubles, singles },
+          occupancy: { ...prev.occupancy, double_pct, is_double_majority }
         }));
         setCurrentStep('S6');
-        addBotMessage('View preference for rooms?', { options: ['All Ocean View', 'Run of House', 'Blend'] });
+        addBotMessage('Do you want Run of House rooms or Ocean View?', { options: ['Run of House', 'All Ocean View'] });
         break;
       }
       case 'S6': {
         const pref = (userInput as any) as ProgramState['rooms']['view_pref'];
         setState(prev => ({ ...prev, rooms: { ...prev.rooms, view_pref: pref } }));
-        if (userInput === 'Blend') {
-          setCurrentStep('S6_BLEND_PCT');
-          addBotMessage('What % should be Ocean View? (0–100)', { inputType: 'number' });
-        } else {
-          setCurrentStep('S7');
-          addBotMessage('How many suites will you need?', { inputType: 'number' });
-        }
-        break;
-      }
-      case 'S6_BLEND_PCT': {
-        const viewPct = Math.max(0, Math.min(100, parseInt(userInput, 10) || 0));
-        setState(prev => ({ ...prev, rooms: { ...prev.rooms, view_pct: viewPct } }));
         setCurrentStep('S7');
         addBotMessage('How many suites will you need?', { inputType: 'number' });
         break;
@@ -444,7 +492,8 @@ function HotelQuoteChat() {
         if (userInput === 'Yes') {
           setState(prev => ({ ...prev, arrival: { satellite_checkin: { enabled: true } } }));
           setCurrentStep('S8_DETAILS');
-          addBotMessage('Please provide preferred location and time window.', { inputType: 'text' });
+          const opts = getVenueNames();
+          addBotMessage('Select a venue for private check-in:', { options: opts.length ? opts : ['Gazebo', 'Ocean Garden', 'Mariana'] });
         } else {
           setState(prev => ({ ...prev, arrival: { satellite_checkin: { enabled: false } } }));
           setCurrentStep('S9');
@@ -453,7 +502,9 @@ function HotelQuoteChat() {
         break;
       }
       case 'S8_DETAILS': {
-        setState(prev => ({ ...prev, arrival: { satellite_checkin: { enabled: true, details: userInput } } }));
+        // Treat input as selected venue name
+        const venueName = userInput.trim();
+        setState(prev => ({ ...prev, arrival: { satellite_checkin: { enabled: true, details: venueName } } }));
         setCurrentStep('S9');
         addBotMessage('Do you want a welcome reception on the first night?', { options: ['Yes', 'No'] });
         break;
@@ -462,7 +513,8 @@ function HotelQuoteChat() {
         if (userInput === 'Yes') {
           setState(prev => ({ ...prev, events: { ...prev.events, welcome_reception: { enabled: true } } }));
           setCurrentStep('S9_DETAILS');
-          addBotMessage('Any preferences (time, indoor/outdoor, hosted bar)?', { inputType: 'text' });
+          const opts = getVenueNames();
+          addBotMessage('Select a venue for your welcome reception:', { options: opts.length ? opts : ['Gazebo', 'Ocean Garden', 'Mariana'] });
         } else {
           setState(prev => ({ ...prev, events: { ...prev.events, welcome_reception: { enabled: false } } }));
           setCurrentStep('S10');
@@ -471,7 +523,9 @@ function HotelQuoteChat() {
         break;
       }
       case 'S9_DETAILS': {
-        setState(prev => ({ ...prev, events: { ...prev.events, welcome_reception: { enabled: true, details: userInput } } }));
+        // Treat input as selected venue name
+        const venueName = userInput.trim();
+        setState(prev => ({ ...prev, events: { ...prev.events, welcome_reception: { enabled: true, details: venueName } } }));
         setCurrentStep('S10');
         askBusinessSessions();
         break;
@@ -487,8 +541,9 @@ function HotelQuoteChat() {
         } else if (/^Day\s\d+/.test(userInput)) {
           const day = parseInt(userInput.replace('Day ', ''), 10);
           setState(prev => ({ ...prev, events: { ...prev.events, business: { days: [day] } } }));
-          setCurrentStep('S10_DETAILS');
-          addBotMessage('Provide seating style (theater/classroom/rounds) and times.', { inputType: 'text' });
+          setCurrentStep('S10_VENUE');
+          const opts = getVenueNames();
+          addBotMessage('Select a venue for your business session(s):', { options: opts.length ? opts : ['Diego Rivera', 'Mariana', 'Gazebo'] });
         } else {
           // fallback
           setCurrentStep('S11');
@@ -499,6 +554,15 @@ function HotelQuoteChat() {
       case 'S10_MULTI': {
         const days = (userInput.match(/\d+/g) || []).map(n => parseInt(n, 10)).filter(Boolean);
         setState(prev => ({ ...prev, events: { ...prev.events, business: { days } } }));
+        setCurrentStep('S10_VENUE');
+        const opts = getVenueNames();
+        addBotMessage('Select a venue for your business session(s):', { options: opts.length ? opts : ['Diego Rivera', 'Mariana', 'Gazebo'] });
+        break;
+      }
+      case 'S10_VENUE': {
+        const venueName = userInput.trim();
+        // Preview schematic/image
+        addBotMessage(buildVenueSchematicHtml(venueName));
         setCurrentStep('S10_DETAILS');
         addBotMessage('Provide seating style (theater/classroom/rounds) and times.', { inputType: 'text' });
         break;
@@ -636,8 +700,8 @@ function HotelQuoteChat() {
           <li><strong>Dates:</strong> ${p.start_date && p.end_date ? `${p.start_date} to ${p.end_date}` : (p.is_flexible ? `Flexible: ${p.flex_start} to ${p.flex_end}` : 'Not set')}</li>
           <li><strong>Nights:</strong> ${p.nights || nights}</li>
           <li><strong>DOW Pattern:</strong> ${p.dow_pattern || 'Any'}</li>
-          <li><strong>Attendees:</strong> ${att.count} (${att.confidence || 'Low'} confidence)</li>
-          <li><strong>Occupancy:</strong> ${occ.is_double_majority ? 'Double-majority' : 'Single-majority'} · ${occ.double_pct ?? 0}% double</li>
+          <li><strong>Attendees:</strong> ${att.count || 0}</li>
+          <li><strong>Room Block:</strong> ${(r as any).doubles ?? 0} doubles + ${(r as any).singles ?? 0} singles${typeof occ.double_pct === 'number' ? ` · ${occ.double_pct}% double (est.)` : ''}</li>
           <li><strong>View Pref:</strong> ${r.view_pref}${r.view_pref === 'Blend' ? ` (${r.view_pct ?? 0}% OV)` : ''}</li>
           <li><strong>Suites:</strong> ${r.suites?.count || 0}</li>
           <li><strong>Satellite Check-in:</strong> ${state.arrival.satellite_checkin?.enabled ? (state.arrival.satellite_checkin?.details || 'Yes') : 'No'}</li>
