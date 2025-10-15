@@ -55,9 +55,10 @@ interface ProgramState {
   };
   events: {
     welcome_reception?: { enabled?: boolean; details?: string };
-    business?: { days?: number[]; details?: string; seating_style?: string };
-    awards_dinner?: { enabled?: boolean; night?: number; details?: string };
+    business?: { days?: number[]; details?: string; seating_style?: string; location?: string; staging?: boolean };
+    awards_dinner?: { enabled?: boolean; night?: number; details?: string; location?: string; seating?: string; staging?: boolean };
     dine_arounds?: { enabled?: boolean; nights?: number[] };
+    farewell_dinner?: { enabled?: boolean; night?: number; location?: string };
     custom?: { day: number; description: string }[];
   };
 }
@@ -68,9 +69,9 @@ type StepId =
   | 'S0_CONTACT_EMAIL'
   | 'S0_CONTACT_PHONE'
   | 'S1_CHOICE' | 'S1_FIXED' | 'S1_FLEX'
-  | 'S2' | 'S3' | 'S4' | 'S5' | 'S6'
-  | 'S7' | 'S8' | 'S8_DETAILS' | 'S9' | 'S9_DETAILS' | 'S10' | 'S10_MULTI' | 'S10_VENUE' | 'S10_DETAILS'
-  | 'S11' | 'S12' | 'S12_MULTI' | 'S13' | 'S13_DETAILS' | 'S14' | 'GRID_READY' | 'COMPLETE';
+  | 'S2' | 'S3' | 'S4' | 'S4_SINGLE' | 'S5' | 'S6'
+  | 'S7' | 'S8' | 'S8_DETAILS' | 'S9' | 'S9_DETAILS' | 'S10' | 'S10_MULTI' | 'S10_VENUE' | 'S10_SEATING' | 'S10_STAGING' | 'S10_DETAILS'
+  | 'S11' | 'S11_LOCATION' | 'S11_SEATING' | 'S11_STAGING' | 'S12' | 'S12_NIGHTS' | 'S12_MULTI' | 'S12A' | 'S12A_LOCATION' | 'S12A_NIGHT' | 'S13' | 'S13_DETAILS' | 'S14' | 'GRID_READY' | 'COMPLETE';
 
 function HotelQuoteChat() {
   const navigate = useNavigate();
@@ -101,8 +102,13 @@ function HotelQuoteChat() {
   }, [state.program.start_date, state.program.end_date, state.program.nights]);
 
   useEffect(() => {
-    // First ask for company name
-    addBotMessage('What is the name of the company?');
+    // First add welcome summary
+    addBotMessage(`Welcome to the Grand Velas Carlos AI Hotel Rep. Don't worry, our AI Bot is not here to take over the world but make building your program faster, better, more detailed and creative. We're going to save you (and us) a huge amount of time in creating your day by day agenda, offer you our best ideas on all your event venues and generate the framework for a detailed line item budget which will include your program room block, program inclusions as well as some ideas that you may want to consider towards enhancing your event. Now - Let's build your program. As you know, Grand Velas Cabo is a 5 star all inclusive resort and per person pricing starts at $850 per person per day.`);
+    
+    // Then ask for company name after a short delay
+    setTimeout(() => {
+      addBotMessage('What is the name of the company?');
+    }, 1000);
   }, []);
 
   useEffect(() => {
@@ -278,9 +284,21 @@ function HotelQuoteChat() {
           satelliteCheckInDetails: state.arrival.satellite_checkin?.details,
           welcomeReception: state.events.welcome_reception?.enabled,
           welcomeReceptionDetails: state.events.welcome_reception?.details,
-          businessSessions: state.events.business?.days?.map(d => ({ day: d, description: state.events.business?.details || '' })),
-          awardsDinner: state.events.awards_dinner?.enabled ? { night: state.events.awards_dinner.night } : undefined,
+          businessSessions: state.events.business?.days?.map(d => ({ 
+            day: d, 
+            description: state.events.business?.details || '',
+            location: state.events.business?.location,
+            seating_style: state.events.business?.seating_style,
+            staging: state.events.business?.staging
+          })),
+          awardsDinner: state.events.awards_dinner?.enabled ? { 
+            night: state.events.awards_dinner.night,
+            location: state.events.awards_dinner.location,
+            seating: state.events.awards_dinner.seating,
+            staging: state.events.awards_dinner.staging
+          } : undefined,
           dineArounds: state.events.dine_arounds?.enabled ? { nights: state.events.dine_arounds.nights || [] } : undefined,
+          farewell_dinner: state.events.farewell_dinner,
           otherEvents: state.events.custom
         },
         destination: {
@@ -437,37 +455,34 @@ function HotelQuoteChat() {
       case 'S2': {
         const nightsNum = Math.max(1, parseInt(userInput, 10) || 0);
         setState(prev => ({ ...prev, program: { ...prev.program, nights: nightsNum } }));
-        setCurrentStep('S3');
-        addBotMessage('Do you have a preferred day-of-week pattern?', {
-          options: ['Sun–Wed', 'Mon–Thu', 'Thu–Sun', 'Custom']
-        });
-        break;
-      }
-      case 'S3': {
-        setState(prev => ({ ...prev, program: { ...prev.program, dow_pattern: userInput } }));
         setCurrentStep('S4');
-        addBotMessage('What’s your best estimate of total attendees?', { inputType: 'number' });
+        addBotMessage('What's your best estimate of total attendees?', { inputType: 'number' });
         break;
       }
       case 'S4': {
         const count = Math.max(1, parseInt(userInput, 10) || 0);
         setState(prev => ({ ...prev, attendees: { ...prev.attendees, count } }));
+        setCurrentStep('S4_SINGLE');
+        addBotMessage('How many double occupancy rooms?', { inputType: 'number' });
+        break;
+      }
+      case 'S4_SINGLE': {
+        const doubles = Math.max(0, parseInt(userInput, 10) || 0);
+        setState(prev => ({ ...prev, rooms: { ...prev.rooms, doubles } }));
         setCurrentStep('S5');
-        addBotMessage('How many double and single rooms will you need? (e.g., 40 doubles, 20 singles)', { inputType: 'text' });
+        addBotMessage('How many single occupancy rooms?', { inputType: 'number' });
         break;
       }
       case 'S5': {
-        // Parse input like "40 doubles, 20 singles" or "40, 20"
-        const nums = (userInput.match(/\d+/g) || []).map(n => parseInt(n, 10)).filter(n => !isNaN(n));
-        const doubles = Math.max(0, nums[0] ?? 0);
-        const singles = Math.max(0, nums[1] ?? 0);
+        const singles = Math.max(0, parseInt(userInput, 10) || 0);
+        const doubles = state.rooms.doubles || 0;
         const totalGuests = Math.max(1, state.attendees.count || (doubles * 2 + singles) || 1);
         const doubleGuestCount = doubles * 2;
         const double_pct = Math.max(0, Math.min(100, Math.round((doubleGuestCount / totalGuests) * 100)));
         const is_double_majority = double_pct >= 50;
         setState(prev => ({
           ...prev,
-          rooms: { ...prev.rooms, doubles, singles },
+          rooms: { ...prev.rooms, singles },
           occupancy: { ...prev.occupancy, double_pct, is_double_majority }
         }));
         setCurrentStep('S6');
@@ -492,8 +507,9 @@ function HotelQuoteChat() {
         if (userInput === 'Yes') {
           setState(prev => ({ ...prev, arrival: { satellite_checkin: { enabled: true } } }));
           setCurrentStep('S8_DETAILS');
-          const opts = getVenueNames();
-          addBotMessage('Select a venue for private check-in:', { options: opts.length ? opts : ['Gazebo', 'Ocean Garden', 'Mariana'] });
+          addBotMessage('Where would you like to have the private satellite check-in?', { 
+            options: ['Ambassador Ballroom or Foyer', 'Main Lobby', 'Key/Koi Bar'] 
+          });
         } else {
           setState(prev => ({ ...prev, arrival: { satellite_checkin: { enabled: false } } }));
           setCurrentStep('S9');
@@ -513,8 +529,9 @@ function HotelQuoteChat() {
         if (userInput === 'Yes') {
           setState(prev => ({ ...prev, events: { ...prev.events, welcome_reception: { enabled: true } } }));
           setCurrentStep('S9_DETAILS');
-          const opts = getVenueNames();
-          addBotMessage('Select a venue for your welcome reception:', { options: opts.length ? opts : ['Gazebo', 'Ocean Garden', 'Mariana'] });
+          addBotMessage('Where would you like to have the welcome reception?', { 
+            options: ['Beach', 'Ocean Terrace', 'Ambassador Ballroom'] 
+          });
         } else {
           setState(prev => ({ ...prev, events: { ...prev.events, welcome_reception: { enabled: false } } }));
           setCurrentStep('S10');
@@ -531,19 +548,17 @@ function HotelQuoteChat() {
         break;
       }
       case 'S10': {
-        if (userInput === 'Multiple days') {
-          setCurrentStep('S10_MULTI');
-          addBotMessage('Please specify which days (e.g., 1,3).', { inputType: 'text' });
-        } else if (userInput === 'No business sessions') {
+        if (userInput === 'No') {
           setState(prev => ({ ...prev, events: { ...prev.events, business: { days: [] } } }));
           setCurrentStep('S11');
           askAwards();
-        } else if (/^Day\s\d+/.test(userInput)) {
-          const day = parseInt(userInput.replace('Day ', ''), 10);
-          setState(prev => ({ ...prev, events: { ...prev.events, business: { days: [day] } } }));
-          setCurrentStep('S10_VENUE');
-          const opts = getVenueNames();
-          addBotMessage('Select a venue for your business session(s):', { options: opts.length ? opts : ['Diego Rivera', 'Mariana', 'Gazebo'] });
+        } else if (userInput === 'Yes') {
+          setCurrentStep('S10_MULTI');
+          const opts: string[] = [];
+          const n = nights || 3;
+          for (let i = 1; i <= n; i += 1) opts.push(`Day ${i}`);
+          opts.push('Multiple days');
+          addBotMessage('Which day(s) will you have business sessions?', { options: opts });
         } else {
           // fallback
           setCurrentStep('S11');
@@ -552,23 +567,78 @@ function HotelQuoteChat() {
         break;
       }
       case 'S10_MULTI': {
-        const days = (userInput.match(/\d+/g) || []).map(n => parseInt(n, 10)).filter(Boolean);
-        setState(prev => ({ ...prev, events: { ...prev.events, business: { days } } }));
-        setCurrentStep('S10_VENUE');
-        const opts = getVenueNames();
-        addBotMessage('Select a venue for your business session(s):', { options: opts.length ? opts : ['Diego Rivera', 'Mariana', 'Gazebo'] });
+        if (userInput === 'Multiple days') {
+          setCurrentStep('S10_MULTI');
+          addBotMessage('Please specify which days (e.g., 1,3).', { inputType: 'text' });
+        } else if (/^Day\s\d+/.test(userInput)) {
+          const day = parseInt(userInput.replace('Day ', ''), 10);
+          setState(prev => ({ ...prev, events: { ...prev.events, business: { days: [day] } } }));
+          setCurrentStep('S10_VENUE');
+          addBotMessage('Choose location for business sessions:', {
+            options: ['Grand Villas Ballroom', 'Ambassador Ballroom']
+          });
+        } else {
+          // Parse multiple days from text input
+          const days = (userInput.match(/\d+/g) || []).map(n => parseInt(n, 10)).filter(Boolean);
+          if (days.length > 0) {
+            setState(prev => ({ ...prev, events: { ...prev.events, business: { days } } }));
+            setCurrentStep('S10_VENUE');
+            addBotMessage('Choose location for business sessions:', {
+              options: ['Grand Villas Ballroom', 'Ambassador Ballroom']
+            });
+          } else {
+            addBotMessage('Please specify valid day numbers (e.g., 1,3).', { inputType: 'text' });
+          }
+        }
         break;
       }
       case 'S10_VENUE': {
         const venueName = userInput.trim();
-        // Preview schematic/image
-        addBotMessage(buildVenueSchematicHtml(venueName));
-        setCurrentStep('S10_DETAILS');
-        addBotMessage('Provide seating style (theater/classroom/rounds) and times.', { inputType: 'text' });
+        setState(prev => ({ 
+          ...prev, 
+          events: { 
+            ...prev.events, 
+            business: { 
+              ...(prev.events.business || {}), 
+              location: venueName 
+            } 
+          } 
+        }));
+        setCurrentStep('S10_SEATING');
+        addBotMessage('Select seating schematic:', {
+          options: ['Theater', 'Rounds', 'Classroom', 'Half Crescents', 'U-Shape']
+        });
         break;
       }
-      case 'S10_DETAILS': {
-        setState(prev => ({ ...prev, events: { ...prev.events, business: { ...(prev.events.business || {}), details: userInput } } }));
+      case 'S10_SEATING': {
+        const seating = userInput.trim();
+        setState(prev => ({ 
+          ...prev, 
+          events: { 
+            ...prev.events, 
+            business: { 
+              ...(prev.events.business || {}), 
+              seating_style: seating 
+            } 
+          } 
+        }));
+        setCurrentStep('S10_STAGING');
+        addBotMessage('Do you need staging?', { options: ['Yes', 'No'] });
+        break;
+      }
+      case 'S10_STAGING': {
+        const staging = userInput === 'Yes';
+        setState(prev => ({ 
+          ...prev, 
+          events: { 
+            ...prev.events, 
+            business: { 
+              ...(prev.events.business || {}), 
+              staging,
+              details: `${prev.events.business?.seating_style || ''} seating${staging ? ' with staging' : ''}` 
+            } 
+          } 
+        }));
         setCurrentStep('S11');
         askAwards();
         break;
@@ -581,48 +651,166 @@ function HotelQuoteChat() {
         } else if (/^Night\s\d+/.test(userInput)) {
           const night = parseInt(userInput.replace('Night ', ''), 10);
           setState(prev => ({ ...prev, events: { ...prev.events, awards_dinner: { enabled: true, night } } }));
-          setCurrentStep('S12');
-          askDineArounds();
+          setCurrentStep('S11_LOCATION');
+          addBotMessage('Where would you like to have the awards dinner?', {
+            options: ['Grand Villas Ballroom', 'Ocean Terrace', 'Beachfront']
+          });
         } else {
           setCurrentStep('S12');
           askDineArounds();
         }
         break;
       }
+      case 'S11_LOCATION': {
+        const location = userInput.trim();
+        setState(prev => ({ 
+          ...prev, 
+          events: { 
+            ...prev.events, 
+            awards_dinner: { 
+              ...(prev.events.awards_dinner || {}), 
+              location 
+            } 
+          } 
+        }));
+        setCurrentStep('S11_SEATING');
+        addBotMessage('What seating style do you prefer?', {
+          options: ['Rounds', 'Squares']
+        });
+        break;
+      }
+      case 'S11_SEATING': {
+        const seating = userInput.trim();
+        setState(prev => ({ 
+          ...prev, 
+          events: { 
+            ...prev.events, 
+            awards_dinner: { 
+              ...(prev.events.awards_dinner || {}), 
+              seating 
+            } 
+          } 
+        }));
+        setCurrentStep('S11_STAGING');
+        addBotMessage('Do you need staging?', { options: ['Yes', 'No'] });
+        break;
+      }
+      case 'S11_STAGING': {
+        const staging = userInput === 'Yes';
+        setState(prev => ({ 
+          ...prev, 
+          events: { 
+            ...prev.events, 
+            awards_dinner: { 
+              ...(prev.events.awards_dinner || {}), 
+              staging 
+            } 
+          } 
+        }));
+        setCurrentStep('S12');
+        askDineArounds();
+        break;
+      }
       case 'S12': {
-        if (userInput === 'No dine-arounds') {
+        if (userInput === 'No') {
           setState(prev => ({ ...prev, events: { ...prev.events, dine_arounds: { enabled: false, nights: [] } } }));
-          setCurrentStep('S13');
-          askOtherEvents();
-        } else if (userInput === 'Multiple nights') {
+          setCurrentStep('S12A');
+          addBotMessage('Do you want a final night farewell dinner?', { options: ['Yes', 'No'] });
+        } else if (userInput === 'Yes') {
+          setState(prev => ({ ...prev, events: { ...prev.events, dine_arounds: { enabled: true } } }));
+          setCurrentStep('S12_NIGHTS');
+          const opts: string[] = [];
+          const n = nights || 3;
+          for (let i = 1; i <= n; i += 1) opts.push(`Night ${i}`);
+          opts.push('Multiple nights');
+          addBotMessage('Which nights?', { options: opts });
+        } else {
+          setCurrentStep('S12A');
+          addBotMessage('Do you want a final night farewell dinner?', { options: ['Yes', 'No'] });
+        }
+        break;
+      }
+      case 'S12_NIGHTS': {
+        if (userInput === 'Multiple nights') {
           setCurrentStep('S12_MULTI');
           addBotMessage('Specify which nights (e.g., 2,3).', { inputType: 'text' });
         } else if (/^Night\s\d+/.test(userInput)) {
           const night = parseInt(userInput.replace('Night ', ''), 10);
           setState(prev => ({ ...prev, events: { ...prev.events, dine_arounds: { enabled: true, nights: [night] } } }));
-          setCurrentStep('S13');
-          askOtherEvents();
+          setCurrentStep('S12A');
+          addBotMessage('Do you want a final night farewell dinner?', { options: ['Yes', 'No'] });
         } else {
-          setCurrentStep('S13');
-          askOtherEvents();
+          setCurrentStep('S12A');
+          addBotMessage('Do you want a final night farewell dinner?', { options: ['Yes', 'No'] });
         }
         break;
       }
       case 'S12_MULTI': {
         const nightsSel = (userInput.match(/\d+/g) || []).map(n => parseInt(n, 10)).filter(Boolean);
         setState(prev => ({ ...prev, events: { ...prev.events, dine_arounds: { enabled: true, nights: nightsSel } } }));
+        setCurrentStep('S12A');
+        addBotMessage('Do you want a final night farewell dinner?', { options: ['Yes', 'No'] });
+        break;
+      }
+      case 'S12A': {
+        if (userInput === 'Yes') {
+          setState(prev => ({ ...prev, events: { ...prev.events, farewell_dinner: { enabled: true } } }));
+          setCurrentStep('S12A_LOCATION');
+          addBotMessage('Where would you like to have the farewell dinner?', {
+            options: ['Ocean Terrace', 'Beachfront']
+          });
+        } else {
+          setState(prev => ({ ...prev, events: { ...prev.events, farewell_dinner: { enabled: false } } }));
+          setCurrentStep('S13');
+          askOtherEvents();
+        }
+        break;
+      }
+      case 'S12A_LOCATION': {
+        const location = userInput.trim();
+        setState(prev => ({ 
+          ...prev, 
+          events: { 
+            ...prev.events, 
+            farewell_dinner: { 
+              ...(prev.events.farewell_dinner || {}), 
+              location 
+            } 
+          } 
+        }));
+        setCurrentStep('S12A_NIGHT');
+        const opts: string[] = [];
+        const n = nights || 3;
+        for (let i = 1; i <= n; i += 1) opts.push(`Night ${i}`);
+        addBotMessage('Which night for the farewell dinner?', { options: opts });
+        break;
+      }
+      case 'S12A_NIGHT': {
+        const night = parseInt(userInput.replace('Night ', ''), 10);
+        setState(prev => ({ 
+          ...prev, 
+          events: { 
+            ...prev.events, 
+            farewell_dinner: { 
+              ...(prev.events.farewell_dinner || {}), 
+              night 
+            } 
+          } 
+        }));
         setCurrentStep('S13');
         askOtherEvents();
         break;
       }
       case 'S13': {
-        if (userInput === 'No other events') {
+        if (userInput === 'No') {
           setState(prev => ({ ...prev, events: { ...prev.events, custom: [] } }));
           setCurrentStep('S14');
           showSummary();
-        } else if (userInput === 'Yes, I have other events') {
+        } else if (userInput === 'Yes') {
           setCurrentStep('S13_DETAILS');
-          addBotMessage('Describe the events and days (e.g., Team building on Day 2).', { inputType: 'text' });
+          addBotMessage('Select all that apply (type each option you want, then type "Done" when finished):', {
+            options: ['Team Building', 'CSR', 'Pool Party', 'Late Night Fiesta', 'Done']
+          });
         } else {
           setCurrentStep('S14');
           showSummary();
@@ -630,17 +818,38 @@ function HotelQuoteChat() {
         break;
       }
       case 'S13_DETAILS': {
-        const items: { day: number; description: string }[] = [];
-        const re = /(?:day\s*(\d+)[:\s-]*([^,]+))|(?:([^,]+)\s*on\s*day\s*(\d+))/gi;
-        let m: RegExpExecArray | null;
-        while ((m = re.exec(userInput)) !== null) {
-          const day = parseInt(m[1] || m[4], 10);
-          const description = (m[2] || m[3] || '').trim();
-          if (day && description) items.push({ day, description });
+        if (userInput === 'Done') {
+          setCurrentStep('S14');
+          showSummary();
+        } else {
+          // Add selected event type to custom events
+          const eventType = userInput.trim();
+          if (['Team Building', 'CSR', 'Pool Party', 'Late Night Fiesta'].includes(eventType)) {
+            setState(prev => {
+              const currentCustom = prev.events.custom || [];
+              // Check if already added
+              const exists = currentCustom.some(e => e.description === eventType);
+              if (!exists) {
+                return {
+                  ...prev,
+                  events: {
+                    ...prev.events,
+                    custom: [...currentCustom, { day: 0, description: eventType }]
+                  }
+                };
+              }
+              return prev;
+            });
+            // Show the options again
+            addBotMessage('Select more events or type "Done" when finished:', {
+              options: ['Team Building', 'CSR', 'Pool Party', 'Late Night Fiesta', 'Done']
+            });
+          } else {
+            addBotMessage('Please select from the available options or type "Done":', {
+              options: ['Team Building', 'CSR', 'Pool Party', 'Late Night Fiesta', 'Done']
+            });
+          }
         }
-        setState(prev => ({ ...prev, events: { ...prev.events, custom: items } }));
-        setCurrentStep('S14');
-        showSummary();
         break;
       }
       case 'S14': {
@@ -657,12 +866,7 @@ function HotelQuoteChat() {
   };
 
   const askBusinessSessions = () => {
-    const opts: string[] = [];
-    const n = nights || 3;
-    for (let i = 1; i <= n; i += 1) opts.push(`Day ${i}`);
-    opts.push('Multiple days');
-    opts.push('No business sessions');
-    addBotMessage('Will there be business session(s)? If so, which day(s)?', { options: opts });
+    addBotMessage('Are you planning on having business sessions?', { options: ['Yes', 'No'] });
   };
 
   const askAwards = () => {
@@ -674,16 +878,11 @@ function HotelQuoteChat() {
   };
 
   const askDineArounds = () => {
-    const opts: string[] = [];
-    const n = nights || 3;
-    for (let i = 1; i <= n; i += 1) opts.push(`Night ${i}`);
-    opts.push('Multiple nights');
-    opts.push('No dine-arounds');
-    addBotMessage('Do you want on-property dine-arounds? If so, which night(s)?', { options: opts });
+    addBotMessage('Do you want dine around nights?', { options: ['Yes', 'No'] });
   };
 
   const askOtherEvents = () => {
-    addBotMessage('Any other program events?', { options: ['No other events', 'Yes, I have other events'] });
+    addBotMessage('Do you have any other program events?', { options: ['Yes', 'No'] });
   };
 
   const showSummary = () => {
@@ -699,17 +898,17 @@ function HotelQuoteChat() {
         <ul>
           <li><strong>Dates:</strong> ${p.start_date && p.end_date ? `${p.start_date} to ${p.end_date}` : (p.is_flexible ? `Flexible: ${p.flex_start} to ${p.flex_end}` : 'Not set')}</li>
           <li><strong>Nights:</strong> ${p.nights || nights}</li>
-          <li><strong>DOW Pattern:</strong> ${p.dow_pattern || 'Any'}</li>
           <li><strong>Attendees:</strong> ${att.count || 0}</li>
           <li><strong>Room Block:</strong> ${(r as any).doubles ?? 0} doubles + ${(r as any).singles ?? 0} singles${typeof occ.double_pct === 'number' ? ` · ${occ.double_pct}% double (est.)` : ''}</li>
           <li><strong>View Pref:</strong> ${r.view_pref}${r.view_pref === 'Blend' ? ` (${r.view_pct ?? 0}% OV)` : ''}</li>
           <li><strong>Suites:</strong> ${r.suites?.count || 0}</li>
           <li><strong>Satellite Check-in:</strong> ${state.arrival.satellite_checkin?.enabled ? (state.arrival.satellite_checkin?.details || 'Yes') : 'No'}</li>
           <li><strong>Welcome Reception:</strong> ${ev.welcome_reception?.enabled ? (ev.welcome_reception?.details || 'Yes') : 'No'}</li>
-          <li><strong>Business Sessions:</strong> ${wr(ev.business?.days)}${ev.business?.details ? ` (${ev.business.details})` : ''}</li>
-          <li><strong>Awards Dinner:</strong> ${ev.awards_dinner?.enabled ? `Night ${ev.awards_dinner?.night}` : 'No'}</li>
+          <li><strong>Business Sessions:</strong> ${wr(ev.business?.days)}${ev.business?.location ? ` at ${ev.business.location}` : ''}${ev.business?.seating_style ? `, ${ev.business.seating_style} seating` : ''}${ev.business?.staging ? ', with staging' : ''}</li>
+          <li><strong>Awards Dinner:</strong> ${ev.awards_dinner?.enabled ? `Night ${ev.awards_dinner?.night}${ev.awards_dinner?.location ? ` at ${ev.awards_dinner.location}` : ''}${ev.awards_dinner?.seating ? `, ${ev.awards_dinner.seating} seating` : ''}${ev.awards_dinner?.staging ? ', with staging' : ''}` : 'No'}</li>
           <li><strong>Dine-arounds:</strong> ${ev.dine_arounds?.enabled ? `Nights ${wr(ev.dine_arounds?.nights)}` : 'No'}</li>
-          <li><strong>Other Events:</strong> ${(ev.custom || []).map(e => `${e.description} (Day ${e.day})`).join(', ') || 'None'}</li>
+          <li><strong>Farewell Dinner:</strong> ${ev.farewell_dinner?.enabled ? `Night ${ev.farewell_dinner?.night}${ev.farewell_dinner?.location ? ` at ${ev.farewell_dinner.location}` : ''}` : 'No'}</li>
+          <li><strong>Other Events:</strong> ${(ev.custom || []).map(e => e.description).join(', ') || 'None'}</li>
         </ul>
         <p>Open the editable grid to adjust room blocks and functions before generating visuals.</p>
       </div>

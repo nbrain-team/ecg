@@ -1,0 +1,72 @@
+﻿ECG Corporate Planning Platform
+Meeting Summary & Action Items
+
+
+ECG Corporate Planning Platform — Meeting Summary & Action Items
+This document summarizes the key takeaways and required updates from today’s meeting regarding the ongoing edits and functional changes to the ECG Corporate Planning Platform. These adjustments are intended to improve data consistency, user experience, and proposal output accuracy.
+1. Core Issues Identified
+• Date outputs are not aligning correctly between user submissions and the generated proposal outputs.
+• Editable quote grid date/day-of-week pattern is not required and should be removed.
+• Question logic and dependencies need restructuring for clarity and accuracy.
+2. Required Changes & Edits
+Add Summary
+Welcome to the Grand Velas Carlos AI Hotel Rep. Don't worry, our AI Bot is not here to take over the world but make building your program faster, better, more detailed and creative. We're going to save you (and us) a huge amount of time in creating your day by day agenda, offer you our best ideas on all your event venues and generate the framework for a detailed line item budget which will include your program room block, program inclusions as well as some ideas that you may want to consider towards enhancing your event. Now -  Let's build your program. As you know, Grand Velas Cabo is a 5 star all inclusive resort and per person pricing starts at $850 per person per day.
+
+
+Date Fields
+• The date patterns question needs to be replaced with a custom field fill to ensure proper alignment between user input and proposal output.
+Room Occupancy Questions
+• The existing double/single occupancy question should be split into two separate questions:
+ 1. How many double occupancy rooms?
+ 2. How many single occupancy rooms?
+• Calculation note: If double occupancy equals 50 people, this translates to 25 rooms.
+Proposal Content
+• Add introductory content to the top of the proposal questions section using the text provided by Jack.
+• In the 'Program Inclusion' output section, Jack will provide notes for content updates. Later, this section should match specific programs to inclusions.
+Satellite Check-In Question
+• Convert this question into a dropdown format:
+ - Step 1: Yes/No selection.
+ - Step 2: If 'Yes' is selected, provide the following location options:
+   • Option 1: Ambassador Ballroom or Foyer
+   • Option 2: Main Lobby
+   • Option 3: Key/Koi Bar
+• Remove any references to time from this section.
+Dine Arounds
+• Question: 'Do you want dine around nights?' Options: Yes/No.
+• If 'Yes' is selected, follow-up question: 'Which nights?' with selectable options:
+ - Night 1, Night 2, Night 3, Night 4, Night 5.
+Welcome Reception
+• If 'Yes' is selected for a welcome reception, provide location options:
+ - Beach
+ - Ocean Terrace
+ - Ambassador Ballroom
+Awards Dinner
+• If 'Yes' is selected for awards dinner, follow-up questions:
+ 1. Select location (Grand Villas Ballroom, Ocean Terrace, Beachfront).
+ 2. What seating style do you prefer? Options: Rounds or Squares.
+ 3. Do you need staging? Options: Yes/No.
+Final Night Farewell Dinner
+• Question: 'Do you want a final night farewell dinner?' Options: Yes/No.
+• If 'Yes' is selected:
+ - Choose location: Option 1: Ocean Terrace, Option 2: Beachfront.
+ - Which nights? Options: Night 1–5.
+Business Sessions
+• Question: 'Are you planning on having business sessions?' Options: Yes/No.
+• If 'Yes' is selected:
+ - Choose location: Grand Villas Ballroom or Ambassador Ballroom.
+ - Select seating schematic: Theater, Rounds, Classroom, Half Crescents, or U-Shape.
+ - Question: 'Do you need staging?' Options: Yes/No.
+Other Program Events
+• Question: 'Do you have any other program events?' Options: Yes/No.
+• If 'Yes' is selected, display checkboxes for:
+ - Team Building
+ - CSR
+ - Pool Party
+ - Late Night Fiesta
+Visual Enhancements
+• Add visuals of the selected venues to the proposal output to enhance presentation quality and engagement.
+3. Next Steps
+• Implement all logic changes within the form flow and ensure dependencies display correctly based on Yes/No logic.
+• Coordinate with Jack to finalize text content for the proposal header and program inclusions.
+• Validate all new dropdowns, location options, and seating selections.
+• QA test all date output patterns to confirm data alignment between input and proposal generation.

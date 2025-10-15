@@ -150,6 +150,17 @@ function HotelProposalVisual() {
         </section>
       )}
 
+      {/* Introductory Content - As specified in edits.txt */}
+      <section className="card" style={{ marginTop: 12 }}>
+        <h2 className="section-title" style={{ margin: 0, marginBottom: 8, color: primary }}>Welcome to Your Customized Proposal</h2>
+        <p style={{ color: '#374151', lineHeight: 1.6, marginBottom: 12 }}>
+          Thank you for choosing Grand Velas Los Cabos for your upcoming program. Our team has carefully crafted this proposal based on your specific requirements and preferences. Below you'll find a comprehensive overview of accommodations, venues, dining options, and program flow designed to create an unforgettable experience for your attendees.
+        </p>
+        <p style={{ color: '#374151', lineHeight: 1.6 }}>
+          As a Forbes Five-Star and AAA Five Diamond all-inclusive resort, we pride ourselves on delivering exceptional service and attention to detail. Our dedicated events team will work closely with you to ensure every aspect of your program exceeds expectations.
+        </p>
+      </section>
+
       {/* Program Overview */}
       <section className="card" style={{ marginTop: 12 }}>
         <h2 className="section-title" style={{ margin: 0, marginBottom: 8, color: primary }}>Your Event Experience</h2>
@@ -195,8 +206,8 @@ function HotelProposalVisual() {
         <div style={{ marginTop: 12 }}>
           <h3 style={{ color: primary, marginBottom: 8, fontSize: 16 }}>Event Schedule</h3>
           <ul style={{ margin: 0, paddingLeft: 18, color: '#374151' }}>
-            {event?.welcomeReception && (event.welcomeReception.enabled === true || event.welcomeReception?.night !== undefined) && (
-              <li>Welcome Reception{event.welcomeReception.night ? ` on Night ${event.welcomeReception.night}` : ''}</li>
+            {event?.welcomeReception && (event.welcomeReception === true || event.welcomeReceptionDetails) && (
+              <li>Welcome Reception{event.welcomeReceptionDetails ? ` at ${event.welcomeReceptionDetails}` : ''}</li>
             )}
             {Array.isArray(event?.businessSessions) && event.businessSessions.length > 0 && (
               <li>Business Sessions on day(s): {event.businessSessions.map((b:any)=>b.day).join(', ')}{event.businessSessions.some((b:any)=>b.description) ? ' • details provided' : ''}</li>
@@ -206,6 +217,9 @@ function HotelProposalVisual() {
             )}
             {event?.dineArounds && Array.isArray(event.dineArounds.nights) && event.dineArounds.nights.length > 0 && (
               <li>Dine-arounds on night(s): {event.dineArounds.nights.join(', ')}</li>
+            )}
+            {(event as any).farewell_dinner?.enabled && (
+              <li>Farewell Dinner on Night {(event as any).farewell_dinner?.night}{(event as any).farewell_dinner?.location ? ` at ${(event as any).farewell_dinner.location}` : ''}</li>
             )}
             {Array.isArray(event?.otherEvents) && event.otherEvents.length > 0 && (
               <li>Other Events: {event.otherEvents.map((e:any)=>`${e.description} (Day ${e.day})`).join('; ')}</li>
@@ -317,21 +331,34 @@ function HotelProposalVisual() {
               </tr>
             </thead>
             <tbody>
-              <tr>
-                <td style={{ padding: 8, borderBottom: '1px solid #f3f4f6' }}>Welcome Reception</td>
-                <td style={{ padding: 8, borderBottom: '1px solid #f3f4f6' }}>Main Pool</td>
-                <td style={{ padding: 8, borderBottom: '1px solid #f3f4f6' }}>450+ reception</td>
-              </tr>
-              <tr>
-                <td style={{ padding: 8, borderBottom: '1px solid #f3f4f6' }}>Business Session</td>
-                <td style={{ padding: 8, borderBottom: '1px solid #f3f4f6' }}>Ambassador Ballroom</td>
-                <td style={{ padding: 8, borderBottom: '1px solid #f3f4f6' }}>685 classroom / 924 theatre</td>
-              </tr>
-              <tr>
-                <td style={{ padding: 8, borderBottom: '1px solid #f3f4f6' }}>Awards Dinner</td>
-                <td style={{ padding: 8, borderBottom: '1px solid #f3f4f6' }}>Grand Velas Ballroom</td>
-                <td style={{ padding: 8, borderBottom: '1px solid #f3f4f6' }}>774 rounds / 1,042 reception</td>
-              </tr>
+              {event?.welcomeReceptionDetails && (
+                <tr>
+                  <td style={{ padding: 8, borderBottom: '1px solid #f3f4f6' }}>Welcome Reception</td>
+                  <td style={{ padding: 8, borderBottom: '1px solid #f3f4f6' }}>{event.welcomeReceptionDetails}</td>
+                  <td style={{ padding: 8, borderBottom: '1px solid #f3f4f6' }}>450+ reception</td>
+                </tr>
+              )}
+              {(event as any).businessSessions?.length > 0 && (event as any).businessSessions[0]?.location && (
+                <tr>
+                  <td style={{ padding: 8, borderBottom: '1px solid #f3f4f6' }}>Business Session</td>
+                  <td style={{ padding: 8, borderBottom: '1px solid #f3f4f6' }}>{(event as any).businessSessions[0].location}</td>
+                  <td style={{ padding: 8, borderBottom: '1px solid #f3f4f6' }}>{(event as any).businessSessions[0].location === 'Grand Villas Ballroom' ? '774 classroom / 1,042 theatre' : '685 classroom / 924 theatre'}</td>
+                </tr>
+              )}
+              {(event as any).awardsDinner?.location && (
+                <tr>
+                  <td style={{ padding: 8, borderBottom: '1px solid #f3f4f6' }}>Awards Dinner</td>
+                  <td style={{ padding: 8, borderBottom: '1px solid #f3f4f6' }}>{(event as any).awardsDinner.location}</td>
+                  <td style={{ padding: 8, borderBottom: '1px solid #f3f4f6' }}>{(event as any).awardsDinner.location === 'Grand Villas Ballroom' ? '774 rounds / 1,042 reception' : (event as any).awardsDinner.location === 'Ocean Terrace' ? '300 rounds' : '250 rounds'}</td>
+                </tr>
+              )}
+              {(event as any).farewell_dinner?.enabled && (event as any).farewell_dinner?.location && (
+                <tr>
+                  <td style={{ padding: 8, borderBottom: '1px solid #f3f4f6' }}>Farewell Dinner</td>
+                  <td style={{ padding: 8, borderBottom: '1px solid #f3f4f6' }}>{(event as any).farewell_dinner.location}</td>
+                  <td style={{ padding: 8, borderBottom: '1px solid #f3f4f6' }}>250+ banquet</td>
+                </tr>
+              )}
             </tbody>
           </table>
         </div>
