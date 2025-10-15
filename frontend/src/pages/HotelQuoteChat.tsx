@@ -456,7 +456,7 @@ function HotelQuoteChat() {
         const nightsNum = Math.max(1, parseInt(userInput, 10) || 0);
         setState(prev => ({ ...prev, program: { ...prev.program, nights: nightsNum } }));
         setCurrentStep('S4');
-        addBotMessage('What's your best estimate of total attendees?', { inputType: 'number' });
+        addBotMessage("What's your best estimate of total attendees?", { inputType: 'number' });
         break;
       }
       case 'S4': {
