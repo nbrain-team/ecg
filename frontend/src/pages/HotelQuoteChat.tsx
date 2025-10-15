@@ -41,6 +41,8 @@ interface ProgramState {
     double_pct?: number; // 0-100
   };
   rooms: {
+    doubles?: number;
+    singles?: number;
     view_pref?: 'All Ocean View' | 'Run of House' | 'Blend';
     view_pct?: number; // if Blend, percent OV
     suites?: {
@@ -899,7 +901,7 @@ function HotelQuoteChat() {
           <li><strong>Dates:</strong> ${p.start_date && p.end_date ? `${p.start_date} to ${p.end_date}` : (p.is_flexible ? `Flexible: ${p.flex_start} to ${p.flex_end}` : 'Not set')}</li>
           <li><strong>Nights:</strong> ${p.nights || nights}</li>
           <li><strong>Attendees:</strong> ${att.count || 0}</li>
-          <li><strong>Room Block:</strong> ${(r as any).doubles ?? 0} doubles + ${(r as any).singles ?? 0} singles${typeof occ.double_pct === 'number' ? ` · ${occ.double_pct}% double (est.)` : ''}</li>
+          <li><strong>Room Block:</strong> ${r.doubles ?? 0} doubles + ${r.singles ?? 0} singles${typeof occ.double_pct === 'number' ? ` · ${occ.double_pct}% double (est.)` : ''}</li>
           <li><strong>View Pref:</strong> ${r.view_pref}${r.view_pref === 'Blend' ? ` (${r.view_pct ?? 0}% OV)` : ''}</li>
           <li><strong>Suites:</strong> ${r.suites?.count || 0}</li>
           <li><strong>Satellite Check-in:</strong> ${state.arrival.satellite_checkin?.enabled ? (state.arrival.satellite_checkin?.details || 'Yes') : 'No'}</li>
