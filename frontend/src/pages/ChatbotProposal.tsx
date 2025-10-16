@@ -701,7 +701,7 @@ function ChatbotProposal() {
     
     // Format other events
     const otherEventsText = formData.otherEvents?.length
-      ? formData.otherEvents.map(e => `${e.description} (Day ${e.day})`).join(', ')
+      ? formData.otherEvents.map(e => `${e.description} (Day ${e.day === 0 ? 'TBD' : e.day})`).join(', ')
       : 'None';
     
     const summary = `

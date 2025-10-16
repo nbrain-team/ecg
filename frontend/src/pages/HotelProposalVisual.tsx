@@ -98,7 +98,7 @@ function HotelProposalVisual() {
     { label: 'Business Details', value: (Array.isArray((event as any).businessSessions) && (event as any).businessSessions.some((b:any)=>b.description)) ? (((event as any).businessSessions.find((b:any)=>b.description)?.description) || '') : '' },
     { label: 'Awards Dinner', value: (event as any).awardsDinner && (event as any).awardsDinner.night ? ('Night ' + String((event as any).awardsDinner.night)) : '' },
     { label: 'Dine-arounds', value: ((event as any).dineArounds && Array.isArray((event as any).dineArounds.nights) && (event as any).dineArounds.nights.length) ? (event as any).dineArounds.nights.join(', ') : '' },
-    { label: 'Other Events', value: (Array.isArray((event as any).otherEvents) && (event as any).otherEvents.length) ? (event as any).otherEvents.map((e:any)=> (String(e.description) + ' (Day ' + String(e.day) + ')')).join('; ') : '' },
+    { label: 'Other Events', value: (Array.isArray((event as any).otherEvents) && (event as any).otherEvents.length) ? (event as any).otherEvents.map((e:any)=> (String(e.description) + ' (Day ' + (e.day === 0 ? 'TBD' : String(e.day)) + ')')).join('; ') : '' },
   ].filter(i => i.value);
 
   const gen = proposal?.generated_content || proposal?.generatedContent || {};
@@ -115,7 +115,7 @@ function HotelProposalVisual() {
   return (
     <div className="container" style={{ padding: '1rem', overflow: 'visible' }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <h2 style={{ margin: 0 }}>Visual Proposal</h2>
+        <h2 style={{ margin: 0 }}>Proposal Prepared For: {clientCompany}</h2>
         <div className="header-actions" style={{ display: 'flex', gap: 8 }}>
           <button className="btn btn-outline btn-sm" onClick={() => navigate(`/hotel/proposal/${id}`)}>Back</button>
           <button className="btn btn-primary btn-sm" onClick={() => navigate(`/hotel/proposal/${id}/grid`)}>Edit Grid</button>
@@ -150,16 +150,6 @@ function HotelProposalVisual() {
         </section>
       )}
 
-      {/* Introductory Content - As specified in edits.txt */}
-      <section className="card" style={{ marginTop: 12 }}>
-        <h2 className="section-title" style={{ margin: 0, marginBottom: 8, color: primary }}>Welcome to Your Customized Proposal</h2>
-        <p style={{ color: '#374151', lineHeight: 1.6, marginBottom: 12 }}>
-          Thank you for choosing Grand Velas Los Cabos for your upcoming program. Our team has carefully crafted this proposal based on your specific requirements and preferences. Below you'll find a comprehensive overview of accommodations, venues, dining options, and program flow designed to create an unforgettable experience for your attendees.
-        </p>
-        <p style={{ color: '#374151', lineHeight: 1.6 }}>
-          As a Forbes Five-Star and AAA Five Diamond all-inclusive resort, we pride ourselves on delivering exceptional service and attention to detail. Our dedicated events team will work closely with you to ensure every aspect of your program exceeds expectations.
-        </p>
-      </section>
 
       {/* Program Overview */}
       <section className="card" style={{ marginTop: 12 }}>
@@ -205,26 +195,72 @@ function HotelProposalVisual() {
         {/* Event schedule details */}
         <div style={{ marginTop: 12 }}>
           <h3 style={{ color: primary, marginBottom: 8, fontSize: 16 }}>Event Schedule</h3>
-          <ul style={{ margin: 0, paddingLeft: 18, color: '#374151' }}>
-            {event?.welcomeReception && (event.welcomeReception === true || event.welcomeReceptionDetails) && (
-              <li>Welcome Reception{event.welcomeReceptionDetails ? ` at ${event.welcomeReceptionDetails}` : ''}</li>
-            )}
-            {Array.isArray(event?.businessSessions) && event.businessSessions.length > 0 && (
-              <li>Business Sessions on day(s): {event.businessSessions.map((b:any)=>b.day).join(', ')}{event.businessSessions.some((b:any)=>b.description) ? ' • details provided' : ''}</li>
-            )}
-            {event?.awardsDinner && event.awardsDinner.night && (
-              <li>Awards Dinner on Night {event.awardsDinner.night}</li>
-            )}
-            {event?.dineArounds && Array.isArray(event.dineArounds.nights) && event.dineArounds.nights.length > 0 && (
-              <li>Dine-arounds on night(s): {event.dineArounds.nights.join(', ')}</li>
-            )}
-            {(event as any).farewell_dinner?.enabled && (
-              <li>Farewell Dinner on Night {(event as any).farewell_dinner?.night}{(event as any).farewell_dinner?.location ? ` at ${(event as any).farewell_dinner.location}` : ''}</li>
-            )}
-            {Array.isArray(event?.otherEvents) && event.otherEvents.length > 0 && (
-              <li>Other Events: {event.otherEvents.map((e:any)=>`${e.description} (Day ${e.day})`).join('; ')}</li>
-            )}
-          </ul>
+          
+          {/* Welcome Reception */}
+          <div style={{ marginBottom: 16 }}>
+            <h4 style={{ margin: '8px 0', color: primary }}>I. Welcome Reception at Beach</h4>
+            <div style={{ marginBottom: 8 }}>
+              <img src="/images/hotel-overview.webp" alt="Welcome Reception" style={{ width: '100%', maxHeight: 200, objectFit: 'cover', borderRadius: 4 }} />
+            </div>
+            <p style={{ color: '#374151', lineHeight: 1.6 }}>
+              Enjoy our unique beachfront welcome receptions where guests can enjoy world-class catering, customized event packages with enhanced services, and entertainment options that include live bands or beach games. Added comforts like heaters, market umbrellas, and lounge seating ensure a pleasant and memorable experience for all attendees.
+            </p>
+          </div>
+
+          {/* Business Sessions */}
+          <div style={{ marginBottom: 16 }}>
+            <h4 style={{ margin: '8px 0', color: primary }}>II. Business Sessions</h4>
+            <div style={{ marginBottom: 8 }}>
+              <img src="/images/venues/Mariana.webp" alt="Business Sessions" style={{ width: '100%', maxHeight: 200, objectFit: 'cover', borderRadius: 4 }} />
+            </div>
+            <p style={{ color: '#374151', lineHeight: 1.6 }}>
+              We will elevate your Business Session with our impeccable service and world-class meeting facilities, from focused seminars to large-scale conferences. With advanced technology, we provide an all-inclusive, professional environment for seamless execution, enhanced productivity, and exceptional team-building. Our elegant, distraction-free setting and personalized amenities ensure your company's image shines while delivering a truly productive and unforgettable experience.
+            </p>
+          </div>
+
+          {/* Awards Dinner */}
+          <div style={{ marginBottom: 16 }}>
+            <h4 style={{ margin: '8px 0', color: primary }}>III. Awards Dinner on Night 1</h4>
+            <div style={{ marginBottom: 8 }}>
+              <img src="/images/venues/Marissa.webp" alt="Awards Dinner" style={{ width: '100%', maxHeight: 200, objectFit: 'cover', borderRadius: 4 }} />
+            </div>
+            <p style={{ color: '#374151', lineHeight: 1.6 }}>
+              Lorem Ipsum Lorem Ipsum Lorem Ipsum Lorem Ipsum Lorem Ipsum Lorem Ipsum Lorem Ipsum Lorem Ipsum Lorem Ipsum Lorem Ipsum Lorem Ipsum Lorem Ipsum
+            </p>
+          </div>
+
+          {/* Dine-Arounds */}
+          <div style={{ marginBottom: 16 }}>
+            <h4 style={{ margin: '8px 0', color: primary }}>IV. Dine-Arounds on Night 2</h4>
+            <div style={{ marginBottom: 8 }}>
+              <img src="/images/dining/lucca.webp" alt="Dine-Arounds" style={{ width: '100%', maxHeight: 200, objectFit: 'cover', borderRadius: 4 }} />
+            </div>
+            <p style={{ color: '#374151', lineHeight: 1.6 }}>
+              Lorem Ipsum Lorem Ipsum Lorem Ipsum Lorem Ipsum Lorem Ipsum Lorem Ipsum Lorem Ipsum Lorem Ipsum Lorem Ipsum Lorem Ipsum Lorem Ipsum Lorem Ipsum
+            </p>
+          </div>
+
+          {/* Farewell Dinner */}
+          <div style={{ marginBottom: 16 }}>
+            <h4 style={{ margin: '8px 0', color: primary }}>V. Farewell Dinner on Night 3 at Beachfront</h4>
+            <div style={{ marginBottom: 8 }}>
+              <img src="/images/venues/Ocean Garden.webp" alt="Farewell Dinner" style={{ width: '100%', maxHeight: 200, objectFit: 'cover', borderRadius: 4 }} />
+            </div>
+            <p style={{ color: '#374151', lineHeight: 1.6 }}>
+              Lorem Ipsum Lorem Ipsum Lorem Ipsum Lorem Ipsum Lorem Ipsum Lorem Ipsum Lorem Ipsum Lorem Ipsum Lorem Ipsum Lorem Ipsum Lorem Ipsum Lorem
+            </p>
+          </div>
+
+          {/* Other Events */}
+          <div style={{ marginBottom: 16 }}>
+            <h4 style={{ margin: '8px 0', color: primary }}>VI. Other Events</h4>
+            <div style={{ marginBottom: 8 }}>
+              <img src="/images/hotel-overview.webp" alt="Team Building" style={{ width: '100%', maxHeight: 200, objectFit: 'cover', borderRadius: 4 }} />
+            </div>
+            <p style={{ color: '#374151', lineHeight: 1.6 }}>
+              Team Building (Day TBD) • Late Night Fiesta (Day TBD)
+            </p>
+          </div>
         </div>
       </section>
 

@@ -63,7 +63,7 @@ function PublicHotelProposalVisual() {
     { label: 'Business Details', value: (Array.isArray((event as any).businessSessions) && (event as any).businessSessions.some((b:any)=>b.description)) ? (((event as any).businessSessions.find((b:any)=>b.description)?.description) || '') : '' },
     { label: 'Awards Dinner', value: (event as any).awardsDinner && (event as any).awardsDinner.night ? ('Night ' + String((event as any).awardsDinner.night)) : '' },
     { label: 'Dine-arounds', value: ((event as any).dineArounds && Array.isArray((event as any).dineArounds.nights) && (event as any).dineArounds.nights.length) ? (event as any).dineArounds.nights.join(', ') : '' },
-    { label: 'Other Events', value: (Array.isArray((event as any).otherEvents) && (event as any).otherEvents.length) ? (event as any).otherEvents.map((e:any)=> (String(e.description) + ' (Day ' + String(e.day) + ')')).join('; ') : '' },
+    { label: 'Other Events', value: (Array.isArray((event as any).otherEvents) && (event as any).otherEvents.length) ? (event as any).otherEvents.map((e:any)=> (String(e.description) + ' (Day ' + (e.day === 0 ? 'TBD' : String(e.day)) + ')')).join('; ') : '' },
   ].filter(i => i.value);
 
   const gen = proposal?.generated_content || proposal?.generatedContent || {};
@@ -123,7 +123,7 @@ function PublicHotelProposalVisual() {
               <li>Dine-arounds on night(s): {(event as any).dineArounds.nights.join(', ')}</li>
             )}
             {Array.isArray((event as any)?.otherEvents) && (event as any).otherEvents.length > 0 && (
-              <li>Other Events: {(event as any).otherEvents.map((e:any)=> (String(e.description) + ' (Day ' + String(e.day) + ')')).join('; ')}</li>
+              <li>Other Events: {(event as any).otherEvents.map((e:any)=> (String(e.description) + ' (Day ' + (e.day === 0 ? 'TBD' : String(e.day)) + ')')).join('; ')}</li>
             )}
           </ul>
         </div>

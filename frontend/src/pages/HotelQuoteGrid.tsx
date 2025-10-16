@@ -37,8 +37,8 @@ function HotelQuoteGrid() {
     const doublePct: number = draft?.occupancy?.double_pct ?? 50;
     const suites: number = draft?.rooms?.suites?.count || 0;
 
-    // naive room nights estimate: attendees / 2 for doubles, adjust for singles based on pct
-    const estimatedRooms = Math.max(1, Math.round(attendeeCount * (1 - doublePct / 200)));
+    // room nights estimate: double rooms + single rooms
+    const estimatedRooms = Math.max(1, Math.ceil(attendeeCount * (doublePct / 200) + attendeeCount * (1 - doublePct / 100)));
 
     const initial: GridRow[] = Array.from({ length: nights }).map((_, i) => ({
       date: addDays(baseDate, i),
@@ -211,9 +211,9 @@ function HotelQuoteGrid() {
             <tr>
               <th style={{ textAlign: 'left', padding: '8px', borderBottom: '1px solid #eee' }}>Date</th>
               <th style={{ textAlign: 'left', padding: '8px', borderBottom: '1px solid #eee' }}>Day</th>
-              <th style={{ textAlign: 'left', padding: '8px', borderBottom: '1px solid #eee' }}>Room Nights</th>
-              <th style={{ textAlign: 'left', padding: '8px', borderBottom: '1px solid #eee' }}>% Double</th>
-              <th style={{ textAlign: 'left', padding: '8px', borderBottom: '1px solid #eee' }}>Suites</th>
+              <th style={{ textAlign: 'left', padding: '8px', borderBottom: '1px solid #eee' }}># of Rooms</th>
+              <th style={{ textAlign: 'left', padding: '8px', borderBottom: '1px solid #eee' }}>Double Occupancy %</th>
+              <th style={{ textAlign: 'left', padding: '8px', borderBottom: '1px solid #eee' }}># of Suites</th>
               <th style={{ textAlign: 'left', padding: '8px', borderBottom: '1px solid #eee' }}>Events</th>
             </tr>
           </thead>

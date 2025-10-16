@@ -105,7 +105,9 @@ function HotelQuoteChat() {
 
   useEffect(() => {
     // First add welcome summary
-    addBotMessage(`Welcome to the Grand Velas Carlos AI Hotel Rep. Don't worry, our AI Bot is not here to take over the world but make building your program faster, better, more detailed and creative. We're going to save you (and us) a huge amount of time in creating your day by day agenda, offer you our best ideas on all your event venues and generate the framework for a detailed line item budget which will include your program room block, program inclusions as well as some ideas that you may want to consider towards enhancing your event. Now - Let's build your program. As you know, Grand Velas Cabo is a 5 star all inclusive resort and per person pricing starts at $850 per person per day.`);
+    addBotMessage(`Welcome to the Grand Velas! My name is Carlos and I am your AI Hotel Rep. Don't worry, I am here to make building your program faster, better, more detailed and creative…not here to take over the world. Together we are going to save you (and us) a huge amount of time by creating your day-by-day agenda, offer you our best ideas on all your event venues and generate the framework for a detailed line item budget which will include your program room block, program inclusions as well as some ideas that you may want to consider towards enhancing your event. Now - Let's build your program. As you know, Grand Velas Cabo is a 5 star all inclusive resort and per person pricing starts at $850 per person per day.
+
+Let's get started!`);
     
     // Then ask for company name after a short delay
     setTimeout(() => {
@@ -270,7 +272,7 @@ function HotelQuoteChat() {
           endDate: state.program.end_date || state.program.flex_end || '',
           attendeeCount: state.attendees.count || 0,
           attendeeConfidence: state.attendees.confidence,
-          roomsNeeded: Math.ceil((state.attendees.count || 0) * (1 - (state.occupancy.double_pct || 0) / 100)),
+          roomsNeeded: Math.ceil((state.attendees.count || 0) * ((state.occupancy.double_pct || 0) / 200) + (state.attendees.count || 0) * (1 - (state.occupancy.double_pct || 0) / 100)),
           numberOfNights: nights,
           daysPattern: state.program.dow_pattern,
           datesFlexible: !!state.program.is_flexible,
@@ -510,7 +512,7 @@ function HotelQuoteChat() {
           setState(prev => ({ ...prev, arrival: { satellite_checkin: { enabled: true } } }));
           setCurrentStep('S8_DETAILS');
           addBotMessage('Where would you like to have the private satellite check-in?', { 
-            options: ['Ambassador Ballroom or Foyer', 'Main Lobby', 'Key/Koi Bar'] 
+            options: ['Ambassador Ballroom or Foyer', 'Main Lobby', 'Koi Bar'] 
           });
         } else {
           setState(prev => ({ ...prev, arrival: { satellite_checkin: { enabled: false } } }));

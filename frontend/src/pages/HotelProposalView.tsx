@@ -335,7 +335,7 @@ function HotelProposalView() {
                   {proposal?.eventDetails?.otherEvents && proposal.eventDetails.otherEvents.length > 0 && (
                     <div className="detail-item">
                       <label>Other Events</label>
-                      <p>{proposal.eventDetails.otherEvents.map((e: any) => `${e.description} (Day ${e.day})`).join(', ')}</p>
+                      <p>{proposal.eventDetails.otherEvents.map((e: any) => `${e.description} (Day ${e.day === 0 ? 'TBD' : e.day})`).join(', ')}</p>
                     </div>
                   )}
                 </div>
