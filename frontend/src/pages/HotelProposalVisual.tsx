@@ -21,6 +21,8 @@ function HotelProposalVisual() {
 
         // Load proposal
         const p = await axios.get(`${apiUrl}/api/proposals/${id}`, { headers });
+        console.log('Loaded proposal:', p.data);
+        console.log('Event details:', p.data?.event_details || p.data?.eventDetails);
         setProposal(p.data);
 
         // Load hotel datasets for richer visual fallbacks
@@ -151,14 +153,9 @@ function HotelProposalVisual() {
       )}
 
 
-      {/* Program Overview */}
+      {/* Event Experience */}
       <section className="card" style={{ marginTop: 12 }}>
         <h2 className="section-title" style={{ margin: 0, marginBottom: 8, color: primary }}>Your Event Experience</h2>
-        <p className="section-subtitle" style={{ color: '#6b7280' }}>
-          {event?.startDate || event?.start_date || 'TBD'}
-          {event?.endDate || event?.end_date ? ` – ${event?.endDate || event?.end_date}` : ''}
-          {event?.attendeeCount ? ` • ${event.attendeeCount} Attendees` : ''}
-        </p>
         {proposal?.metadata?.grid && (
           <div className="summary-grid" style={{ display: 'flex', gap: 16, marginTop: 12 }}>
             <div><div className="summary-value" style={{ fontSize: 20, fontWeight: 600 }}>{proposal.metadata.grid.totalRoomNights}</div><div className="summary-label" style={{ color: '#6b7280' }}>Room Nights</div></div>
@@ -167,31 +164,6 @@ function HotelProposalVisual() {
             )}
           </div>
         )}
-        {/* Program Details derived from chat */}
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(220px,1fr))', gap: 12, marginTop: 12 }}>
-          <div><div style={{ color: '#6b7280' }}>Double Occupancy</div><div style={{ fontWeight: 600 }}>{event?.doubleOccupancy ? 'Yes' : 'No'}</div></div>
-          {typeof event?.doublePct === 'number' && (
-            <div><div style={{ color: '#6b7280' }}>% Double</div><div style={{ fontWeight: 600 }}>{event.doublePct}%</div></div>
-          )}
-          {typeof event?.roomsNeeded === 'number' && (
-            <div><div style={{ color: '#6b7280' }}>Peak Rooms Needed</div><div style={{ fontWeight: 600 }}>{event.roomsNeeded}</div></div>
-          )}
-          {event?.roomView && (
-            <div><div style={{ color: '#6b7280' }}>Preferred Room View</div><div style={{ fontWeight: 600 }}>{String(event.roomView).replaceAll('_',' ')}</div></div>
-          )}
-          {typeof event?.suiteCount === 'number' && (
-            <div><div style={{ color: '#6b7280' }}>Suites Requested</div><div style={{ fontWeight: 600 }}>{event.suiteCount}</div></div>
-          )}
-          {event?.daysPattern && (
-            <div><div style={{ color: '#6b7280' }}>Days Pattern</div><div style={{ fontWeight: 600 }}>{event.daysPattern}</div></div>
-          )}
-          {event?.privateSatelliteCheckIn !== undefined && (
-            <div><div style={{ color: '#6b7280' }}>Private Satellite Check-in</div><div style={{ fontWeight: 600 }}>{event.privateSatelliteCheckIn ? 'Yes' : 'No'}</div></div>
-          )}
-          {event?.satelliteCheckInDetails && (
-            <div><div style={{ color: '#6b7280' }}>Check-in Details</div><div style={{ fontWeight: 600 }}>{event.satelliteCheckInDetails}</div></div>
-          )}
-        </div>
         {/* Event schedule details */}
         <div style={{ marginTop: 12 }}>
           <h3 style={{ color: primary, marginBottom: 8, fontSize: 16 }}>Event Schedule</h3>

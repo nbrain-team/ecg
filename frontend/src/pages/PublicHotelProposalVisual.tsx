@@ -98,14 +98,9 @@ function PublicHotelProposalVisual() {
         </section>
       ) : null}
 
-      {/* Program Overview */}
+      {/* Event Experience */}
       <section className="card" style={{ marginTop: 12 }}>
         <h2 className="section-title" style={{ margin: 0, marginBottom: 8, color: primary }}>Your Event Experience</h2>
-        <p className="section-subtitle" style={{ color: '#6b7280' }}>
-          {(event as any).startDate || (event as any).start_date || 'TBD'}
-          {((event as any).endDate || (event as any).end_date) ? (' – ' + ((event as any).endDate || (event as any).end_date)) : ''}
-          {(event as any).attendeeCount ? (' • ' + String((event as any).attendeeCount) + ' Attendees') : ''}
-        </p>
         {/* Event schedule details */}
         <div style={{ marginTop: 12 }}>
           <h3 style={{ color: primary, marginBottom: 8, fontSize: 16 }}>Event Schedule</h3>
