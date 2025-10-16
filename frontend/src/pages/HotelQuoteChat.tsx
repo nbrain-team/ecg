@@ -256,7 +256,15 @@ Let's get started!`);
       // Create proposal in database
       const startDate = state.program.start_date || state.program.flex_start || new Date().toISOString().slice(0,10);
       const companyName = (state.client?.company || 'Company').toString().trim();
-      const proposalTitle = `${companyName} + ${startDate}`;
+      
+      // Format date for title (e.g., "January 18, 2026" instead of "2026-01-18")
+      const formatDateForTitle = (dateStr: string) => {
+        const [year, month, day] = dateStr.split('-');
+        const date = new Date(parseInt(year), parseInt(month) - 1, parseInt(day));
+        return date.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
+      };
+      
+      const proposalTitle = `${companyName} ${formatDateForTitle(startDate)}`;
 
       const proposalPayload = {
         client: {

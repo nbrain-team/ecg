@@ -75,7 +75,7 @@ function PublicHotelProposalVisual() {
         <div style={{ backgroundImage: `url(${heroUrl})`, backgroundSize: 'cover', backgroundPosition: 'center', minHeight: 260 }} />
         <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to top, rgba(0,0,0,0.65), transparent)' }} />
         <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, color: 'white', padding: 16 }}>
-          <h1 style={{ margin: 0 }}>{String(event?.name || 'Group Program').replace(' + ', ' ')}</h1>
+          <h1 style={{ margin: 0 }}>{String(event?.name || 'Group Program')}</h1>
           <p style={{ margin: 0, opacity: 0.95 }}>
             {clientCompany}
             {heroParts.length ? ` • ${heroParts.join(' • ')}` : ''}
@@ -248,7 +248,7 @@ function PublicHotelProposalVisual() {
         <h3 style={{ marginBottom: 8 }}>Ready to Create Your Perfect Event?</h3>
         <p style={{ color: '#6b7280', marginBottom: 12 }}>Let's discuss how we can make your vision a reality</p>
         <div style={{ display: 'flex', gap: 8, justifyContent: 'center' }}>
-          <a className="btn btn-primary btn-sm" href={`mailto:${proposal?.client?.email || ''}?subject=Re: ${String(event?.name || 'Event Proposal').replace(' + ', ' ')}`}>Contact Us</a>
+          <a className="btn btn-primary btn-sm" href={`mailto:${proposal?.client?.email || ''}?subject=Re: ${String(event?.name || 'Event Proposal')}`}>Contact Us</a>
           <button className="btn btn-outline btn-sm" onClick={() => window.print()}>Download Proposal</button>
         </div>
       </section>

@@ -82,7 +82,10 @@ function PublicProposalModern() {
   }, [shareId]);
 
   const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString('en-US', {
+    // Parse as UTC to avoid timezone issues
+    const [year, month, day] = dateString.split('T')[0].split('-');
+    const date = new Date(parseInt(year), parseInt(month) - 1, parseInt(day));
+    return date.toLocaleDateString('en-US', {
       month: 'long',
       day: 'numeric',
       year: 'numeric'
@@ -127,7 +130,7 @@ function PublicProposalModern() {
             {proposal?.client?.company || 'Your Company'}
             <span className="company-subtitle"></span>
           </h1>
-          <h2 className="event-name">{(proposal?.eventDetails?.name || 'Event Proposal').replace(' + ', ' ')}</h2>
+          <h2 className="event-name">{proposal?.eventDetails?.name || 'Event Proposal'}</h2>
           <p className="event-subtitle">{eventSubtitle}</p>
           <div className="header-ecg-logo">
             <img src="/images/ecg-logo.avif" alt="ECG" />
