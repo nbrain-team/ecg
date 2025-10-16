@@ -73,7 +73,7 @@ type StepId =
   | 'S1_CHOICE' | 'S1_FIXED' | 'S1_FLEX'
   | 'S2' | 'S3' | 'S4' | 'S4_SINGLE' | 'S5' | 'S6'
   | 'S7' | 'S8' | 'S8_DETAILS' | 'S9' | 'S9_DETAILS' | 'S10' | 'S10_MULTI' | 'S10_VENUE' | 'S10_SEATING' | 'S10_STAGING' | 'S10_DETAILS'
-  | 'S11' | 'S11_LOCATION' | 'S11_SEATING' | 'S11_STAGING' | 'S12' | 'S12_NIGHTS' | 'S12_MULTI' | 'S12A' | 'S12A_LOCATION' | 'S12A_NIGHT' | 'S13' | 'S13_DETAILS' | 'S14' | 'GRID_READY' | 'COMPLETE';
+  | 'S11' | 'S11_LOCATION' | 'S11_SEATING' | 'S11_STAGING' | 'S12' | 'S12_NIGHTS' | 'S12_MULTI' | 'S12A' | 'S12A_LOCATION' | 'S12A_NIGHT' | 'S13' | 'S13_DETAILS' | 'S14' | 'S14_CHANGE' | 'S14_MORE_CHANGES' | 'GRID_READY' | 'COMPLETE';
 
 function HotelQuoteChat() {
   const navigate = useNavigate();
@@ -97,7 +97,7 @@ function HotelQuoteChat() {
     if (state.program.start_date && state.program.end_date) {
       const start = new Date(state.program.start_date);
       const end = new Date(state.program.end_date);
-      const diff = Math.round((end.getTime() - start.getTime()) / (1000 * 60 * 60 * 24)) + 1;
+      const diff = Math.round((end.getTime() - start.getTime()) / (1000 * 60 * 60 * 24));
       return Math.max(1, diff);
     }
     return state.program.nights || 0;
@@ -861,7 +861,29 @@ Let's get started!`);
           setCurrentStep('GRID_READY');
           saveDraftAndOpenGrid();
         } else if (userInput === 'Make Changes') {
-          addBotMessage('Tell me what to change and I will adjust.');
+          setCurrentStep('S14_CHANGE');
+          addBotMessage('Tell me what to change and I will adjust.', { inputType: 'text' });
+        }
+        break;
+      }
+      case 'S14_CHANGE': {
+        // Process the user's change request
+        // In a real implementation, we would parse and apply the change
+        // For now, we'll just acknowledge it
+        addBotMessage('Got it! I\'ve noted your change request.');
+        setCurrentStep('S14_MORE_CHANGES');
+        addBotMessage('Are there any other changes you would like to make?', { 
+          options: ['Yes', 'No, Go to Editable Grid'] 
+        });
+        break;
+      }
+      case 'S14_MORE_CHANGES': {
+        if (userInput === 'Yes') {
+          setCurrentStep('S14_CHANGE');
+          addBotMessage('What else would you like to change?', { inputType: 'text' });
+        } else if (userInput === 'No, Go to Editable Grid') {
+          setCurrentStep('GRID_READY');
+          saveDraftAndOpenGrid();
         }
         break;
       }
